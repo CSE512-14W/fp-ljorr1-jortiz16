@@ -1,14 +1,13 @@
 
 var zoom = d3.behavior.zoom()
     .on("zoom", zoomed);
-zoom.dblclick = function() {};
 
 var margin = {top: 20, right: 120, bottom: 20, left: 120},
 width = 960 - margin.right - margin.left,
 height = 800 - margin.top - margin.bottom;
 
 var i = 0,
-duration = 750,
+duration = 600,
 root;
 
 var nodesMap, linksMap;
@@ -17,7 +16,7 @@ var tree = d3.layout.tree()
     .size([height, width]);
 
 var diagonal = d3.svg.diagonal()
-    .projection(function(d) { return [d.y, d.x]; });
+    .projection(function(d) { return [d.x, d.y]; });
 
 //know that maximum halo mass is 83751473296264 and minimum is 875591334
 var massScale = d3.scale.log().domain([875591334,835751473296264]).range([1,18]);
@@ -28,7 +27,8 @@ var svg = d3.select("body").append("svg")
     .attr("pointer-events", "all")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    .call(zoom);
+    .call(zoom)
+    .on("dblclick.zoom", null);
 
 svg.append("rect")
     .attr("width", width)
@@ -38,8 +38,8 @@ svg.append("rect")
 
 svg = svg.append("g");
 
-d3.csv("links_small.csv", function(error1, raw_links) {
-d3.csv("nodes_small.csv", function(error2, raw_nodes) {
+d3.csv("links.csv", function(error1, raw_links) {
+d3.csv("nodes.csv", function(error2, raw_nodes) {
     //basically makes an associative array but it's called a d3.map
     //for each HaloID key, had an array of nodes with that key
     //each array will be of length one
@@ -63,7 +63,7 @@ d3.csv("nodes_small.csv", function(error2, raw_nodes) {
     root = nodesMap.get(raw_links[0].CurrentHalo)[0];
     links = raw_links;
     //console.log(root);
-    root.x0 = height / 2;
+    root.x0 = width / 2;
     root.y0 = 0;
 
     function collapse(d) {
@@ -89,7 +89,7 @@ function update(source) {
     //console.log(nodes);
     //console.log(root)
     // Normalize for fixed-depth.
-    nodes.forEach(function(d) { d.y = d.depth * 180; });
+    nodes.forEach(function(d) { d.y = d.depth * 150; });
 
     // Update the nodes…
     var node = svg.selectAll("g.node")
@@ -98,8 +98,8 @@ function update(source) {
     // Enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")
     .attr("class", "node")
-    .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-    .on("click", click);
+    .attr("transform", function(d) { return "translate(" + source.x0 + "," + source.y0 + ")"; })
+    .on("dblclick", dblclick);
 
     nodeEnter.append("circle")
     .attr("r", 1e-6)
@@ -107,7 +107,7 @@ function update(source) {
     .style("stroke", function(d) { return (d.Prog==1) ? "red" : "lightsteelblue"; });
 
     nodeEnter.append("text")
-    .attr("x", function(d) { return d.children || d._children ? -massScale(d.HaloMass)-5 : massScale(d.HaloMass)+5; })
+    .attr("x", function(d) { return -massScale(d.HaloMass)-5; })
     .attr("dy", ".35em")
     .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
     .text(function(d) { return d.HaloID; })
@@ -116,7 +116,7 @@ function update(source) {
     // Transition nodes to their new position.
     var nodeUpdate = node.transition()
     .duration(duration)
-    .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
     nodeUpdate.select("circle")
     .attr("r", function(d) { return massScale(d.HaloMass); })
@@ -129,7 +129,7 @@ function update(source) {
     // Transition exiting nodes to the parent's new position.
     var nodeExit = node.exit().transition()
     .duration(duration)
-    .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+    .attr("transform", function(d) { return "translate(" + source.x + "," + source.y + ")"; })
     .remove();
 
     nodeExit.select("circle")
@@ -204,7 +204,7 @@ function linkage(nodes) {
 }
 
 // Toggle children on click.
-function click(d) {
+function dblclick(d) {
     if (d3.event.defaultPrevented) return;
     if (d.children) {
         d._children = d.children;
