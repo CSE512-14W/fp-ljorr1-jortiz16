@@ -4,10 +4,42 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     <meta charset=utf-8 />
     <title>JS</title>
+	
 </head>
 <body>
-    <div id="svgContent">				
+<div id="topbar">Galactic Merger Trees 
+
+
+</div>
+<br/>
+<br/>
+<div id="topbarSelectHalo">
+Select Present Day Halo:
+<select>
+  <option value="Halo16">Halo16</option>
+  <option value="Halo10">Halo10</option>
+  <option value="Halo20">Halo20</option>
+  <option value="Halo50">Halo50</option>
+</select> </div>
+
+<br/>
+<br/>
+
+<div id= "middle">
+
+	<div id="leftPanel"> 
+		<p>  FILTERING OPTIONS</p> <br/> <br/>
+	<form action="demo_form.asp">
+       MASS: <input type="text" name="massBox"><br>
+       NUMBER OF PARTICLES: <input type="text" name="numberParticles"><br><br/>
+  <input type="submit" value="Submit">
+</form>
+		
+	</div>
+    <div id="svgContent">	
+			
     </div><!--svgContent-->
+	</div>
     <script src="http://d3js.org/d3.v3.js"></script>
     <script src="interaction_collapse.js"></script>
 </body>

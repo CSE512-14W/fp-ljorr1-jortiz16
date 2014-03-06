@@ -17,3 +17,32 @@
   stroke: #ccc;
   stroke-width: 1.5px;
 }
+
+#svgContent {
+     align:center;
+}
+
+#topbarSelectHalo
+{
+    text-align:center;
+	font-size: 20px;
+    font-family:Arial;
+}
+
+#leftPanel {
+    background-color:#E8E8E8;height:800px;width:450px;float:left;position:absolute; 
+	font-size: 20px;
+    font-family:Arial;
+}
+
+#topbar{
+    width:100%;
+    background:white;
+    border:0px;
+    border-color:gray;
+    border-style:solid;
+	text-align: center;
+	font-size: 50px;
+    font-family:Arial;
+
+}

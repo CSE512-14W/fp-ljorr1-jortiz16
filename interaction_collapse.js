@@ -22,13 +22,47 @@ var diagonal = d3.svg.diagonal()
 var massScale = d3.scale.log().domain([875591334,835751473296264]).range([1,18]);
 
 var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.right + margin.left)
-    .attr("height", height + margin.top + margin.bottom)
-    .attr("pointer-events", "all")
+    .attr("width",5000)
+    .attr("height", 1000)
+    //.attr("pointer-events", "all")
     .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .attr("transform", "translate(" + 600 + "," + margin.top + ")")
     .call(zoom)
     .on("dblclick.zoom", null);
+	
+	var textBox0 = svg.append("svg:text")
+    .attr("x", 950)
+    .attr("y", 320)
+    .attr("dy", ".35em")
+    .attr("text-anchor", "middle")
+    .style("font", "300 20px Helvetica Neue")
+	.style("font-size", "25px")
+	.style("font-weight", "bold")
+    .text("Halo Properties");
+	
+var textBox = svg.append("svg:text")
+    .attr("x", 950)
+    .attr("y", 350)
+    .attr("dy", ".35em")
+    .attr("text-anchor", "middle")
+    .style("font", "300 20px Helvetica Neue")
+    .text("Hover over a node to see halo properties");
+
+	var textBox2 = svg.append("svg:text")
+    .attr("x", 950)
+    .attr("y", 375)
+    .attr("dy", ".35em")
+    .attr("text-anchor", "middle")
+    .style("font", "300 20px Helvetica Neue")
+    .text("");
+	
+	var textBox3 = svg.append("svg:text")
+    .attr("x", 950)
+    .attr("y", 400)
+    .attr("dy", ".35em")
+    .attr("text-anchor", "middle")
+    .style("font", "300 20px Helvetica Neue")
+    .text("");
 
 svg.append("rect")
     .attr("width", width)
@@ -104,14 +138,20 @@ function update(source) {
     nodeEnter.append("circle")
     .attr("r", 1e-6)
     .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
-    .style("stroke", function(d) { return (d.Prog==1) ? "red" : "lightsteelblue"; });
+    .style("stroke", function(d) { return (d.Prog==1) ? "red" : "lightsteelblue"; })
+	.on("mouseover", function(d) {updateBox(d);});
+	
+
+	
 
     nodeEnter.append("text")
     .attr("x", function(d) { return -massScale(d.HaloMass)-5; })
     .attr("dy", ".35em")
     .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
     .text(function(d) { return d.HaloID; })
-    .style("fill-opacity", 1e-6);
+	.style("font-size", "20px")
+    .style("fill-opacity", 1e-6)
+	;
 
     // Transition nodes to their new position.
     var nodeUpdate = node.transition()
@@ -120,8 +160,11 @@ function update(source) {
 
     nodeUpdate.select("circle")
     .attr("r", function(d) { return massScale(d.HaloMass); })
+	
     .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
-    .style("stroke", function(d) { return d.Prog=='1' ? "red" : "lightsteelblue"; });
+    .style("stroke", function(d) { return d.Prog=='1' ? "red" : "lightsteelblue"; })
+	.style("stroke-width", "2");
+	
 
     nodeUpdate.select("text")
     .style("fill-opacity", 1);
@@ -175,6 +218,16 @@ function update(source) {
         d.y0 = d.y;
     });
 
+}
+
+function updateBox(d)
+{
+//update the text box
+   //textBox.text("");
+   textBox.html("Halo Grp: " + d.GrpID);
+   textBox2.html("Halo Mass: " + d.HaloMass);
+   textBox3.html("Halo Particle Count: " + d.TotalParticles);
+   //textBox.append("Halo Mass " + d.HaloMass);
 }
 
 // Returns a list of all nodes under the root.
