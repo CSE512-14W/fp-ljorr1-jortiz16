@@ -1,198 +1,539 @@
-//Parallel Coordinates Layout
-/*d3.csv("small.csv", function(error, data) {
-    var margin = {
-        top: 20,
-        right: 20,
-        bottom: 20,
-        left: 20
+window.onload = function(){
+    var dataSet = {
+        nodes: [
+        { name: 19549, id: 0, x: 825, y: 1746, fixed: true},
+        { name: 28059, id: 1, x: 825, y: 1674, fixed: true},
+        { name: 28151, id: 2, x: 742, y: 1674, fixed: true},
+        { name: 22496, id: 3, x: 908, y: 1674, fixed: true},
+        { name: 24022, id: 4, x: 653, y: 1674, fixed: true},
+        { name: 33772, id: 5, x: 825, y: 1602, fixed: true},
+        { name: 36732, id: 6, x: 742, y: 1602, fixed: true},
+        { name: 42536, id: 7, x: 952, y: 1602, fixed: true},
+        { name: 40759, id: 8, x: 647, y: 1602, fixed: true},
+        { name: 11371, id: 9, x: 908, y: 1746, fixed: true},
+        { name: 5585, id: 10, x: 866, y: 1818, fixed: true},
+        { name: 53954, id: 11, x: 825, y: 1530, fixed: true},
+        { name: 65536, id: 12, x: 825, y: 1458, fixed: true},
+        { name: 71393, id: 13, x: 825, y: 1386, fixed: true},
+        { name: 74441, id: 14, x: 742, y: 1386, fixed: true},
+        { name: 45355, id: 15, x: 742, y: 1530, fixed: true},
+        { name: 56932, id: 16, x: 742, y: 1458, fixed: true},
+        { name: 45412, id: 17, x: 997, y: 1530, fixed: true},
+        { name: 56992, id: 18, x: 1005, y: 1458, fixed: true},
+        { name: 77457, id: 19, x: 1021, y: 1386, fixed: true},
+        { name: 46051, id: 20, x: 910, y: 1530, fixed: true},
+        { name: 60519, id: 21, x: 922, y: 1458, fixed: true},
+        { name: 75022, id: 22, x: 923, y: 1386, fixed: true},
+        { name: 49323, id: 23, x: 635, y: 1530, fixed: true},
+        { name: 66688, id: 24, x: 610, y: 1458, fixed: true},
+        { name: 72494, id: 25, x: 562, y: 1386, fixed: true},
+        { name: 80276, id: 26, x: 825, y: 1314, fixed: true},
+        { name: 89401, id: 27, x: 669, y: 1314, fixed: true},
+        { name: 83425, id: 28, x: 1051, y: 1314, fixed: true},
+        { name: 80924, id: 29, x: 930, y: 1314, fixed: true},
+        { name: 84616, id: 30, x: 537, y: 1314, fixed: true},
+        { name: 101352, id: 31, x: 825, y: 1242, fixed: true},
+        { name: 95421, id: 32, x: 614, y: 1242, fixed: true},
+        { name: 95472, id: 33, x: 1052, y: 1242, fixed: true},
+        { name: 99000, id: 34, x: 938, y: 1242, fixed: true},
+        { name: 99593, id: 35, x: 489, y: 1242, fixed: true},
+        { name: 104360, id: 36, x: 825, y: 1170, fixed: true},
+        { name: 104447, id: 37, x: 590, y: 1170, fixed: true},
+        { name: 113653, id: 38, x: 1083, y: 1170, fixed: true},
+        { name: 108071, id: 39, x: 963, y: 1170, fixed: true},
+        { name: 109253, id: 40, x: 422, y: 1170, fixed: true},
+        { name: 119727, id: 41, x: 733, y: 1098, fixed: true},
+        { name: 116777, id: 42, x: 825, y: 1098, fixed: true},
+        { name: 116984, id: 43, x: 917, y: 1098, fixed: true},
+        { name: 122984, id: 44, x: 507, y: 1098, fixed: true},
+        { name: 126228, id: 45, x: 1112, y: 1098, fixed: true},
+        { name: 117255, id: 46, x: 1009, y: 1098, fixed: true},
+        { name: 128117, id: 47, x: 407, y: 1098, fixed: true},
+        { name: 135580, id: 48, x: 733, y: 1026, fixed: true},
+        { name: 135920, id: 49, x: 572, y: 1026, fixed: true},
+        { name: 132621, id: 50, x: 825, y: 1026, fixed: true},
+        { name: 132826, id: 51, x: 917, y: 1026, fixed: true},
+        { name: 129316, id: 52, x: 469, y: 1026, fixed: true},
+        { name: 129395, id: 53, x: 1118, y: 1026, fixed: true},
+        { name: 133103, id: 54, x: 1009, y: 1026, fixed: true},
+        { name: 140809, id: 55, x: 360, y: 1026, fixed: true},
+        { name: 151675, id: 56, x: 733, y: 954, fixed: true},
+        { name: 145483, id: 57, x: 553, y: 954, fixed: true},
+        { name: 145275, id: 58, x: 438, y: 954, fixed: true},
+        { name: 151859, id: 59, x: 1141, y: 954, fixed: true},
+        { name: 145426, id: 60, x: 825, y: 954, fixed: true},
+        { name: 145602, id: 61, x: 957, y: 954, fixed: true},
+        { name: 145887, id: 62, x: 1049, y: 954, fixed: true},
+        { name: 147318, id: 63, x: 326, y: 954, fixed: true},
+        { name: 161528, id: 64, x: 641, y: 882, fixed: true},
+        { name: 165018, id: 65, x: 825, y: 882, fixed: true},
+        { name: 155421, id: 66, x: 733, y: 882, fixed: true},
+        { name: 158318, id: 67, x: 372, y: 882, fixed: true},
+        { name: 161735, id: 68, x: 1181, y: 882, fixed: true},
+        { name: 165122, id: 69, x: 538, y: 882, fixed: true},
+        { name: 165237, id: 70, x: 963, y: 882, fixed: true},
+        { name: 158946, id: 71, x: 1078, y: 882, fixed: true},
+        { name: 166844, id: 72, x: 280, y: 882, fixed: true},
+        { name: 171511, id: 73, x: 727, y: 810, fixed: true},
+        { name: 171671, id: 74, x: 819, y: 810, fixed: true},
+        { name: 178966, id: 75, x: 543, y: 810, fixed: true},
+        { name: 180099, id: 76, x: 635, y: 810, fixed: true},
+        { name: 178745, id: 77, x: 911, y: 810, fixed: true},
+        { name: 174989, id: 78, x: 359, y: 810, fixed: true},
+        { name: 171728, id: 79, x: 1187, y: 810, fixed: true},
+        { name: 178543, id: 80, x: 451, y: 810, fixed: true},
+        { name: 168513, id: 81, x: 1003, y: 810, fixed: true},
+        { name: 172260, id: 82, x: 1095, y: 810, fixed: true},
+        { name: 180283, id: 83, x: 267, y: 810, fixed: true},
+        { name: 188551, id: 84, x: 727, y: 738, fixed: true},
+        { name: 192162, id: 85, x: 819, y: 738, fixed: true},
+        { name: 192311, id: 86, x: 1003, y: 738, fixed: true},
+        { name: 182298, id: 87, x: 543, y: 738, fixed: true},
+        { name: 190121, id: 88, x: 635, y: 738, fixed: true},
+        { name: 181740, id: 89, x: 359, y: 738, fixed: true},
+        { name: 188787, id: 90, x: 1187, y: 738, fixed: true},
+        { name: 185388, id: 91, x: 451, y: 738, fixed: true},
+        { name: 189019, id: 92, x: 911, y: 738, fixed: true},
+        { name: 192825, id: 93, x: 1095, y: 738, fixed: true},
+        { name: 190592, id: 94, x: 267, y: 738, fixed: true},
+        { name: 202448, id: 95, x: 727, y: 666, fixed: true},
+        { name: 202779, id: 96, x: 911, y: 666, fixed: true},
+        { name: 195607, id: 97, x: 819, y: 666, fixed: true},
+        { name: 202710, id: 98, x: 1003, y: 666, fixed: true},
+        { name: 199064, id: 99, x: 221, y: 666, fixed: true},
+        { name: 202693, id: 100, x: 1187, y: 666, fixed: true},
+        { name: 202745, id: 101, x: 382, y: 666, fixed: true},
+        { name: 199608, id: 102, x: 543, y: 666, fixed: true},
+        { name: 199717, id: 103, x: 1095, y: 666, fixed: true},
+        { name: 196939, id: 104, x: 635, y: 666, fixed: true},
+        { name: 212979, id: 105, x: 727, y: 594, fixed: true},
+        { name: 216790, id: 106, x: 911, y: 594, fixed: true},
+        { name: 214874, id: 107, x: 635, y: 594, fixed: true},
+        { name: 220165, id: 108, x: 144, y: 594, fixed: true},
+        { name: 213120, id: 109, x: 819, y: 594, fixed: true},
+        { name: 213227, id: 110, x: 1187, y: 594, fixed: true},
+        { name: 213278, id: 111, x: 241, y: 594, fixed: true},
+        { name: 213247, id: 112, x: 1003, y: 594, fixed: true},
+        { name: 210086, id: 113, x: 356, y: 594, fixed: true},
+        { name: 217272, id: 114, x: 1095, y: 594, fixed: true},
+        { name: 214500, id: 115, x: 494, y: 594, fixed: true},
+        { name: 230818, id: 116, x: 635, y: 522, fixed: true},
+        { name: 227295, id: 117, x: 727, y: 522, fixed: true},
+        { name: 230915, id: 118, x: 819, y: 522, fixed: true},
+        { name: 223784, id: 119, x: 543, y: 522, fixed: true},
+        { name: 223865, id: 120, x: 911, y: 522, fixed: true},
+        { name: 223710, id: 121, x: 98, y: 522, fixed: true},
+        { name: 234685, id: 122, x: 1187, y: 522, fixed: true},
+        { name: 223855, id: 123, x: 1003, y: 522, fixed: true},
+        { name: 227568, id: 124, x: 230, y: 522, fixed: true},
+        { name: 227813, id: 125, x: 339, y: 522, fixed: true},
+        { name: 235108, id: 126, x: 1095, y: 522, fixed: true},
+        { name: 236088, id: 127, x: 451, y: 522, fixed: true},
+        { name: 241687, id: 128, x: 635, y: 450, fixed: true},
+        { name: 238089, id: 129, x: 727, y: 450, fixed: true},
+        { name: 249078, id: 130, x: 819, y: 450, fixed: true},
+        { name: 238184, id: 131, x: 451, y: 450, fixed: true},
+        { name: 249601, id: 132, x: 543, y: 450, fixed: true},
+        { name: 249088, id: 133, x: 88, y: 450, fixed: true},
+        { name: 238304, id: 134, x: 1187, y: 450, fixed: true},
+        { name: 238275, id: 135, x: 1003, y: 450, fixed: true},
+        { name: 245584, id: 136, x: 911, y: 450, fixed: true},
+        { name: 238443, id: 137, x: 198, y: 450, fixed: true},
+        { name: 249464, id: 138, x: 326, y: 450, fixed: true},
+        { name: 249607, id: 139, x: 1095, y: 450, fixed: true},
+        { name: 259964, id: 140, x: 635, y: 378, fixed: true},
+        { name: 263678, id: 141, x: 727, y: 378, fixed: true},
+        { name: 252745, id: 142, x: 451, y: 378, fixed: true},
+        { name: 260231, id: 143, x: 543, y: 378, fixed: true},
+        { name: 256586, id: 144, x: 267, y: 378, fixed: true},
+        { name: 260063, id: 145, x: 911, y: 378, fixed: true},
+        { name: 264261, id: 146, x: 819, y: 378, fixed: true},
+        { name: 256757, id: 147, x: 359, y: 378, fixed: true},
+        { name: 256415, id: 148, x: 83, y: 378, fixed: true},
+        { name: 260233, id: 149, x: 1095, y: 378, fixed: true},
+        { name: 260188, id: 150, x: 1003, y: 378, fixed: true},
+        { name: 260411, id: 151, x: 175, y: 378, fixed: true},
+        { name: 253256, id: 152, x: 1187, y: 378, fixed: true},
+        { name: 278122, id: 153, x: 589, y: 306, fixed: true},
+        { name: 267313, id: 154, x: 773, y: 306, fixed: true},
+        { name: 268930, id: 155, x: 681, y: 306, fixed: true},
+        { name: 274591, id: 156, x: 405, y: 306, fixed: true},
+        { name: 271123, id: 157, x: 497, y: 306, fixed: true},
+        { name: 274759, id: 158, x: 221, y: 306, fixed: true},
+        { name: 271003, id: 159, x: 957, y: 306, fixed: true},
+        { name: 268157, id: 160, x: 865, y: 306, fixed: true},
+        { name: 271058, id: 161, x: 37, y: 306, fixed: true},
+        { name: 278319, id: 162, x: 1072, y: 306, fixed: true},
+        { name: 271183, id: 163, x: 1210, y: 306, fixed: true},
+        { name: 274987, id: 164, x: 129, y: 306, fixed: true},
+        { name: 267705, id: 165, x: 313, y: 306, fixed: true},
+        { name: 291424, id: 166, x: 681, y: 234, fixed: true},
+        { name: 285056, id: 167, x: 497, y: 234, fixed: true},
+        { name: 282003, id: 168, x: 589, y: 234, fixed: true},
+        { name: 281762, id: 169, x: 796, y: 234, fixed: true},
+        { name: 285032, id: 170, x: 405, y: 234, fixed: true},
+        { name: 285149, id: 171, x: 980, y: 234, fixed: true},
+        { name: 288554, id: 172, x: 888, y: 234, fixed: true},
+        { name: 285445, id: 173, x: 1164, y: 234, fixed: true},
+        { name: 282945, id: 174, x: 1072, y: 234, fixed: true},
+        { name: 281967, id: 175, x: 1256, y: 234, fixed: true},
+        { name: 291930, id: 176, x: 221, y: 234, fixed: true},
+        { name: 285308, id: 177, x: 313, y: 234, fixed: true},
+        { name: 297555, id: 178, x: 681, y: 162, fixed: true},
+        { name: 294743, id: 179, x: 497, y: 162, fixed: true},
+        { name: 303564, id: 180, x: 589, y: 162, fixed: true},
+        { name: 294675, id: 181, x: 796, y: 162, fixed: true},
+        { name: 294714, id: 182, x: 405, y: 162, fixed: true},
+        { name: 303506, id: 183, x: 1026, y: 162, fixed: true},
+        { name: 303824, id: 184, x: 888, y: 162, fixed: true},
+        { name: 297980, id: 185, x: 1164, y: 162, fixed: true},
+        { name: 295085, id: 186, x: 221, y: 162, fixed: true},
+        { name: 300921, id: 187, x: 1256, y: 162, fixed: true},
+        { name: 297840, id: 188, x: 313, y: 162, fixed: true},
+        { name: 308677, id: 189, x: 681, y: 90, fixed: true},
+        { name: 311193, id: 190, x: 589, y: 90, fixed: true},
+        { name: 306279, id: 191, x: 1026, y: 90, fixed: true},
+        { name: 311611, id: 192, x: 842, y: 90, fixed: true},
+        { name: 311156, id: 193, x: 405, y: 90, fixed: true},
+        { name: 313582, id: 194, x: 497, y: 90, fixed: true},
+        { name: 311221, id: 195, x: 1118, y: 90, fixed: true},
+        { name: 308987, id: 196, x: 313, y: 90, fixed: true},
+        { name: 311480, id: 197, x: 1210, y: 90, fixed: true},
+        { name: 309111, id: 198, x: 221, y: 90, fixed: true},
+        { name: 317047, id: 199, x: 865, y: 18, fixed: true},
+        { name: 318188, id: 200, x: 497, y: 18, fixed: true},
+        { name: 315966, id: 201, x: 589, y: 18, fixed: true},
+        { name: 317087, id: 202, x: 681, y: 18, fixed: true},
+        { name: 317116, id: 203, x: 773, y: 18, fixed: true},
+        { name: 317251, id: 204, x: 405, y: 18, fixed: true},
+        { name: 318233, id: 205, x: 1049, y: 18, fixed: true},
+        { name: 316015, id: 206, x: 1141, y: 18, fixed: true},
+        { name: 319439, id: 207, x: 957, y: 18, fixed: true},
+        { name: 316001, id: 208, x: 221, y: 18, fixed: true},
+        { name: 317214, id: 209, x: 129, y: 18, fixed: true},
+        { name: 319309, id: 210, x: 313, y: 18, fixed: true},
+        { name: 319379, id: 211, x: 1233, y: 18, fixed: true}],
+        edges: [
+        { source: 1, target: 0, sharedParticleCount: 101},
+        { source: 2, target: 0, sharedParticleCount: 101},
+        { source: 3, target: 0, sharedParticleCount: 101},
+        { source: 4, target: 0, sharedParticleCount: 101},
+        { source: 3, target: 9, sharedParticleCount: 101},
+        { source: 0, target: 10, sharedParticleCount: 101},
+        { source: 9, target: 10, sharedParticleCount: 1657244},
+        { source: 12, target: 11, sharedParticleCount: 1657244},
+        { source: 16, target: 15, sharedParticleCount: 1657244},
+        { source: 18, target: 17, sharedParticleCount: 1657244},
+        { source: 21, target: 20, sharedParticleCount: 1657244},
+        { source: 24, target: 23, sharedParticleCount: 1657244},
+        { source: 5, target: 1, sharedParticleCount: 155000},
+        { source: 6, target: 1, sharedParticleCount: 55000},
+        { source: 6, target: 2, sharedParticleCount: 5000},
+        { source: 7, target: 3, sharedParticleCount: 5000},
+        { source: 8, target: 4, sharedParticleCount: 5000},
+        { source: 11, target: 5, sharedParticleCount: 5000},
+        { source: 15, target: 5, sharedParticleCount: 5000},
+        { source: 20, target: 5, sharedParticleCount: 5000},
+        { source: 15, target: 6, sharedParticleCount: 5000},
+        { source: 17, target: 7, sharedParticleCount: 5000},
+        { source: 23, target: 8, sharedParticleCount: 2000},
+        { source: 13, target: 12, sharedParticleCount: 2000},
+        { source: 14, target: 12, sharedParticleCount: 2000},
+        { source: 14, target: 16, sharedParticleCount: 2000},
+        { source: 19, target: 18, sharedParticleCount: 2000},
+        { source: 22, target: 21, sharedParticleCount: 2000},
+        { source: 25, target: 24, sharedParticleCount: 500},
+        { source: 26, target: 13, sharedParticleCount: 500},
+        { source: 27, target: 14, sharedParticleCount: 500},
+        { source: 28, target: 19, sharedParticleCount: 500},
+        { source: 29, target: 22, sharedParticleCount: 500},
+        { source: 30, target: 25, sharedParticleCount: 5000},
+        { source: 31, target: 26, sharedParticleCount: 5000},
+        { source: 32, target: 27, sharedParticleCount: 5000},
+        { source: 33, target: 28, sharedParticleCount: 5000},
+        { source: 34, target: 29, sharedParticleCount: 5000},
+        { source: 35, target: 30, sharedParticleCount: 5000},
+        { source: 36, target: 31, sharedParticleCount: 5000},
+        { source: 37, target: 32, sharedParticleCount: 5000},
+        { source: 38, target: 33, sharedParticleCount: 5000},
+        { source: 39, target: 34, sharedParticleCount: 5000},
+        { source: 40, target: 35, sharedParticleCount: 5000},
+        { source: 41, target: 36, sharedParticleCount: 5000},
+        { source: 42, target: 36, sharedParticleCount: 5000},
+        { source: 43, target: 36, sharedParticleCount: 5000},
+        { source: 44, target: 37, sharedParticleCount: 5000},
+        { source: 45, target: 38, sharedParticleCount: 5000},
+        { source: 46, target: 39, sharedParticleCount: 5000},
+        { source: 47, target: 40, sharedParticleCount: 5000},
+        { source: 48, target: 41, sharedParticleCount: 5000},
+        { source: 49, target: 41, sharedParticleCount: 5000},
+        { source: 52, target: 44, sharedParticleCount: 5000},
+        { source: 53, target: 45, sharedParticleCount: 5000},
+        { source: 50, target: 42, sharedParticleCount: 5000},
+        { source: 51, target: 43, sharedParticleCount: 5000},
+        { source: 54, target: 46, sharedParticleCount: 5000},
+        { source: 55, target: 47, sharedParticleCount: 5000},
+        { source: 56, target: 48, sharedParticleCount: 5000},
+        { source: 58, target: 52, sharedParticleCount: 5000},
+        { source: 59, target: 53, sharedParticleCount: 5000},
+        { source: 56, target: 50, sharedParticleCount: 5000},
+        { source: 60, target: 50, sharedParticleCount: 5000},
+        { source: 57, target: 49, sharedParticleCount: 5000},
+        { source: 61, target: 51, sharedParticleCount: 5000},
+        { source: 62, target: 54, sharedParticleCount: 5000},
+        { source: 63, target: 55, sharedParticleCount: 5000},
+        { source: 64, target: 56, sharedParticleCount: 5000},
+        { source: 65, target: 56, sharedParticleCount: 5000},
+        { source: 66, target: 56, sharedParticleCount: 5000},
+        { source: 67, target: 58, sharedParticleCount: 5000},
+        { source: 68, target: 59, sharedParticleCount: 5000},
+        { source: 65, target: 60, sharedParticleCount: 5000},
+        { source: 69, target: 57, sharedParticleCount: 5000},
+        { source: 70, target: 61, sharedParticleCount: 5000},
+        { source: 71, target: 62, sharedParticleCount: 5000},
+        { source: 72, target: 63, sharedParticleCount: 5000},
+        { source: 73, target: 64, sharedParticleCount: 5000},
+        { source: 74, target: 64, sharedParticleCount: 5000},
+        { source: 75, target: 64, sharedParticleCount: 5000},
+        { source: 76, target: 64, sharedParticleCount: 5000},
+        { source: 78, target: 67, sharedParticleCount: 5000},
+        { source: 74, target: 65, sharedParticleCount: 5000},
+        { source: 79, target: 68, sharedParticleCount: 5000},
+        { source: 80, target: 69, sharedParticleCount: 5000},
+        { source: 81, target: 70, sharedParticleCount: 5000},
+        { source: 77, target: 66, sharedParticleCount: 5000},
+        { source: 82, target: 71, sharedParticleCount: 5000},
+        { source: 83, target: 72, sharedParticleCount: 5000},
+        { source: 84, target: 73, sharedParticleCount: 5000},
+        { source: 85, target: 73, sharedParticleCount: 5000},
+        { source: 86, target: 73, sharedParticleCount: 5000},
+        { source: 89, target: 78, sharedParticleCount: 5000},
+        { source: 85, target: 74, sharedParticleCount: 5000},
+        { source: 90, target: 79, sharedParticleCount: 5000},
+        { source: 91, target: 80, sharedParticleCount: 5000},
+        { source: 86, target: 81, sharedParticleCount: 5000},
+        { source: 92, target: 77, sharedParticleCount: 5000},
+        { source: 87, target: 75, sharedParticleCount: 5000},
+        { source: 93, target: 82, sharedParticleCount: 5000},
+        { source: 88, target: 76, sharedParticleCount: 5000},
+        { source: 94, target: 83, sharedParticleCount: 5000},
+        { source: 95, target: 84, sharedParticleCount: 5000},
+        { source: 96, target: 84, sharedParticleCount: 5000},
+        { source: 99, target: 89, sharedParticleCount: 5000},
+        { source: 97, target: 85, sharedParticleCount: 5000},
+        { source: 100, target: 90, sharedParticleCount: 5000},
+        { source: 101, target: 91, sharedParticleCount: 5000},
+        { source: 98, target: 86, sharedParticleCount: 5000},
+        { source: 96, target: 92, sharedParticleCount: 5000},
+        { source: 102, target: 87, sharedParticleCount: 5000},
+        { source: 103, target: 93, sharedParticleCount: 5000},
+        { source: 104, target: 88, sharedParticleCount: 5000},
+        { source: 105, target: 95, sharedParticleCount: 5000},
+        { source: 106, target: 95, sharedParticleCount: 5000},
+        { source: 107, target: 95, sharedParticleCount: 5000},
+        { source: 108, target: 99, sharedParticleCount: 5000},
+        { source: 105, target: 97, sharedParticleCount: 5000},
+        { source: 109, target: 97, sharedParticleCount: 5000},
+        { source: 110, target: 100, sharedParticleCount: 5000},
+        { source: 112, target: 98, sharedParticleCount: 5000},
+        { source: 111, target: 101, sharedParticleCount: 5000},
+        { source: 106, target: 96, sharedParticleCount: 5000},
+        { source: 113, target: 102, sharedParticleCount: 5000},
+        { source: 114, target: 103, sharedParticleCount: 5000},
+        { source: 115, target: 104, sharedParticleCount: 5000},
+        { source: 116, target: 105, sharedParticleCount: 5000},
+        { source: 117, target: 105, sharedParticleCount: 5000},
+        { source: 118, target: 105, sharedParticleCount: 5000},
+        { source: 119, target: 105, sharedParticleCount: 5000},
+        { source: 121, target: 108, sharedParticleCount: 5000},
+        { source: 118, target: 109, sharedParticleCount: 5000},
+        { source: 122, target: 110, sharedParticleCount: 5000},
+        { source: 123, target: 112, sharedParticleCount: 5000},
+        { source: 120, target: 106, sharedParticleCount: 5000},
+        { source: 124, target: 111, sharedParticleCount: 5000},
+        { source: 125, target: 113, sharedParticleCount: 5000},
+        { source: 126, target: 114, sharedParticleCount: 5000},
+        { source: 127, target: 115, sharedParticleCount: 5000},
+        { source: 128, target: 116, sharedParticleCount: 5000},
+        { source: 129, target: 116, sharedParticleCount: 5000},
+        { source: 130, target: 116, sharedParticleCount: 5000},
+        { source: 131, target: 116, sharedParticleCount: 5000},
+        { source: 132, target: 116, sharedParticleCount: 5000},
+        { source: 129, target: 117, sharedParticleCount: 5000},
+        { source: 130, target: 118, sharedParticleCount: 5000},
+        { source: 133, target: 121, sharedParticleCount: 5000},
+        { source: 131, target: 119, sharedParticleCount: 5000},
+        { source: 135, target: 123, sharedParticleCount: 5000},
+        { source: 134, target: 122, sharedParticleCount: 5000},
+        { source: 136, target: 120, sharedParticleCount: 5000},
+        { source: 137, target: 124, sharedParticleCount: 5000},
+        { source: 138, target: 125, sharedParticleCount: 5000},
+        { source: 139, target: 126, sharedParticleCount: 5000},
+        { source: 140, target: 128, sharedParticleCount: 5000},
+        { source: 141, target: 128, sharedParticleCount: 5000},
+        { source: 142, target: 128, sharedParticleCount: 5000},
+        { source: 143, target: 128, sharedParticleCount: 5000},
+        { source: 144, target: 128, sharedParticleCount: 5000},
+        { source: 140, target: 129, sharedParticleCount: 5000},
+        { source: 141, target: 129, sharedParticleCount: 5000},
+        { source: 145, target: 130, sharedParticleCount: 5000},
+        { source: 146, target: 130, sharedParticleCount: 5000},
+        { source: 148, target: 133, sharedParticleCount: 5000},
+        { source: 142, target: 131, sharedParticleCount: 5000},
+        { source: 150, target: 136, sharedParticleCount: 5000},
+        { source: 149, target: 135, sharedParticleCount: 5000},
+        { source: 151, target: 137, sharedParticleCount: 5000},
+        { source: 144, target: 138, sharedParticleCount: 5000},
+        { source: 147, target: 132, sharedParticleCount: 5000},
+        { source: 152, target: 139, sharedParticleCount: 5000},
+        { source: 153, target: 140, sharedParticleCount: 5000},
+        { source: 154, target: 140, sharedParticleCount: 5000},
+        { source: 155, target: 140, sharedParticleCount: 5000},
+        { source: 154, target: 141, sharedParticleCount: 5000},
+        { source: 156, target: 142, sharedParticleCount: 5000},
+        { source: 159, target: 145, sharedParticleCount: 5000},
+        { source: 161, target: 148, sharedParticleCount: 5000},
+        { source: 162, target: 150, sharedParticleCount: 5000},
+        { source: 157, target: 143, sharedParticleCount: 5000},
+        { source: 163, target: 149, sharedParticleCount: 5000},
+        { source: 158, target: 144, sharedParticleCount: 5000},
+        { source: 164, target: 151, sharedParticleCount: 5000},
+        { source: 165, target: 147, sharedParticleCount: 5000},
+        { source: 160, target: 146, sharedParticleCount: 5000},
+        { source: 166, target: 153, sharedParticleCount: 5000},
+        { source: 167, target: 153, sharedParticleCount: 5000},
+        { source: 168, target: 153, sharedParticleCount: 5000},
+        { source: 169, target: 154, sharedParticleCount: 5000},
+        { source: 170, target: 156, sharedParticleCount: 5000},
+        { source: 171, target: 159, sharedParticleCount: 5000},
+        { source: 172, target: 159, sharedParticleCount: 5000},
+        { source: 173, target: 162, sharedParticleCount: 5000},
+        { source: 174, target: 162, sharedParticleCount: 5000},
+        { source: 167, target: 157, sharedParticleCount: 5000},
+        { source: 176, target: 158, sharedParticleCount: 5000},
+        { source: 175, target: 163, sharedParticleCount: 5000},
+        { source: 177, target: 165, sharedParticleCount: 5000},
+        { source: 172, target: 160, sharedParticleCount: 5000},
+        { source: 178, target: 166, sharedParticleCount: 5000},
+        { source: 181, target: 169, sharedParticleCount: 5000},
+        { source: 182, target: 170, sharedParticleCount: 5000},
+        { source: 179, target: 167, sharedParticleCount: 5000},
+        { source: 183, target: 171, sharedParticleCount: 5000},
+        { source: 187, target: 175, sharedParticleCount: 5000},
+        { source: 180, target: 168, sharedParticleCount: 5000},
+        { source: 188, target: 177, sharedParticleCount: 5000},
+        { source: 184, target: 172, sharedParticleCount: 5000},
+        { source: 185, target: 173, sharedParticleCount: 5000},
+        { source: 186, target: 176, sharedParticleCount: 5000},
+        { source: 189, target: 178, sharedParticleCount: 5000},
+        { source: 190, target: 178, sharedParticleCount: 5000},
+        { source: 191, target: 181, sharedParticleCount: 5000},
+        { source: 192, target: 181, sharedParticleCount: 5000},
+        { source: 193, target: 182, sharedParticleCount: 5000},
+        { source: 194, target: 179, sharedParticleCount: 5000},
+        { source: 195, target: 183, sharedParticleCount: 5000},
+        { source: 190, target: 180, sharedParticleCount: 5000},
+        { source: 196, target: 188, sharedParticleCount: 5000},
+        { source: 197, target: 185, sharedParticleCount: 5000},
+        { source: 198, target: 186, sharedParticleCount: 5000},
+        { source: 199, target: 189, sharedParticleCount: 5000},
+        { source: 200, target: 189, sharedParticleCount: 5000},
+        { source: 201, target: 189, sharedParticleCount: 5000},
+        { source: 202, target: 189, sharedParticleCount: 5000},
+        { source: 203, target: 189, sharedParticleCount: 5000},
+        { source: 205, target: 191, sharedParticleCount: 5000},
+        { source: 206, target: 191, sharedParticleCount: 5000},
+        { source: 208, target: 193, sharedParticleCount: 5000},
+        { source: 209, target: 193, sharedParticleCount: 5000},
+        { source: 210, target: 194, sharedParticleCount: 5000},
+        { source: 204, target: 190, sharedParticleCount: 5000},
+        { source: 211, target: 195, sharedParticleCount: 5000},
+        { source: 207, target: 192, sharedParticleCount: 5000}
+        ]
     };
-    var width = 960 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
-    var color = d3.scale.category10();
 
-    var svg = d3.select("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    var w = 900, h = 900;
+    var svg = d3.select("#svgContent")
+        .append("svg")
+        .attr("width", w)
+        .attr("height", h)
+        //.attr('preserveAspectRatio', 'xMinYMin slice') 
+        .append('g');
 
-    var pc = d3.parcoords()("#example")
-      .data(data)
-      .render()
-      .ticks(3)
-      .createAxes();
-});*/
+    var xScale = d3.scale.linear().domain([d3.min(d3.values(dataSet.nodes), function(d) {return d.x;}), d3.max(d3.values(dataSet.nodes), function(d) {return d.x;})]).range([10,w-10]);
 
-var nodesByName = {};
+    var yScale = d3.scale.linear().domain([d3.min(d3.values(dataSet.nodes), function(d) {return d.y;}), d3.max(d3.values(dataSet.nodes), function(d) {return d.y;})]).range([10, h-10]);
 
-var i = 0, duration = 750, root, links, nodes;
+    var countScale = d3.scale.log().domain([d3.min(d3.values(dataSet.edges), function(d) {return d.sharedParticleCount;}), d3.max(d3.values(dataSet.edges), function(d) {return d.sharedParticleCount;})]).range([0.2, 5]);
 
-var margin = {
-    top: 20,
-    right: 20,
-    bottom: 20,
-    left: 20
-};
+    var force = self.force = d3.layout.force()
+        .nodes(dataSet.nodes)
+        .links(dataSet.edges)
+        .size([w,h])
+        .start();
 
-var width = 500 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    svg.append("defs").append("marker")
+        .attr("id", "arrowhead")
+        .attr("refX", 5+4) /*must be smarter way to calculate shift*/
+        .attr("refY", 5) //4 is radius node
+        .attr("markerWidth", 10)
+        .attr("markerHeight", 10)
+        .attr("markerUnits", "userSpaceOnUse") //makes marker not scale with stroke width
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,0 L0,10 L5,5 z")
+        .attr("stroke-width", "0.5");
 
+    var link = svg.selectAll(".link")
+        .data(dataSet.edges)
+        .enter().append("line")
+        .attr("class", "link")
+        .attr("x1", function(d) { return xScale(d.source.x); })
+        .attr("y1", function(d) { return yScale(d.source.y); })
+        .attr("x2", function(d) { return xScale(d.target.x); })
+        .attr("y2", function(d) { return yScale(d.target.y); })
+        .attr("stroke-width", function(d) { return countScale(d.sharedParticleCount); })
+        .attr("marker-end", "url(#arrowhead)");
 
-
-var force = d3.layout.force()
-    .linkDistance(3)
-    .charge(-120)
-    .gravity(0.05)
-    .size([height, width])
-    .on("tick", tick);
-
-var diagonal = d3.svg.diagonal()
-    .projection(function(d) { return [d.y, d.x]; });
-
-var svg = d3.select("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-var link = svg.selectAll(".link");
-var node = svg.selectAll(".node");
-
-d3.csv("nodes.csv", function(node_data) {
-d3.csv("links.csv", function(link_data) {
-    nodes = node_data;
-    link_data.forEach(function (l) {
-        l.target = +l.target;
-        l.source = +l.source;
-    });
-    links = link_data;
-
-    link = link.data(links, function(d) { return d.i; })
-    link.exit().remove();
-    link.enter().insert("line", ".node")
-        .attr("class", "link");
-    node = node.data(nodes, function(d) { return d.i; })
-        .style("fill", color);
-    node.exit().remove();
-    node.enter().append("circle")
+    var node = svg.append("g").selectAll(".node")
+        .data(dataSet.nodes)
+        .enter().append("circle")
         .attr("class", "node")
-        .attr("r", function(d) { return 3; })
-        .style("fill", color)
-        .on("click", click)
-        .call(force.drag);
-  
-    force.nodes(nodes).links(links).start();
-});
-});
+        .attr("r", 4)
+        .attr("cx", function(d) { return xScale(d.x); })
+        .attr("cy", function(d) { return yScale(d.y); })
+        .on("click", function(d,i) { alert(d.name); });
 
-function tick(e) {
+    var text = svg.append("g").selectAll(".nodetext")
+        .data(dataSet.nodes)
+        .enter().append("text")
+        .attr("class", "nodetext")
+        .attr("x", function(d) { return xScale(d.x) + 5; })
+        .attr("y", function(d) { return yScale(d.y); })
+        .attr("font-size", "10px")
+        .text(function(d) { return d.name; });
 
-var y_max = d3.max(nodes, function(d) { return d.Timestep; });
+    var text2 = svg.append("g").selectAll(".linktext")
+        .data(dataSet.edges)
+        .enter().append("text")
+        .attr("class", "linktext")
+        .attr("x", function(d) { return xScale((d.source.x+d.target.x)/2.0); })
+        .attr("y", function(d) { return yScale((d.source.y+d.target.y)/2.0); })
+        .attr("font-size", "7px")
+        .text(function(d) { return d.sharedParticleCount; });
 
-var y = d3.scale.linear()
-    .domain([1, y_max])
-    .range([0, height-50]);
-
-var x = d3.scale.linear()
-    .domain([0, 100])
-    .range([0, width-50]);
-
-var target_axis_position = x(50);
-
-var adjust_y = function(d) {
-    return y(d.Timestep);
-};
-
-var adjust_x = function(d) {
-    // if (d.Timestep == '1') {
-    //     return x(50);
-    // }
-    return d.x;
-};
-
-force.on("tick", function () {
-    link.attr("x1", function (d) {
-        return adjust_x(d.source);
-    })
-    .attr("y1", function (d) {
-        return adjust_y(d.source);
-    })
-    .attr("x2", function (d) {
-        return adjust_x(d.target);
-    })
-    .attr("y2", function (d) {
-        return adjust_y(d.target);
-    });
-
-    node.attr("cx", function (d) {
-        return adjust_x(d);
-    })
-    .attr("cy", function (d) {
-        return adjust_y(d);
-    });
-});
-
-    /*var k = 0.5 * e.alpha; 
-    nodes.forEach(function(d) { 
-        d.cy = ((27 - d.Timestep) * 100) * k; 
-    });
-    //console.log(links);
-    link.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
-
-    node.attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });*/
-}
- 
-// Toggle children on click.
+//using nest??
 function click(d) {
-    //console.log(d);
-    if (d3.event.defaultPrevented) return;
-    if (d.children) {
-        d._children = d.children;
-        d.children = null;
-    } else {
-        d.children = d._children;
-        d._children = null;
-    }
-    //console.log(d);
-    update();
-}
+    console.log("HERE");
+/*if (d.children) {
+d._children = d.children;
+d.children = null;
+} else {
+d.children = d._children;
+d._children = null;
+}*/
 
-function color(d) {
-    if (d.i == '0') {
-        return "red";
-    } else if (d._children) {
-        return "#3182bd";
-    } else if (d.children) {
-        return "#c6dbef";
-    } else {
-        return "#fd8d3c";
-    }
 }
+};
 
-function nodeByName(name) {
-    return nodesByName[name] || (nodesByName[name] = {i: name});
-}
 
-function collapse(d) {
-    if (d.children) {
-        d._children = d.children;
-        d._children.forEach(collapse);
-        d.children = null;
-    }
-}
-
-function flatten(root) {
-    var nds = [], i = 0;
-    function recurse(n) {
-        if (n.children) {
-            n.children.forEach(recurse);
-        }
-        nds.push(n);
-    }
-    recurse(root);
-    return nds;
-}

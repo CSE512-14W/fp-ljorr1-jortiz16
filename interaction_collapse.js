@@ -1,79 +1,70 @@
-//Parallel Coordinates Layout
-/*d3.csv("small.csv", function(error, data) {
-    var margin = {
-        top: 20,
-        right: 20,
-        bottom: 20,
-        left: 20
-    };
-    var width = 960 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
-    var color = d3.scale.category10();
 
-    var svg = d3.select("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+var zoom = d3.behavior.zoom()
+    .on("zoom", zoomed);
+zoom.dblclick = function() {};
 
-    var pc = d3.parcoords()("#example")
-      .data(data)
-      .render()
-      .ticks(3)
-      .createAxes();
-});*/
+var margin = {top: 20, right: 120, bottom: 20, left: 120},
+width = 960 - margin.right - margin.left,
+height = 800 - margin.top - margin.bottom;
 
-var nodesByName = {};
+var i = 0,
+duration = 750,
+root;
 
-var i = 0, duration = 750, root, lnk;
+var nodesMap, linksMap;
 
-var margin = {
-    top: 20,
-    right: 20,
-    bottom: 20,
-    left: 20
-};
-
-var width = 500 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
-
-var force = d3.layout.force()
-    .linkDistance(10)
-    .charge(-20)
-    .gravity(0.05)
-    .size([height, width])
-    .on("tick", tick);
+var tree = d3.layout.tree()
+    .size([height, width]);
 
 var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
 
-var svg = d3.select("svg")
-    .attr("width", width + margin.left + margin.right)
+//know that maximum halo mass is 83751473296264 and minimum is 875591334
+var massScale = d3.scale.log().domain([875591334,835751473296264]).range([1,18]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
+    .attr("pointer-events", "all")
     .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .call(zoom);
 
-var link = svg.selectAll(".link");
-var node = svg.selectAll(".node");
+svg.append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("stroke", "black")
+    .attr("fill", "none");
 
-d3.csv("nodes.csv", function(node_data) {
+svg = svg.append("g");
 
-d3.csv("links.csv", function(links) {
-    lnk=links;
-    // Create nodes for each unique source and target.
-    links.forEach(function(link) {
-        var parent = link.source = nodeByName(link.source);
-        var child = link.target = nodeByName(link.target);
+d3.csv("links_small.csv", function(error1, raw_links) {
+d3.csv("nodes_small.csv", function(error2, raw_nodes) {
+    //basically makes an associative array but it's called a d3.map
+    //for each HaloID key, had an array of nodes with that key
+    //each array will be of length one
+    nodesMap = d3.nest().key(function(d) { return d.HaloID; }).map(raw_nodes, d3.map);
+    //console.log(nodesMap);
+    //since tree, each ancestor node will only have one descendant
+    linksMap = d3.nest().key(function(d) { return d.NextHalo; }).map(raw_links, d3.map);
+    //console.log(nodesMap.get(5585));
+
+    raw_links.forEach(function(link) {
+        //console.log(link);
+        //nodesMap array for each key has only one element
+        var parent = nodesMap.get(link.CurrentHalo)[0];
+        var child = nodesMap.get(link.NextHalo)[0];
         if (parent.children) {
             parent.children.push(child);
         } else {
             parent.children = [child];
         }
     });
-
-    root = links[0].source;
-    root.x = 0;
-    root.y = width/2;
+    root = nodesMap.get(raw_links[0].CurrentHalo)[0];
+    links = raw_links;
+    //console.log(root);
+    root.x0 = height / 2;
+    root.y0 = 0;
 
     function collapse(d) {
         if (d.children) {
@@ -82,127 +73,138 @@ d3.csv("links.csv", function(links) {
             d.children = null;
         }
     }
-    //root.children.forEach(collapse);
-    update();   
+
+    root.children.forEach(collapse);
+    update(root);
 });
 });
-//d3.select(self.frameElement).style("height", "500px");
-function update() {
-    var nodes = flatten(root);
-    var links = lnk;
-    //nodes.forEach(function (n) { console.log(n);});
-    //nodes = flatten(root);
-    //links.forEach(function (n) { console.log(n);});
-    //links.forEach(function (n) { console.log(n.source.name + "-" + n.target.name);});
-    force.nodes(nodes).links(links).start();
 
-    link = link.data(links, function(d) { return d.i; })
-    link.exit().remove();
-    link.enter().insert("line", ".node")
-        .attr("class", "link")
-        .attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
+d3.select(self.frameElement).style("height", "800px");
 
-    node = node.data(nodes, function(d) { return d.i; })
-        .style("fill", color);
-    node.exit().remove();
-    node.enter().append("circle")
-      .attr("class", "node")
-      .attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; })
-      .attr("r", function(d) { return 2; })
-      .style("fill", color)
-      .on("click", click)
-      .call(force.drag);
-    
-    /*
+function update(source) {
+
+    // Compute the new tree layout.
+    var nodes = tree.nodes(root);
+    var links = tree.links(nodes);
+    //console.log(nodes);
+    //console.log(root)
+    // Normalize for fixed-depth.
+    nodes.forEach(function(d) { d.y = d.depth * 180; });
+
+    // Update the nodes…
+    var node = svg.selectAll("g.node")
+    .data(nodes, function(d) { return d.HaloID; });
+
+    // Enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")
-        .attr("class", "node")
-        .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-        .on("click", click);
+    .attr("class", "node")
+    .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+    .on("click", click);
 
     nodeEnter.append("circle")
-        .attr("r", 1e-6)
-        .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+    .attr("r", 1e-6)
+    .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
+    .style("stroke", function(d) { return (d.Prog==1) ? "red" : "lightsteelblue"; });
 
     nodeEnter.append("text")
-        .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-        .attr("dy", ".35em")
-        .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-        .text(function(d) { return d.name; })
-        .style("fill-opacity", 1e-6);
+    .attr("x", function(d) { return d.children || d._children ? -massScale(d.HaloMass)-5 : massScale(d.HaloMass)+5; })
+    .attr("dy", ".35em")
+    .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+    .text(function(d) { return d.HaloID; })
+    .style("fill-opacity", 1e-6);
 
     // Transition nodes to their new position.
     var nodeUpdate = node.transition()
-        .duration(duration)
-        .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+    .duration(duration)
+    .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
     nodeUpdate.select("circle")
-        .attr("r", 4.5)
-        .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+    .attr("r", function(d) { return massScale(d.HaloMass); })
+    .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
+    .style("stroke", function(d) { return d.Prog=='1' ? "red" : "lightsteelblue"; });
 
     nodeUpdate.select("text")
-        .style("fill-opacity", 1);
+    .style("fill-opacity", 1);
 
     // Transition exiting nodes to the parent's new position.
     var nodeExit = node.exit().transition()
-        .duration(duration)
-        .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
-        .remove();
+    .duration(duration)
+    .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+    .remove();
 
     nodeExit.select("circle")
-        .attr("r", 1e-6);
+    .attr("r", 1e-6);
 
     nodeExit.select("text")
-        .style("fill-opacity", 1e-6);
+    .style("fill-opacity", 1e-6);
 
+    //console.log(links);
     // Update the links…
     var link = svg.selectAll("path.link")
-        .data(links, function(d) { return d.target.id; });
+    .data(links, function(d) { return d.target.HaloID; });
 
     // Enter any new links at the parent's previous position.
     link.enter().insert("path", "g")
-        .attr("class", "link")
-        .attr("d", function(d) {
-            var o = {x: source.x0, y: source.y0};
-            return diagonal({source: o, target: o});
+    .attr("class", "link")
+    .attr("d", function(d) {
+        var o = {x: source.x0, y: source.y0};
+        return diagonal({source: o, target: o});
     });
-
+    //console.log("here");
     // Transition links to their new position.
     link.transition()
-        .duration(duration)
-        .attr("d", diagonal);
-
+    .duration(duration)
+    .attr("d", function(d) {
+        //console.log(d);
+        return diagonal(d);
+        //return diagonal({source: nodesMap.get(d.CurrentHalo)[0], target:nodesMap.get(d.NextHalo)[0]});
+    });
+    //console.log("her3e");
     // Transition exiting nodes to the parent's new position.
     link.exit().transition()
-        .duration(duration)
-        .attr("d", function(d) {
-            var o = {x: source.x, y: source.y};
-            return diagonal({source: o, target: o});
-        })
-        .remove();
+    .duration(duration)
+    .attr("d", function(d) {
+       var o = {x: source.x, y: source.y};
+       return diagonal({source: o, target: o});
+    })
+    .remove();
 
     // Stash the old positions for transition.
     nodes.forEach(function(d) {
         d.x0 = d.x;
         d.y0 = d.y;
-    });*/
+    });
+
 }
 
-function tick() {
-    link.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
+// Returns a list of all nodes under the root.
+function flatten(root) {
+    var nodes = [];
 
-    node.attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
+    function recurse(node) {
+        if (node.children) {
+            node.children.forEach(recurse);
+        }
+        nodes.push(node);
+    }
+    recurse(root);
+    return nodes;
 }
+
+//function d3 uses when calling tree.links(nodes)
+function linkage(nodes) {
+    return d3.merge(nodes.map(function(parent) {
+      return (parent.children || []).map(function(child) {
+        return {
+          source: parent,
+          target: child
+      };
+  });
+  }));
+}
+
 // Toggle children on click.
 function click(d) {
-    console.log(d);
     if (d3.event.defaultPrevented) return;
     if (d.children) {
         d._children = d.children;
@@ -211,42 +213,9 @@ function click(d) {
         d.children = d._children;
         d._children = null;
     }
-    console.log(d);
-    update();
+    update(d);
 }
 
-function color(d) {
-    if (d.i == '0') {
-        return "red";
-    } else if (d._children) {
-        return "#3182bd";
-    } else if (d.children) {
-        return "#c6dbef";
-    } else {
-        return "#fd8d3c";
-    }
-}
-
-function nodeByName(name) {
-    return nodesByName[name] || (nodesByName[name] = {i: name});
-}
-
-function collapse(d) {
-    if (d.children) {
-        d._children = d.children;
-        d._children.forEach(collapse);
-        d.children = null;
-    }
-}
-
-function flatten(root) {
-    var nds = [], i = 0;
-    function recurse(n) {
-        if (n.children) {
-            n.children.forEach(recurse);
-        }
-        nds.push(n);
-    }
-    recurse(root);
-    return nds;
+function zoomed() {
+    svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
