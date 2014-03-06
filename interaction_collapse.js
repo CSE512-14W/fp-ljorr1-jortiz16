@@ -22,46 +22,46 @@ var diagonal = d3.svg.diagonal()
 var massScale = d3.scale.log().domain([875591334,835751473296264]).range([1,18]);
 
 var svg = d3.select("body").append("svg")
-    .attr("width",5000)
-    .attr("height", 1000)
+    .attr("width",3000)
+    .attr("height", 7000)
     //.attr("pointer-events", "all")
     .append("g")
-    .attr("transform", "translate(" + 600 + "," + margin.top + ")")
+    .attr("transform", "translate(" + 250 + "," + margin.top + ")")
     .call(zoom)
     .on("dblclick.zoom", null);
 	
 	var textBox0 = svg.append("svg:text")
-    .attr("x", 950)
+    .attr("x", 850)
     .attr("y", 320)
     .attr("dy", ".35em")
     .attr("text-anchor", "middle")
     .style("font", "300 20px Helvetica Neue")
-	.style("font-size", "25px")
+	.style("font-size", "20px")
 	.style("font-weight", "bold")
     .text("Halo Properties");
 	
 var textBox = svg.append("svg:text")
-    .attr("x", 950)
+    .attr("x", 850)
     .attr("y", 350)
     .attr("dy", ".35em")
     .attr("text-anchor", "middle")
-    .style("font", "300 20px Helvetica Neue")
+    .style("font", "300 15px Helvetica Neue")
     .text("Hover over a node to see halo properties");
 
 	var textBox2 = svg.append("svg:text")
-    .attr("x", 950)
+    .attr("x", 850)
     .attr("y", 375)
     .attr("dy", ".35em")
     .attr("text-anchor", "middle")
-    .style("font", "300 20px Helvetica Neue")
+    .style("font", "300 15px Helvetica Neue")
     .text("");
 	
 	var textBox3 = svg.append("svg:text")
-    .attr("x", 950)
+    .attr("x", 850)
     .attr("y", 400)
     .attr("dy", ".35em")
     .attr("text-anchor", "middle")
-    .style("font", "300 20px Helvetica Neue")
+    .style("font", "300 15px Helvetica Neue")
     .text("");
 
 svg.append("rect")
