@@ -2,7 +2,7 @@
 var zoom = d3.behavior.zoom()
     .on("zoom", zoomed);
 
-var margin = {top: 20, right: 120, bottom: 20, left: 120},
+var margin = {top: 20, right: 20, bottom: 20, left: 20},
 width = 960 - margin.right - margin.left,
 height = 800 - margin.top - margin.bottom;
 
@@ -21,16 +21,18 @@ var diagonal = d3.svg.diagonal()
 //know that maximum halo mass is 83751473296264 and minimum is 875591334
 var massScale = d3.scale.log().domain([875591334,835751473296264]).range([1,18]);
 
-var svg = d3.select("body").append("svg")
-    .attr("width",5000)
-    .attr("height", 1000)
+var svg = d3.select("#svgContent").append("svg")
+    .attr("width",800)
+    .attr("height", 800)
     //.attr("pointer-events", "all")
     .append("g")
-    .attr("transform", "translate(" + 600 + "," + margin.top + ")")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
     .call(zoom)
     .on("dblclick.zoom", null);
+
+var infoBox = d3.select("#leftPanel");
 	
-	var textBox0 = svg.append("svg:text")
+var textBox0 = infoBox.append("div").append("text")
     .attr("x", 950)
     .attr("y", 320)
     .attr("dy", ".35em")
@@ -40,7 +42,7 @@ var svg = d3.select("body").append("svg")
 	.style("font-weight", "bold")
     .text("Halo Properties");
 	
-var textBox = svg.append("svg:text")
+var textBox = infoBox.append("div").append("text")
     .attr("x", 950)
     .attr("y", 350)
     .attr("dy", ".35em")
@@ -48,7 +50,7 @@ var textBox = svg.append("svg:text")
     .style("font", "300 20px Helvetica Neue")
     .text("Hover over a node to see halo properties");
 
-	var textBox2 = svg.append("svg:text")
+var textBox2 = infoBox.append("div").append("text")
     .attr("x", 950)
     .attr("y", 375)
     .attr("dy", ".35em")
@@ -56,7 +58,7 @@ var textBox = svg.append("svg:text")
     .style("font", "300 20px Helvetica Neue")
     .text("");
 	
-	var textBox3 = svg.append("svg:text")
+var textBox3 = infoBox.append("div").append("text")
     .attr("x", 950)
     .attr("y", 400)
     .attr("dy", ".35em")
@@ -68,9 +70,9 @@ svg.append("rect")
     .attr("width", width)
     .attr("height", height)
     .attr("stroke", "black")
-    .attr("fill", "none");
+    .attr("fill", "white");
 
-svg = svg.append("g");
+var graph = svg.append("g");
 
 d3.csv("links.csv", function(error1, raw_links) {
 d3.csv("nodes.csv", function(error2, raw_nodes) {
@@ -81,7 +83,7 @@ d3.csv("nodes.csv", function(error2, raw_nodes) {
     //console.log(nodesMap);
     //since tree, each ancestor node will only have one descendant
     linksMap = d3.nest().key(function(d) { return d.NextHalo; }).map(raw_links, d3.map);
-    //console.log(nodesMap.get(5585));
+    //console.log(linksMap);
 
     raw_links.forEach(function(link) {
         //console.log(link);
@@ -107,13 +109,10 @@ d3.csv("nodes.csv", function(error2, raw_nodes) {
             d.children = null;
         }
     }
-
-    root.children.forEach(collapse);
+    //root.children.forEach(collapse);
     update(root);
 });
 });
-
-d3.select(self.frameElement).style("height", "800px");
 
 function update(source) {
 
@@ -126,23 +125,20 @@ function update(source) {
     nodes.forEach(function(d) { d.y = d.depth * 150; });
 
     // Update the nodes…
-    var node = svg.selectAll("g.node")
+    var node = graph.selectAll("g.node")
     .data(nodes, function(d) { return d.HaloID; });
 
     // Enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")
     .attr("class", "node")
     .attr("transform", function(d) { return "translate(" + source.x0 + "," + source.y0 + ")"; })
-    .on("dblclick", dblclick);
+    .on("click", click);
 
     nodeEnter.append("circle")
     .attr("r", 1e-6)
     .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
     .style("stroke", function(d) { return (d.Prog==1) ? "red" : "lightsteelblue"; })
 	.on("mouseover", function(d) {updateBox(d);});
-	
-
-	
 
     nodeEnter.append("text")
     .attr("x", function(d) { return -massScale(d.HaloMass)-5; })
@@ -183,7 +179,7 @@ function update(source) {
 
     //console.log(links);
     // Update the links…
-    var link = svg.selectAll("path.link")
+    var link = graph.selectAll("path.link")
     .data(links, function(d) { return d.target.HaloID; });
 
     // Enter any new links at the parent's previous position.
@@ -257,8 +253,10 @@ function linkage(nodes) {
 }
 
 // Toggle children on click.
-function dblclick(d) {
-    if (d3.event.defaultPrevented) return;
+function click(d) {
+    if (d3.event.defaultPrevented) {
+        return;
+    }
     if (d.children) {
         d._children = d.children;
         d.children = null;
@@ -270,5 +268,5 @@ function dblclick(d) {
 }
 
 function zoomed() {
-    svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+    graph.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
