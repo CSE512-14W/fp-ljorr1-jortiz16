@@ -1,16 +1,22 @@
 
-var zoom = d3.behavior.zoom()
-    .on("zoom", zoomed);
-
+    
+var doc = document.documentElement;
+var leftPanelWidth = 450;
 var margin = {top: 20, right: 20, bottom: 20, left: 20},
-width = 960 - margin.right - margin.left,
-height = 800 - margin.top - margin.bottom;
+width = doc.clientWidth - margin.right - margin.left - leftPanelWidth,
+height = doc.clientHeight - margin.top - margin.bottom - 100;//400 for search bar
 
+d3.select("#header").style("width", doc.clientWidth+"px");
+d3.select("#header").style("height", 80+"px");
+d3.select("#windowDiv").style("width", doc.clientWidth+"px");
+d3.select("#leftPanel").style("height", height+"px");
 var i = 0,
 duration = 600,
 root;
 
 var nodesMap, linksMap;
+
+var zoom = d3.behavior.zoom().on("zoom", zoomed);
 
 var tree = d3.layout.tree()
     .size([height, width]);
@@ -21,9 +27,12 @@ var diagonal = d3.svg.diagonal()
 //know that maximum halo mass is 83751473296264 and minimum is 875591334
 var massScale = d3.scale.log().domain([875591334,835751473296264]).range([1,18]);
 
-var svg = d3.select("#svgContent").append("svg")
-    .attr("width",800)
-    .attr("height", 800)
+var svg = d3.select("#svgContent")
+    .style("width", width)
+    .style("height", height)
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
     //.attr("pointer-events", "all")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -80,11 +89,25 @@ d3.csv("nodes.csv", function(error2, raw_nodes) {
     //for each HaloID key, had an array of nodes with that key
     //each array will be of length one
     nodesMap = d3.nest().key(function(d) { return d.HaloID; }).map(raw_nodes, d3.map);
-    //console.log(nodesMap);
+
     //since tree, each ancestor node will only have one descendant
     linksMap = d3.nest().key(function(d) { return d.NextHalo; }).map(raw_links, d3.map);
+    // linksMap.forEach(function(k, v) {
+    //     //if bad link
+    //     if (v.length > 1) {
+    //         for (var i = 0; i < v.length; i++) {
+    //             v[i].NextHalo = k+'_'+i;
+    //             linksMap.set(k+'_'+i,[v[i]]);
+    //             nodesMap.set(k+'_'+i,nodesMap.get(k));
+    //         };
+    //         linksMap.remove(k);
+    //         nodesMap.remove(k);
+    //     }
+    // });
+    // var badLinks = linksMap.values().filter(function(d) { return d.length > 1; });
+    //console.log(nodesMap);
+    
     //console.log(linksMap);
-
     raw_links.forEach(function(link) {
         //console.log(link);
         //nodesMap array for each key has only one element
@@ -97,6 +120,7 @@ d3.csv("nodes.csv", function(error2, raw_nodes) {
         }
     });
     root = nodesMap.get(raw_links[0].CurrentHalo)[0];
+    //console.log(root);
     links = raw_links;
     //console.log(root);
     root.x0 = width / 2;
@@ -119,14 +143,14 @@ function update(source) {
     // Compute the new tree layout.
     var nodes = tree.nodes(root);
     var links = tree.links(nodes);
-    //console.log(nodes);
-    //console.log(root)
+    console.log(nodes);
+    console.log(links)
     // Normalize for fixed-depth.
     nodes.forEach(function(d) { d.y = d.depth * 150; });
 
     // Update the nodes…
     var node = graph.selectAll("g.node")
-    .data(nodes, function(d) { return d.HaloID; });
+    .data(nodes, function(d, i) { return d.HaloID+i; });
 
     // Enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")

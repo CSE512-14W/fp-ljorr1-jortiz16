@@ -18,6 +18,12 @@
   stroke-width: 1.5px;
 }
 
+div {
+    margin: 0;
+    border: 0;
+    padding: 0;
+}
+
 #svgContent {
      align:center;
 }
@@ -30,12 +36,12 @@
 }
 
 #leftPanel {
-    background-color:#E8E8E8;height:800px;width:450px;float:left;position:absolute; 
+    background-color:#E8E8E8;
 	font-size: 20px;
     font-family:Arial;
 }
 
-#topbar{
+#header{
     width:100%;
     background:white;
     border:0px;
