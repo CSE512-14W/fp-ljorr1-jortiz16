@@ -143,14 +143,14 @@ function update(source) {
     // Compute the new tree layout.
     var nodes = tree.nodes(root);
     var links = tree.links(nodes);
-    console.log(nodes);
-    console.log(links)
+    //console.log(nodes);
+    //console.log(links)
     // Normalize for fixed-depth.
     nodes.forEach(function(d) { d.y = d.depth * 150; });
 
     // Update the nodes…
     var node = graph.selectAll("g.node")
-    .data(nodes, function(d, i) { return d.HaloID+i; });
+    .data(nodes, function(d, i) { return d.HaloID; });
 
     // Enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")
