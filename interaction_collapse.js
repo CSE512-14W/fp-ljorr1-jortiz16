@@ -1,39 +1,40 @@
 
     
 var doc = document.documentElement;
-var leftPanelWidth = 450;
-var margin = {top: 20, right: 20, bottom: 20, left: 20},
-width = doc.clientWidth - margin.right - margin.left - leftPanelWidth,
-height = doc.clientHeight - margin.top - margin.bottom - 100;//400 for search bar
+var clientWidth = Math.min(doc.clientWidth, 1400);
+var leftPanelWidth = 350;
+var margin = {top: 20, right: 20, bottom: 20, left: 70},
+width = clientWidth - margin.right - margin.left - leftPanelWidth,
+height = doc.clientHeight - margin.top - margin.bottom - 100;
 
-d3.select("#header").style("width", doc.clientWidth+"px");
+d3.select("#header").style("width", clientWidth+"px");
 d3.select("#header").style("height", 80+"px");
-d3.select("#windowDiv").style("width", doc.clientWidth+"px");
-d3.select("#leftPanel").style("height", height+"px");
+d3.select("#windowDiv").style("width", clientWidth+"px");
+d3.select("#leftPanel").style("height", height + margin.top + margin.bottom+"px");
 var i = 0,
 duration = 600,
-root;
+root, maxTime;
 
 var nodesMap, linksMap;
 
-var zoom = d3.behavior.zoom().on("zoom", zoomed);
-
 var tree = d3.layout.tree()
-    .size([height, width]);
+    .size([width, height]);
 
 var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.x, d.y]; });
-
+var nodeDistance = 100;
 //know that maximum halo mass is 83751473296264 and minimum is 875591334
 var massScale = d3.scale.log().domain([875591334,835751473296264]).range([1,18]);
+var timeScale = d3.scale.linear().domain([1,28]).range([0,27*nodeDistance]);
+
+var zoom = d3.behavior.zoom().y(timeScale).on("zoom", zoomed);
 
 var svg = d3.select("#svgContent")
-    .style("width", width)
-    .style("height", height)
+    .style("width", width + margin.left + margin.right)
+    .style("height", height + margin.top + margin.bottom)
     .append("svg")
-    .attr("width", width)
-    .attr("height", height)
-    //.attr("pointer-events", "all")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
     .call(zoom)
@@ -81,10 +82,37 @@ svg.append("rect")
     .attr("stroke", "black")
     .attr("fill", "white");
 
+var yaxis = svg.selectAll("g.axisgroup")
+    .data(d3.range(1, 27))
+    .enter().append("g")
+    .attr("class","axisgroup")
+    .attr("transform", function(d) { 
+        return "translate(0," + timeScale(d) + ")"; });
+        
+yaxis.append("line")
+    .attr("class", "axis")
+    .attr("x1", 0)
+    .attr("x2", width);
+
+yaxis.append("text")
+    .attr("class", "axislabel")
+    .attr("x", -20)
+    .attr("dy", "0.35em")
+    .attr("text-anchor", "end")
+    .text(function(d) { return d; });
+
 var graph = svg.append("g");
+
+//calculates the scale factor to fit all timesteps
+//height/26 is how far apart nodes need to be from eachother to fit
+//nodes are currently nodeDistancepx apart
+var shrink = (height/26)/nodeDistance;
+//graph.attr("transform", "translate(" + [(width/2)*(1-shrink),0] + ")scale(" + (height/26)/nodeDistance + ")");
+zoom.scaleExtent([shrink,(height/5)/nodeDistance]);
 
 d3.csv("links.csv", function(error1, raw_links) {
 d3.csv("nodes.csv", function(error2, raw_nodes) {
+    maxTime = d3.max(raw_nodes, function(d) { return +d.Timestep; })
     //basically makes an associative array but it's called a d3.map
     //for each HaloID key, had an array of nodes with that key
     //each array will be of length one
@@ -146,7 +174,7 @@ function update(source) {
     //console.log(nodes);
     //console.log(links)
     // Normalize for fixed-depth.
-    nodes.forEach(function(d) { d.y = d.depth * 150; });
+    nodes.forEach(function(d) { d.y = d.depth * nodeDistance; });
 
     // Update the nodes…
     var node = graph.selectAll("g.node")
@@ -169,7 +197,6 @@ function update(source) {
     .attr("dy", ".35em")
     .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
     .text(function(d) { return d.HaloID; })
-	.style("font-size", "20px")
     .style("fill-opacity", 1e-6)
 	;
 
@@ -237,7 +264,6 @@ function update(source) {
         d.x0 = d.x;
         d.y0 = d.y;
     });
-
 }
 
 function updateBox(d)
@@ -292,5 +318,17 @@ function click(d) {
 }
 
 function zoomed() {
-    graph.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+    var scale = d3.event.scale;
+    var tx = d3.event.translate[0];
+    var ty = d3.event.translate[1];
+    //100 for padding
+    tx = Math.min(Math.max(tx, -scale*width+100), width-100);
+    ty = Math.min(Math.max(ty, -scale*(maxTime-3)*nodeDistance), height-100);
+    graph.attr("transform", "translate(" + [tx,ty] + ")scale(" + scale + ")");
+
+    if (ty == d3.event.translate[1]) {
+        svg.selectAll("g.axisgroup")
+            .attr("transform", function(d) { 
+                return "translate(0," + timeScale(d) + ")"; });
+        }
 }

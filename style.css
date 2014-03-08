@@ -9,13 +9,23 @@
 }
 
 .node text {
-  font: 10px sans-serif;
+  font-size: 12px;
+  font-family: arial;
 }
 
 .link {
   fill: none;
   stroke: #ccc;
   stroke-width: 1.5px;
+}
+
+.axis {
+  stroke: #ddd;
+}
+
+.axislabel {
+  font-size: 16px;
+  font-family: arial;
 }
 
 div {
@@ -31,13 +41,13 @@ div {
 #topbarSelectHalo
 {
     text-align:center;
-	font-size: 20px;
-    font-family:Arial;
+	   font-size: 18px;
+    font-family:arial;
 }
 
 #leftPanel {
     background-color:#E8E8E8;
-	font-size: 20px;
+	font-size: 18px;
     font-family:Arial;
 }
 
@@ -48,7 +58,7 @@ div {
     border-color:gray;
     border-style:solid;
 	text-align: center;
-	font-size: 50px;
+	font-size: 40px;
     font-family:Arial;
 
 }
