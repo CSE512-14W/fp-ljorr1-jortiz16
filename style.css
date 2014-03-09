@@ -5,7 +5,7 @@
 .node circle {
   fill: #fff;
   stroke: steelblue;
-  stroke-width: 1.5px;
+  stroke-width: 3px;
 }
 
 .node text {
@@ -16,11 +16,12 @@
 .link {
   fill: none;
   stroke: #ccc;
-  stroke-width: 1.5px;
+  stroke-width: 2px;
 }
 
 .axis {
   stroke: #ddd;
+  stroke-width: 1px;
 }
 
 .axislabel {
@@ -41,13 +42,13 @@ div {
 #topbarSelectHalo
 {
     text-align:center;
-	   font-size: 18px;
+	  font-size: 18px;
     font-family:arial;
 }
 
 #leftPanel {
     background-color:#E8E8E8;
-	font-size: 18px;
+	  font-size: 18px;
     font-family:Arial;
 }
 
@@ -57,8 +58,8 @@ div {
     border:0px;
     border-color:gray;
     border-style:solid;
-	text-align: center;
-	font-size: 40px;
+  	text-align: center;
+  	font-size: 40px;
     font-family:Arial;
 
 }
