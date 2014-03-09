@@ -95,18 +95,18 @@ div {
     font-size: 10px;
 }
 
-path { 
+/*path { 
   stroke: steelblue;
   stroke-width: 2;
   fill: none;
-}
+}*/
 
 svgBrush {
   font: 10px sans-serif;
 }
 .axis text {
-    font-family: courier;
-    font-size: 12px;
+  font-family: courier;
+  font-size: 12px;
 	stroke:black;
 	fill:black;
 	
