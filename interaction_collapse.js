@@ -3,7 +3,7 @@
 var doc = document.documentElement;
 var clientWidth = Math.min(doc.clientWidth, 1400);
 var leftPanelWidth = 350;
-var margin = {top: 20, right: 20, bottom: 20, left: 70},
+var margin = {top: 30, right: 20, bottom: 20, left: 70},
 width = clientWidth - margin.right - margin.left - leftPanelWidth,
 height = doc.clientHeight - margin.top - margin.bottom - 100;
 
@@ -13,21 +13,22 @@ d3.select("#windowDiv").style("width", clientWidth+"px");
 d3.select("#leftPanel").style("height", height + margin.top + margin.bottom+"px");
 var i = 0,
 duration = 600,
-root, maxTime;
+root;
 
-var nodesMap, linksMap;
+var haloMap, nodesMap, linksMap;
 
 var tree = d3.layout.tree()
     .size([width, height]);
 
 var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.x, d.y]; });
-var nodeDistance = 100;
-//know that maximum halo mass is 83751473296264 and minimum is 875591334
-var massScale = d3.scale.log().domain([875591334,835751473296264]).range([1,18]);
-var timeScale = d3.scale.linear().domain([1,28]).range([0,27*nodeDistance]);
 
-var zoom = d3.behavior.zoom().y(timeScale).on("zoom", zoomed);
+var nodeDistance = 100;
+var maxTime= 0, maxMass = 0, minMass;
+var massScale = d3.scale.log();
+var timeScale = d3.scale.linear();
+
+var zoom = d3.behavior.zoom();
 
 var svg = d3.select("#svgContent")
     .style("width", width + margin.left + margin.right)
@@ -36,9 +37,30 @@ var svg = d3.select("#svgContent")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
     .call(zoom)
     .on("dblclick.zoom", null);
+
+svg.append("rect")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .attr("stroke", "black")
+    .attr("fill", "white");
+
+svg.append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .attr("stroke", "black")
+    .attr("fill", "white");
+
+svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .attr("class", "transform")
+    .append("g")
+    .attr("class", "timeaxis");
+
+svg.select(".transform").append("g")
+    .attr("class", "graph")  
 
 var infoBox = d3.select("#leftPanel");
 	
@@ -76,50 +98,84 @@ var textBox3 = infoBox.append("div").append("text")
     .style("font", "300 20px Helvetica Neue")
     .text("");
 
-svg.append("rect")
-    .attr("width", width)
-    .attr("height", height)
-    .attr("stroke", "black")
-    .attr("fill", "white");
-
-var yaxis = svg.selectAll("g.axisgroup")
-    .data(d3.range(1, 27))
-    .enter().append("g")
-    .attr("class","axisgroup")
-    .attr("transform", function(d) { 
-        return "translate(0," + timeScale(d) + ")"; });
-        
-yaxis.append("line")
-    .attr("class", "axis")
-    .attr("x1", 0)
-    .attr("x2", width);
-
-yaxis.append("text")
-    .attr("class", "axislabel")
-    .attr("x", -20)
-    .attr("dy", "0.35em")
-    .attr("text-anchor", "end")
-    .text(function(d) { return d; });
-
-var graph = svg.append("g");
+var graph = svg.select(".graph");
 
 //calculates the scale factor to fit all timesteps
 //height/26 is how far apart nodes need to be from eachother to fit
 //nodes are currently nodeDistancepx apart
-var shrink = (height/26)/nodeDistance;
+var shrink = (height/maxTime)/nodeDistance;
 //graph.attr("transform", "translate(" + [(width/2)*(1-shrink),0] + ")scale(" + (height/26)/nodeDistance + ")");
 zoom.scaleExtent([shrink,(height/5)/nodeDistance]);
 
-d3.csv("links.csv", function(error1, raw_links) {
-d3.csv("nodes.csv", function(error2, raw_nodes) {
-    maxTime = d3.max(raw_nodes, function(d) { return +d.Timestep; })
+d3.csv("links2.csv", function(error1, raw_links) {
+d3.csv("nodes2.csv", function(error2, raw_nodes) {
+
+    //SETS UP DATA DEPENDENT VARIABLES
+    minMass = raw_nodes[0].HaloMass;
+    raw_nodes.forEach(function(d){
+        maxTime = Math.max(maxTime, +d.Timestep);
+        maxMass = Math.max(maxMass, +d.HaloMass);
+        minMass = Math.min(minMass, +d.HaloMass);
+    });
+    //know that maximum halo mass is 83751473296264 and minimum is 875591334
+    massScale.domain([minMass, maxMass]).range([1,18]);
+    timeScale.domain([1,maxTime]).range([0,(maxTime-1)*nodeDistance]);
+    zoom.y(timeScale).on("zoom", zoomed);
+    var yaxis = svg.select(".timeaxis").selectAll("g.axisgroup")
+        .data(d3.range(1, maxTime+1))
+        .enter().append("g")
+        .attr("class","axisgroup")
+        .attr("transform", function(d) {
+            return "translate(0," + timeScale(d) + ")"; });
+        
+    yaxis.append("line")
+        .attr("class", "axis")
+        .attr("x1", -margin.right)
+        .attr("x2", width+margin.right);
+
+    yaxis.append("text")
+        .attr("class", "axislabel")
+        .attr("x", -40)
+        .attr("dy", "0.35em")
+        .attr("text-anchor", "end")
+        .text(function(d) { return d; });
+
+    //SETS UP NODE MAPS
     //basically makes an associative array but it's called a d3.map
     //for each HaloID key, had an array of nodes with that key
     //each array will be of length one
-    nodesMap = d3.nest().key(function(d) { return d.HaloID; }).map(raw_nodes, d3.map);
+    haloMap = d3.map();
+    var tempHaloNodesMap = d3.nest().key(function(d) { return d.NowGroup; }).map(raw_nodes, d3.map);
+    var tempHaloLinksMap = d3.nest().key(function(d) { return d.NowGroup; }).map(raw_links, d3.map);
+    var tempNodesMap, tempLinksMap, tempRoot;
+    tempHaloNodesMap.forEach(function(k, v) {
+        tempNodesMap = d3.nest().key(function(d) { return d.HaloID; }).map(v, d3.map);
+        tempLinksMap = d3.nest().key(function(d) { return d.NextHalo; }).map(tempHaloLinksMap.get(k), d3.map);
 
-    //since tree, each ancestor node will only have one descendant
-    linksMap = d3.nest().key(function(d) { return d.NextHalo; }).map(raw_links, d3.map);
+        //make tree structure from links
+        tempHaloLinksMap.get(k).forEach(function(link) {
+            //nodesMap array for each key has only one element
+            var parent = tempNodesMap.get(link.CurrentHalo)[0];
+            var child = tempNodesMap.get(link.NextHalo)[0];
+            if (parent.children) {
+                parent.children.push(child);
+            } else {
+                parent.children = [child];
+            }
+        });
+        tempRoot = tempNodesMap.get(tempHaloLinksMap.get(k)[0].CurrentHalo)[0];
+        tempRoot.x0 = width / 2;
+        tempRoot.y0 = 0;
+
+        haloMap.set(k, {root: tempRoot, nodes: tempNodesMap, links: tempLinksMap});
+    });
+    //default group
+    //updateTree("16");
+    var halo = haloMap.get("16");
+    root = halo.root;
+    nodesMap = halo.nodes;
+    linksMap = halo.links;
+    update(root);
     // linksMap.forEach(function(k, v) {
     //     //if bad link
     //     if (v.length > 1) {
@@ -136,38 +192,21 @@ d3.csv("nodes.csv", function(error2, raw_nodes) {
     //console.log(nodesMap);
     
     //console.log(linksMap);
-    raw_links.forEach(function(link) {
-        //console.log(link);
-        //nodesMap array for each key has only one element
-        var parent = nodesMap.get(link.CurrentHalo)[0];
-        var child = nodesMap.get(link.NextHalo)[0];
-        if (parent.children) {
-            parent.children.push(child);
-        } else {
-            parent.children = [child];
-        }
-    });
-    root = nodesMap.get(raw_links[0].CurrentHalo)[0];
-    //console.log(root);
-    links = raw_links;
-    //console.log(root);
-    root.x0 = width / 2;
-    root.y0 = 0;
+    
 
-    function collapse(d) {
-        if (d.children) {
-            d._children = d.children;
-            d._children.forEach(collapse);
-            d.children = null;
-        }
-    }
+    // function collapse(d) {
+    //     if (d.children) {
+    //         d._children = d.children;
+    //         d._children.forEach(collapse);
+    //         d.children = null;
+    //     }
+    // }
     //root.children.forEach(collapse);
-    update(root);
 });
 });
 
 function update(source) {
-
+    
     // Compute the new tree layout.
     var nodes = tree.nodes(root);
     var links = tree.links(nodes);
@@ -321,14 +360,56 @@ function zoomed() {
     var scale = d3.event.scale;
     var tx = d3.event.translate[0];
     var ty = d3.event.translate[1];
+    console.log(timeScale.domain(), timeScale.range(), scale);
     //100 for padding
-    tx = Math.min(Math.max(tx, -scale*width+100), width-100);
-    ty = Math.min(Math.max(ty, -scale*(maxTime-3)*nodeDistance), height-100);
+    tx = Math.min(Math.max(tx, -scale*width+50), width-50);
+    ty = Math.min(Math.max(ty, -scale*(27-3)*nodeDistance), height-100);
     graph.attr("transform", "translate(" + [tx,ty] + ")scale(" + scale + ")");
-
     if (ty == d3.event.translate[1]) {
-        svg.selectAll("g.axisgroup")
-            .attr("transform", function(d) { 
-                return "translate(0," + timeScale(d) + ")"; });
+        svg.select(".timeaxis").selectAll("g.axisgroup")
+            .attr("transform", function(d) {
+                //console.log(d, timeScale(d)); 
+                return "translate(0," + timeScale(d) + ")";
+            });
         }
+}
+
+function updateTree(grp) {
+    var halo = haloMap.get(grp);
+    root = halo.root;
+    nodesMap = halo.nodes;
+    linksMap = halo.links;
+
+    //exit current tree
+    var node = graph.selectAll("g.node")
+    .data([]);
+    //transition exiting nodes
+    var nodeExit = node.exit().transition()
+    .duration(duration)
+    .attr("transform", function(d) { return "translate(" + root.x0 + "," + root.y0 + ")"; })
+    .remove();
+
+    nodeExit.select("circle")
+    .attr("r", 1e-6);
+
+    nodeExit.select("text")
+    .style("fill-opacity", 1e-6);
+
+    //exit link
+    var link = graph.selectAll("path.link")
+    .data([]);
+
+    // Transition exiting nodes
+    link.exit().transition()
+    .duration(duration)
+    .attr("d", function(d) {
+       var o = {x: root.x0, y: root.y0};
+       return diagonal({source: o, target: o});
+    })
+    .remove();
+    setTimeout(function() {
+        update(root);
+    }, 100);
+
+    
 }
