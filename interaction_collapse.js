@@ -125,10 +125,10 @@ var	valueline = d3.svg.line()
 	
 //transform position to brush 
 var context = svgBrush.append("g")
-    .attr("transform", "translate(" + 30 + "," + 10 + ")"); //staring position
+    .attr("transform", "translate(" + 45 + "," + 10 + ")"); //staring position
 	
 var contextParticle = svgBrushParticle.append("g")
-    .attr("transform", "translate(" + 30 + "," + 10 + ")"); //staring position
+    .attr("transform", "translate(" + 45 + "," + 10 + ")"); //staring position
 
 d3.csv("links.csv", function(error1, raw_links) {
 d3.csv("nodes.csv", function(error2, raw_nodes) {
@@ -297,6 +297,15 @@ contextParticle.append("path")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + 75 + ")") //axis position
       .call(xAxis);
+	  
+context.append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+	.style("font-size", "11px")
+    .attr("x", 250)
+    .attr("y", 110)
+    .text("Mass");
+	
 context.append("g")
       .attr("class", "y axis")
       .attr("transform", "translate(0," + 0 + ")") //axis position
@@ -307,16 +316,44 @@ context
     .selectAll("rect")
       .attr("height", 80)
 	  .attr("y", -6); 
+	  
+
+context.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+	.style("font-size", "11px")
+	.attr("transform", "rotate(-90)")
+    .attr("x", -15)
+    .attr("y", -35)
+    .text("Frequency")  
+
 
 contextParticle.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + 75 + ")") //axis position
       .call(xAxisParticle);
 	  
+contextParticle.append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+	.style("font-size", "11px")
+    .attr("x", 250)
+    .attr("y", 110)
+    .text("Total Particle Count");
+	  
 contextParticle.append("g")
       .attr("class", "y axis")
       .attr("transform", "translate(0," + 0 + ")") //axis position
       .call(yAxisParticle);
+	
+contextParticle.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+	.style("font-size", "11px")
+	.attr("transform", "rotate(-90)")
+    .attr("x", -15)
+    .attr("y", -35)
+    .text("Frequency");
 	  
 contextParticle
       .attr("class", "x brush")
