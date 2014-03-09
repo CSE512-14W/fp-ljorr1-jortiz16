@@ -386,7 +386,7 @@ function update(source) {
 	 nodeUpdate.selectAll("text")
 	 .filter(function(d) 
 	 { return (d.HaloMass < brush.extent()[0] || d.HaloMass > brush.extent()[1])
-			  && (d.TotalParticles < brushParticle.extent()[0] || d.TotalParticles > brushParticle.extent()[1])})
+			  || (d.TotalParticles < brushParticle.extent()[0] || d.TotalParticles > brushParticle.extent()[1])})
      .style("fill", "black");
 	
 	
