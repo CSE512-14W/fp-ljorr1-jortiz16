@@ -12,8 +12,7 @@ d3.select("#header").style("height", 80+"px");
 d3.select("#windowDiv").style("width", clientWidth+"px");
 d3.select("#leftPanel").style("height", height + margin.top + margin.bottom+"px");
 var i = 0,
-duration = 600,
-root;
+duration = 600,root;
 
 var haloMap, nodesMap, linksMap;
 
@@ -30,6 +29,16 @@ var timeScale = d3.scale.linear();
 
 var zoom = d3.behavior.zoom();
 
+var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([-10, 0])
+  .html(function(d) {
+    return "<font color=\"red\">Halo Grp: </font>"  + d.GrpID + "<br/>" 
+	      + "<font color=\"red\">Halo Mass: </font>" + d.HaloMass + "<br/>" 
+		  + "<font color=\"red\">Total Particles: </font>" + d.TotalParticles + "<br/>"
+		  + "<font color=\"red\">Total Dark Particles: </font>" + d.TotalDarkParticles + "<br/>";
+  });
+
 var svg = d3.select("#svgContent")
     .style("width", width + margin.left + margin.right)
     .style("height", height + margin.top + margin.bottom)
@@ -39,6 +48,8 @@ var svg = d3.select("#svgContent")
     .append("g")
     .call(zoom)
     .on("dblclick.zoom", null);
+	
+svg.call(tip);
 
 svg.append("rect")
     .attr("width", width + margin.left + margin.right)
@@ -60,48 +71,67 @@ svg.append("g")
     .attr("class", "timeaxis");
 
 svg.select(".transform").append("g")
-    .attr("class", "graph")  
+    .attr("class", "graph") 
 
+var graph = svg.select(".graph");	
+
+//brushing details
 var infoBox = d3.select("#leftPanel");
-	
-var textBox0 = infoBox.append("div").append("text")
-    .attr("x", 950)
-    .attr("y", 320)
-    .attr("dy", ".35em")
-    .attr("text-anchor", "middle")
-    .style("font", "300 20px Helvetica Neue")
-	.style("font-size", "25px")
-	.style("font-weight", "bold")
-    .text("Halo Properties");
-	
-var textBox = infoBox.append("div").append("text")
-    .attr("x", 950)
-    .attr("y", 350)
-    .attr("dy", ".35em")
-    .attr("text-anchor", "middle")
-    .style("font", "300 20px Helvetica Neue")
-    .text("Hover over a node to see halo properties");
+//scales for both charts -- scaled properly later
+var	x = d3.scale.linear().range([0, 300]);
+var	y = d3.scale.linear().range([75, 0]);
+var	xParticle = d3.scale.linear().range([0, 300]);
+var	yParticle = d3.scale.linear().range([75, 0]);
 
-var textBox2 = infoBox.append("div").append("text")
-    .attr("x", 950)
-    .attr("y", 375)
-    .attr("dy", ".35em")
-    .attr("text-anchor", "middle")
-    .style("font", "300 20px Helvetica Neue")
-    .text("");
+//axes
+var exponentFormat = function (x) {return x.toExponential(1);}
+var	xAxis = d3.svg.axis().scale(x).orient("bottom").ticks(10).tickFormat(function(d) { return  exponentFormat(d); });
+var	yAxis = d3.svg.axis().scale(y).orient("left").ticks(5);
+var xAxisParticle = d3.svg.axis().scale(xParticle).orient("bottom").tickFormat(d3.format("s"));
+var	yAxisParticle = d3.svg.axis().scale(yParticle).orient("left").ticks(5);
+
+//areas- based on respective domains
+var area = d3.svg.area()
+	.interpolate("monotone")
+    .x(function(d) { return x(d.x); })
+    .y0(75)
+    .y1(function(d) { return y(d.y); }); 
+var areaParticle = d3.svg.area()
+	.interpolate("monotone")
+    .x(function(d) { return xParticle(d.x); })
+    .y0(75)
+    .y1(function(d) { return yParticle(d.y); });
+
+//initialize brushes
+var brush = d3.svg.brush()
+    .x(x)
+    .on("brush", brushed);
+var brushParticle = d3.svg.brush()
+    .x(xParticle)
+    .on("brush", brushed);
 	
-var textBox3 = infoBox.append("div").append("text")
-    .attr("x", 950)
-    .attr("y", 400)
-    .attr("dy", ".35em")
-    .attr("text-anchor", "middle")
-    .style("font", "300 20px Helvetica Neue")
-    .text("");
+//adding brushes to panels
+var svgBrush = d3.select("#massPanel").append("svg")
+    .attr("width", 550) //width a bit more b/c of text
+    .attr("height", 200);
+var svgBrushParticle = d3.select("#particlePanel").append("svg")
+    .attr("width", 550) //width a bit more b/c of text
+    .attr("height", 200);
 
-var graph = svg.select(".graph");
+//getter used for line 
+var	valueline = d3.svg.line()
+	.x(function(d) { return x(d.x); })
+	.y(function(d) { return y(d.y); });
+	
+//transform position to brush 
+var context = svgBrush.append("g")
+    .attr("transform", "translate(" + 30 + "," + 10 + ")"); //staring position
+	
+var contextParticle = svgBrushParticle.append("g")
+    .attr("transform", "translate(" + 30 + "," + 10 + ")"); //staring position
 
-d3.csv("links2.csv", function(error1, raw_links) {
-d3.csv("nodes2.csv", function(error2, raw_nodes) {
+d3.csv("links.csv", function(error1, raw_links) {
+d3.csv("nodes.csv", function(error2, raw_nodes) {
 
     //SETS UP DATA DEPENDENT VARIABLES
     minMass = raw_nodes[0].HaloMass;
@@ -201,6 +231,100 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     //     }
     // }
     //root.children.forEach(collapse);
+	
+	//brushing tools
+/*var haloMassCount = d3.nest().key(function(d) { return d.HaloMass; })
+								 .rollup(function(leaves) {return leaves.length;})
+								 .entries(raw_nodes);*/
+//parsing through values for halomass and totalparticles -- parseInt does not work
+var haloMassValues = d3.nest().key(function(d) { return parseFloat(d.HaloMass); }).map(raw_nodes, d3.map);
+var haloParticleValues = d3.nest().key(function(d) { return parseInt(d.TotalParticles); }).map(raw_nodes, d3.map);
+
+//get the key values from previous
+var keys = haloMassValues.keys();
+var keysParticles = haloParticleValues.keys();
+
+//mapping/foreach can be done here, but I couldn't get it to work
+var arrayTest = []
+for(var i = 0; i< keysParticles.length; i++){ arrayTest[i] = parseInt(keysParticles[i]);}
+var arrayTest2 = []
+for(var i = 0; i< keys.length; i++){ arrayTest2[i] = parseInt(keys[i]);}
+
+//get min/max for domains
+var minMass = d3.min(arrayTest2, function(d) { return d; }) 
+var maxMass = d3.max(arrayTest2, function(d) { return d; }) 
+var minParticle = d3.min(arrayTest, function(d) { return d; }) 
+var maxParticle = d3.max(arrayTest, function(d) { return d; }) 
+x.domain([minMass, maxMass + 10]);
+xParticle.domain([minParticle, maxParticle + 10]); //a bit of buffer
+
+//make buckets
+var dataBin = d3.layout.histogram()
+				.bins(10)(keys);
+var dataBinParticle = d3.layout.histogram()
+				.bins(10)(keysParticles);
+
+//set up bins min values as x axis ticks
+var finalArray = [];
+for(var i=0; i< dataBin.length; i++)
+	{
+	 var min= d3.min(dataBin[i], function(d) { return d; }) 
+	 finalArray[i] = {x: min, y: dataBin[i].length }
+	}
+var finalArrayParticle = [];
+for(var i=0; i< dataBinParticle.length; i++)
+{
+var min= d3.min(dataBinParticle[i], function(d) { return d; }) 
+finalArrayParticle[i] = {x: min, y: dataBinParticle[i].length }
+}
+//set y domains based on bin values
+y.domain([0, d3.max(finalArray, function(d) { return d.y; })]);
+yParticle.domain([0, d3.max(finalArrayParticle, function(d) { return d.y; })]);
+
+//tie context to area
+context.append("path")
+        .datum(finalArray)
+        .attr("class", "area")
+        .attr("d", area);
+		
+contextParticle.append("path")
+    .datum(finalArrayParticle)
+    .attr("class", "area")
+    .attr("d", areaParticle);
+	
+//x, y axes and calling brush
+ context.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + 75 + ")") //axis position
+      .call(xAxis);
+context.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(0," + 0 + ")") //axis position
+      .call(yAxis);
+context
+      .attr("class", "x brush")
+      .call(brush)
+    .selectAll("rect")
+      .attr("height", 80)
+	  .attr("y", -6); 
+
+contextParticle.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + 75 + ")") //axis position
+      .call(xAxisParticle);
+	  
+contextParticle.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(0," + 0 + ")") //axis position
+      .call(yAxisParticle);
+	  
+contextParticle
+      .attr("class", "x brush")
+      .call(brushParticle)
+    .selectAll("rect")
+      .attr("height", 80)
+	  .attr("y", -6);
+
 });
 });
 
@@ -228,7 +352,8 @@ function update(source) {
     .attr("r", 1e-6)
     .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
     .style("stroke", function(d) { return (d.Prog==1) ? "red" : "lightsteelblue"; })
-	.on("mouseover", function(d) {updateBox(d);});
+	.on('mouseover', tip.show)
+    .on('mouseout', tip.hide);
 
     nodeEnter.append("text")
     .attr("x", function(d) { return -massScale(d.HaloMass)-5; })
@@ -249,7 +374,22 @@ function update(source) {
     .style("stroke", function(d) { return d.Prog=='1' ? "red" : "lightsteelblue"; })
 	.style("stroke-width", "3");
 	
-
+	// color filters based on brushes
+	 nodeUpdate.selectAll("text")
+	 .filter(function(d) 
+	 { return d.HaloMass > brush.extent()[0] 
+		      && d.HaloMass < brush.extent()[1]
+			  && d.TotalParticles > brushParticle.extent()[0]
+			  && d.TotalParticles < brushParticle.extent()[1]})
+     .style("fill", "red");
+	 
+	 nodeUpdate.selectAll("text")
+	 .filter(function(d) 
+	 { return (d.HaloMass < brush.extent()[0] || d.HaloMass > brush.extent()[1])
+			  && (d.TotalParticles < brushParticle.extent()[0] || d.TotalParticles > brushParticle.extent()[1])})
+     .style("fill", "black");
+	
+	
     nodeUpdate.select("text")
     .style("fill-opacity", 1);
 
@@ -301,16 +441,6 @@ function update(source) {
         d.x0 = d.x;
         d.y0 = d.y;
     });
-}
-
-function updateBox(d)
-{
-//update the text box
-   //textBox.text("");
-   textBox.html("Halo Grp: " + d.GrpID);
-   textBox2.html("Halo Mass: " + d.HaloMass);
-   textBox3.html("Halo Particle Count: " + d.TotalParticles);
-   //textBox.append("Halo Mass " + d.HaloMass);
 }
 
 // Returns a list of all nodes under the root.
@@ -410,4 +540,8 @@ function updateTree(grp) {
     }, 750);
 
     
+}
+
+function brushed() {
+update();
 }

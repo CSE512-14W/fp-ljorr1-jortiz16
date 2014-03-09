@@ -23,13 +23,13 @@
   <tr>
   <td>
     <div id="leftPanel" style="width:350px; display:inline-block"> 
-      <p>FILTERING OPTIONS</p>
-      <button onclick="updateTree(15)">Click me</button>
-      <form action="demo_form.asp">
-        MASS: <input type="text" name="massBox"><br>
-        NUMBER OF PARTICLES: <input type="text" name="numberParticles"><br><br/>
-        <input type="submit" value="Submit">
-      </form>
+      <p> Highlights</p> <br/> <br/>
+		Mass
+		<div id="massPanel">
+		</div>
+		Particle
+		<div id="particlePanel">
+		</div>
     </div></td>
     <td>
     <div id="svgContent" style="display:inline-block;">	
@@ -42,6 +42,7 @@
   </div>
   <!-- <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script> -->
   <script src="http://d3js.org/d3.v3.js"></script>
+  <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
   <script src="interaction_collapse.js"></script>
 </body>
 </html>
