@@ -100,13 +100,6 @@ var textBox3 = infoBox.append("div").append("text")
 
 var graph = svg.select(".graph");
 
-//calculates the scale factor to fit all timesteps
-//height/26 is how far apart nodes need to be from eachother to fit
-//nodes are currently nodeDistancepx apart
-var shrink = (height/maxTime)/nodeDistance;
-//graph.attr("transform", "translate(" + [(width/2)*(1-shrink),0] + ")scale(" + (height/26)/nodeDistance + ")");
-zoom.scaleExtent([shrink,(height/5)/nodeDistance]);
-
 d3.csv("links2.csv", function(error1, raw_links) {
 d3.csv("nodes2.csv", function(error2, raw_nodes) {
 
@@ -120,7 +113,13 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     //know that maximum halo mass is 83751473296264 and minimum is 875591334
     massScale.domain([minMass, maxMass]).range([1,18]);
     timeScale.domain([1,maxTime]).range([0,(maxTime-1)*nodeDistance]);
-    zoom.y(timeScale).on("zoom", zoomed);
+    //calculates the scale factor to fit all timesteps
+    //height/26 is how far apart nodes need to be from eachother to fit
+    //nodes are currently nodeDistancepx apart
+    var shrink = (height/maxTime)/nodeDistance;
+    //graph.attr("transform", "translate(" + [(width/2)*(1-shrink),0] + ")scale(" + (height/26)/nodeDistance + ")");
+    zoom.y(timeScale).scaleExtent([shrink,(height/5)/nodeDistance]).on("zoom", zoomed);
+
     var yaxis = svg.select(".timeaxis").selectAll("g.axisgroup")
         .data(d3.range(1, maxTime+1))
         .enter().append("g")
@@ -360,7 +359,7 @@ function zoomed() {
     var scale = d3.event.scale;
     var tx = d3.event.translate[0];
     var ty = d3.event.translate[1];
-    console.log(timeScale.domain(), timeScale.range(), scale);
+    //console.log(timeScale.domain(), timeScale.range(), scale);
     //100 for padding
     tx = Math.min(Math.max(tx, -scale*width+50), width-50);
     ty = Math.min(Math.max(ty, -scale*(27-3)*nodeDistance), height-100);
