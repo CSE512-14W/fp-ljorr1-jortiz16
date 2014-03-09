@@ -78,9 +78,9 @@ var graph = svg.select(".graph");
 //brushing details
 var infoBox = d3.select("#leftPanel");
 //scales for both charts -- scaled properly later
-var	x = d3.scale.linear().range([0, 300]);
+var	x = d3.scale.linear().range([0, 450]);
 var	y = d3.scale.linear().range([75, 0]);
-var	xParticle = d3.scale.linear().range([0, 300]);
+var	xParticle = d3.scale.linear().range([0, 450]);
 var	yParticle = d3.scale.linear().range([75, 0]);
 
 //axes

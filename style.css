@@ -105,9 +105,11 @@ svgBrush {
   font: 10px sans-serif;
 }
 .axis text {
-    font-family: sans-serif;
-    font-size: 10px;
-	color:black;
+    font-family: courier;
+    font-size: 12px;
+	stroke:black;
+	fill:black;
+	
 }
 .axis path,
 .axis line {
