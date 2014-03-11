@@ -18,6 +18,8 @@ duration = 600,root;
 
 var haloMap, nodesMap, linksMap;
 
+var haloMassExtent, haloParticleExtent;
+
 var tree = d3.layout.tree()
     .size([width, height]);
 
@@ -225,6 +227,8 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     root = halo.root;
     nodesMap = halo.nodes;
     linksMap = halo.links;
+    haloMassExtent = d3.extent(nodesMap.values(), function(d) { return +d[0].HaloMass; });
+    haloParticleExtent = d3.extent(nodesMap.values(), function(d) { return +d[0].TotalParticles; });
     update(root);
     // linksMap.forEach(function(k, v) {
     //     //if bad link
@@ -445,7 +449,7 @@ function update(source) {
             var p = 10;
             var str = "M -" + p + " " + 1.5*r + " L " + p + " " + 1.5*r + " L 0 " + (1.5*p+1.5*r) + " z";
             //var str = "M -" + r + " " + 1.5*r + " L " + r + " " + 1.5*r + " L 0 " + 3*r + " z";
-            console.log(str);
+            //console.log(str);
             return str;
         });
 	
@@ -608,6 +612,8 @@ function updateTree(grp) {
     root = halo.root;
     nodesMap = halo.nodes;
     linksMap = halo.links;
+    haloMassExtent = d3.extent(nodesMap, function(k, v) { return v.HaloMass; });
+    haloParticleExtent = d3.extent(nodesMap, function(k, v) { return v.TotalParticles; });
 
     //exit current tree
     var node = graph.selectAll("g.node")
