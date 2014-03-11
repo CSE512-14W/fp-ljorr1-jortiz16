@@ -10,7 +10,7 @@ height = doc.clientHeight - margin.top - margin.bottom - 100;
 d3.select("#header").style("width", clientWidth+"px");
 d3.select("#header").style("height", 80+"px");
 d3.select("#windowDiv").style("width", clientWidth+"px");
-d3.select("#leftPanel").style("height", height + margin.top + margin.bottom+"px");
+//d3.select("#leftPanel").style("height", height + margin.top + margin.bottom+"px");
 
 //******************************SET UP SVG GRAPH WINDOW
 var i = 0,
@@ -81,7 +81,7 @@ var graph = svg.select(".graph");
 
 //******************************SET UP LEFT PANEL
 //brushing details
-var infoBox = d3.select("#leftPanel");
+//var infoBox = d3.select("#leftPanel");
 //scales for both charts -- scaled properly later
 var	x = d3.scale.linear().range([0, 450]);
 var	y = d3.scale.linear().range([75, 0]);
@@ -454,7 +454,7 @@ function update(source) {
         });
 	
 	// color filters based on brushes
-	 nodeUpdate.selectAll("text")
+	 nodeUpdate.selectAll("circle")
         .style("fill", function(d) {
             if(brush.empty() && brushParticle.empty()) {
                 return "black";
@@ -462,18 +462,18 @@ function update(source) {
                 if (d.HaloMass < brush.extent()[0] || d.HaloMass > brush.extent()[1]) {
                     return "black";
                 } else {
-                    return "red";
+                    return "gold";
                 }
             } else if (brush.empty() && !brushParticle.empty()) {
                 if (d.TotalParticles < brushParticle.extent()[0] || d.TotalParticles > brushParticle.extent()[1]) {
                     return "black";
                 } else {
-                    return "red";
+                    return "gold";
                 }
             } else {
                 if (d.HaloMass < brush.extent()[0] || d.HaloMass > brush.extent()[1] || d.TotalParticles < brushParticle.extent()[0] || d.TotalParticles > brushParticle.extent()[1]) {
                     return "black";
-                } else {return "red";}
+                } else {return "gold";}
             }
         });
         // .filter(function(d){
