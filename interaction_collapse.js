@@ -26,6 +26,7 @@ var diagonal = d3.svg.diagonal()
 
 var nodeDistance = 100;
 var massScale = d3.scale.log();
+var linkScale = d3.scale.log();
 var timeScale = d3.scale.linear();
 
 var zoom = d3.behavior.zoom();
@@ -134,14 +135,21 @@ var contextParticle = svgBrushParticle.append("g")
 
 
 //******************************LOAD DATA
-d3.csv("links.csv", function(error1, raw_links) {
-d3.csv("nodes.csv", function(error2, raw_nodes) {
+d3.csv("links2.csv", function(error1, raw_links) {
+d3.csv("nodes2.csv", function(error2, raw_nodes) {
 
     //CREATE DATA DEPENDENT VARIABLES
-    var maxTime = 0, maxMass = 0, minMass, maxParticle = 0, minParticle;
+    var maxTime = 0, maxMass = 0, minMass, maxParticle = 0, minParticle, maxSharedParticle = 0, minSharedParticle;
     var haloMassValues = [], haloParticleValues = [];
     minMass = raw_nodes[0].HaloMass;
     minParticle = raw_nodes[0].TotalParticles;
+    minSharedParticle = raw_links[0].sharedParticleCount;
+
+    raw_links.forEach(function(d) {
+        maxSharedParticle = Math.max(maxSharedParticle, +d.sharedParticleCount);
+        minSharedParticle = Math.min(minSharedParticle, +d.sharedParticleCount);
+    });
+
     raw_nodes.forEach(function(d){
         maxTime = Math.max(maxTime, +d.Timestep);
         maxMass = Math.max(maxMass, +d.HaloMass);
@@ -153,6 +161,8 @@ d3.csv("nodes.csv", function(error2, raw_nodes) {
     });
     //know that maximum halo mass is 83751473296264 and minimum is 875591334
     massScale.domain([minMass, maxMass]).range([1,18]);
+    linkScale.domain([minSharedParticle, maxSharedParticle]).range([2,20]);
+
     timeScale.domain([1,maxTime]).range([0,(maxTime-1)*nodeDistance]);
     //calculates the scale factor to fit all timesteps
     //height/26 is how far apart nodes need to be from eachother to fit
@@ -400,10 +410,16 @@ function update(source) {
 
     nodeEnter.append("circle")
         .attr("r", 1e-6)
-        .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
-        .style("stroke", function(d) { return (d.Prog==1) ? "red" : "lightsteelblue"; })
+        //.style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
+        //.style("stroke", function(d) { return (d.Prog==1) ? "red" : "lightsteelblue"; })
     	.on('mouseover', tip.show)
         .on('mouseout', tip.hide);
+
+    nodeEnter.append("path") //0 0 is center of circle
+        .attr("class", "children")
+        .attr("d", "M 0 0")
+        .style("fill-opacity", function(d) { return d._children ? 1 : 1e-6; })
+        .style("fill", "green");
 
     nodeEnter.append("text")
         .attr("x", function(d) { return -massScale(d.HaloMass)-5; })
@@ -419,9 +435,19 @@ function update(source) {
 
     nodeUpdate.select("circle")
         .attr("r", function(d) { return massScale(d.HaloMass); })
-        .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
         .style("stroke", function(d) { return d.Prog=='1' ? "red" : "lightsteelblue"; })
     	.style("stroke-width", "3");
+
+    nodeUpdate.select("path.children")
+        .style("fill-opacity", function(d) { return d._children ? 1 : 1e-6; })
+        .attr("d", function(d) {
+            var r = 5*massScale(d.HaloMass)/6;
+            var p = 10;
+            var str = "M -" + p + " " + 1.5*r + " L " + p + " " + 1.5*r + " L 0 " + (1.5*p+1.5*r) + " z";
+            //var str = "M -" + r + " " + 1.5*r + " L " + r + " " + 1.5*r + " L 0 " + 3*r + " z";
+            console.log(str);
+            return str;
+        });
 	
 	// color filters based on brushes
 	 nodeUpdate.selectAll("text")
@@ -495,10 +521,12 @@ function update(source) {
     link.transition()
         .duration(duration)
         .attr("d", function(d) {
-            //console.log(d);
             return diagonal(d);
             //return diagonal({source: nodesMap.get(d.CurrentHalo)[0], target:nodesMap.get(d.NextHalo)[0]});
-        });
+        })
+        .style("stroke-width", function(d) { return linkScale(+linksMap.get(d.target.HaloID)[0].sharedParticleCount); })
+        .style("opacity","0.4")
+        .style("stroke-linecap", "round"); //can be butt or square
     //console.log("her3e");
     // Transition exiting nodes to the parent's new position.
     link.exit().transition()
