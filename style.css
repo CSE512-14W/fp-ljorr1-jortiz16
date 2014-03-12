@@ -41,6 +41,11 @@ rect {
   fill : #3B3B3B;
 }
 
+.rect .extent
+{
+  color : #E3C937
+}
+
 #svgContent {
      align: center;
 }
