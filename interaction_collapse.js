@@ -126,10 +126,10 @@ var brushParticle = d3.svg.brush()
 //adding brushes to panels
 var svgBrushMass = d3.select("#massPanel").append("svg")
     .attr("width", 800) //width a bit more b/c of text
-    .attr("height", 400);
+    .attr("height", 200);
 var svgBrushParticle = d3.select("#particlePanel").append("svg")
-    .attr("width", 800) //width a bit more b/c of text
-    .attr("height", 400);
+    .attr("width", 750) //width a bit more b/c of text
+    .attr("height", 200);
 	
 //transform position to brush 
 var contextMass = svgBrushMass.append("g")
@@ -507,7 +507,8 @@ function update(source) {
             }
 			counterSel = counterSel +1;
             return selected;
-        });
+        })
+		.style("fill-opacity", .8);
 		console.log(counterSel);
 	
     // Transition exiting nodes to the parent's new position.

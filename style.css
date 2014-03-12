@@ -36,14 +36,14 @@ div {
     padding: 0;
 }
 
-rect {
+.rect {
   stroke : white;
   fill : #3B3B3B;
 }
 
 .rect .extent
 {
-  color : #E3C937
+  color : #E3C937;
 }
 
 #svgContent {
@@ -118,11 +118,17 @@ svgBrush {
 }
 
 .area {
-    fill: lightsteelblue;
+    fill: #D7D7D7;
+    stroke-width: 0;
+}
+
+.areaTop {
+    fill: #464646;
     stroke-width: 0;
 }
 .brush .extent {
   stroke: #fff;
-  fill-opacity: .125;
-  shape-rendering: crispEdges;
+  fill: #E3C937;
+  fill-opacity: .4;
+  
 }
