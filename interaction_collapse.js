@@ -507,8 +507,7 @@ function update(source) {
             }
 			counterSel = counterSel +1;
             return selected;
-        })
-		.style("fill-opacity", .8);
+        });
 		console.log(counterSel);
 	
     // Transition exiting nodes to the parent's new position.

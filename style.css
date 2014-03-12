@@ -36,49 +36,40 @@ div {
     padding: 0;
 }
 
-.rect {
+rect {
   stroke : white;
   fill : #3B3B3B;
 }
 
-.rect .extent
-{
-  color : #E3C937;
-}
-
 #svgContent {
-     align: center;
+     align:center;
 }
 
 #leftPanel {
-    background-color: white;
+    background-color:white;
 	  font-size: 18px;
-    font-family: arial;
+    font-family:Arial;
 }
 
 #header{
-    width: 100%;
-    background: white;
-    border: 0px;
-    border-color: gray;
-    border-style: solid;
+    width:100%;
+    background:white;
+    border:0px;
+    border-color:gray;
+    border-style:solid;
   	text-align: center;
   	font-size: 40px;
-    font-family: arial;
+    font-family:Arial;
 
 }
 
 .d3-tip {
   line-height: 1;
-  background: #EEEEEE;
-  font-family: arial;
-  padding: 10px;
-  font-color: #FF0000;
+  font-weight: bold;
+  padding: 12px;
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
-  border: 0px;
-  border-radius: 12px;
-  pointer-events: none;
+  border-radius: 2px;
 }
 
 .d3-tip:after {
@@ -96,8 +87,7 @@ div {
 .d3-tip.n:after {
   margin: -1px 0 0 0;
   top: 100%;
-  left: 0;
-}
+  left: 0;}
 
 svgBrush {
   font: 10px sans-serif;
@@ -121,13 +111,14 @@ svgBrush {
     fill: #D7D7D7;
     stroke-width: 0;
 }
-
 .areaTop {
     fill: #464646;
     stroke-width: 0;
 }
+
+
 .brush .extent {
-  stroke: #fff;
+   stroke: #fff;
   fill: #E3C937;
   fill-opacity: .4;
   
