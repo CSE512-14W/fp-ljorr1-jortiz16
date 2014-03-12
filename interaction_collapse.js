@@ -2,15 +2,18 @@
     
 var doc = document.documentElement;
 var clientWidth = Math.min(doc.clientWidth, 1400);
-var leftPanelWidth = 350;
-var margin = {top: 30, right: 20, bottom: 20, left: 70},
-width = clientWidth - margin.right - margin.left - leftPanelWidth,
-height = doc.clientHeight - margin.top - margin.bottom - 100;
+//global replace all non-digits with nothing to get the height number
+var leftPanelHeight = document.getElementById("leftPanel").style.height;
+leftPanelHeight = +leftPanelHeight.replace(/\D/g,"");
+var margin = {top: 70, right: 20, bottom: 20, left: 20},
+width = clientWidth - margin.right - margin.left,
+height = doc.clientHeight - margin.top - margin.bottom - leftPanelHeight - 80; //80 for header
 
 d3.select("#header").style("width", clientWidth+"px");
 d3.select("#header").style("height", 80+"px");
 d3.select("#windowDiv").style("width", clientWidth+"px");
-d3.select("#leftPanel").style("height", height + margin.top + margin.bottom+"px");
+//d3.select("#windowDiv").style("height", (doc.clientHeight-80)+"px");
+//d3.select("#leftPanel").style("height", height + margin.top + margin.bottom+"px");
 
 //******************************SET UP SVG GRAPH WINDOW
 var i = 0,
@@ -20,11 +23,13 @@ var haloMap, nodesMap, linksMap;
 
 var haloMassExtent, haloParticleExtent;
 
+var maxTime = 0;
+
 var tree = d3.layout.tree()
-    .size([width, height]);
+    .size([height, width]);
 
 var diagonal = d3.svg.diagonal()
-    .projection(function(d) { return [d.x, d.y]; });
+    .projection(function(d) { return [d.y, d.x]; });
 
 var nodeDistance = 100;
 var massScale = d3.scale.log();
@@ -141,7 +146,7 @@ d3.csv("links2.csv", function(error1, raw_links) {
 d3.csv("nodes2.csv", function(error2, raw_nodes) {
 
     //CREATE DATA DEPENDENT VARIABLES
-    var maxTime = 0, maxMass = 0, minMass, maxParticle = 0, minParticle, maxSharedParticle = 0, minSharedParticle;
+    var maxMass = 0, minMass, maxParticle = 0, minParticle, maxSharedParticle = 0, minSharedParticle;
     var haloMassValues = [], haloParticleValues = [];
     minMass = raw_nodes[0].HaloMass;
     minParticle = raw_nodes[0].TotalParticles;
@@ -169,26 +174,26 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     //calculates the scale factor to fit all timesteps
     //height/26 is how far apart nodes need to be from eachother to fit
     //nodes are currently nodeDistancepx apart
-    var shrink = (height/maxTime)/nodeDistance;
+    var shrink = (width/maxTime)/nodeDistance;
     //graph.attr("transform", "translate(" + [(width/2)*(1-shrink),0] + ")scale(" + (height/26)/nodeDistance + ")");
-    zoom.y(timeScale).scaleExtent([shrink,(height/5)/nodeDistance]).on("zoom", zoomed);
+    zoom.x(timeScale).scaleExtent([shrink,(width/5)/nodeDistance]).on("zoom", zoomed);
 
     var yaxis = svg.select(".timeaxis").selectAll("g.axisgroup")
         .data(d3.range(1, maxTime+1))
         .enter().append("g")
         .attr("class","axisgroup")
         .attr("transform", function(d) {
-            return "translate(0," + timeScale(d) + ")"; });
+            return "translate(" + timeScale(d) + ", 0)"; });
         
     yaxis.append("line")
         .attr("class", "axis")
-        .attr("x1", -margin.right)
-        .attr("x2", width+margin.right);
+        .attr("y1", -margin.top)
+        .attr("y2", height+margin.top);
 
     yaxis.append("text")
         .attr("class", "axislabel")
-        .attr("x", -40)
-        .attr("dy", "0.35em")
+        .attr("y", -35)
+        .attr("dx", "0.35em")
         .attr("text-anchor", "end")
         .text(function(d) { return d; });
 
@@ -216,7 +221,7 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
             }
         });
         tempRoot = tempNodesMap.get(tempHaloLinksMap.get(k)[0].CurrentHalo)[0];
-        tempRoot.x0 = width / 2;
+        tempRoot.x0 = height/2;
         tempRoot.y0 = 0;
 
         haloMap.set(k, {root: tempRoot, nodes: tempNodesMap, links: tempLinksMap});
@@ -230,60 +235,7 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     haloMassExtent = d3.extent(nodesMap.values(), function(d) { return +d[0].HaloMass; });
     haloParticleExtent = d3.extent(nodesMap.values(), function(d) { return +d[0].TotalParticles; });
     update(root);
-    // linksMap.forEach(function(k, v) {
-    //     //if bad link
-    //     if (v.length > 1) {
-    //         for (var i = 0; i < v.length; i++) {
-    //             v[i].NextHalo = k+'_'+i;
-    //             linksMap.set(k+'_'+i,[v[i]]);
-    //             nodesMap.set(k+'_'+i,nodesMap.get(k));
-    //         };
-    //         linksMap.remove(k);
-    //         nodesMap.remove(k);
-    //     }
-    // });
-    // var badLinks = linksMap.values().filter(function(d) { return d.length > 1; });
-    //console.log(nodesMap);
-    
-    //console.log(linksMap);
-    
 
-    // function collapse(d) {
-    //     if (d.children) {
-    //         d._children = d.children;
-    //         d._children.forEach(collapse);
-    //         d.children = null;
-    //     }
-    // }
-    //root.children.forEach(collapse);
-	
-	//brushing tools
-    /*var haloMassCount = d3.nest().key(function(d) { return d.HaloMass; })
-								 .rollup(function(leaves) {return leaves.length;})
-								 .entries(raw_nodes);*/
-    //CREATE BRUSHING TOOLS
-    //parsing through values for halomass and totalparticles -- parseInt does not work
-    // var haloMassValues2 = d3.nest().key(function(d) { return parseFloat(d.HaloMass); }).map(raw_nodes, d3.map);
-    //var haloParticleValues2 = d3.nest().key(function(d) { return parseInt(d.TotalParticles); }).map(raw_nodes, d3.map);
-
-    //get the key values from previous
-    // var keys = haloMassValues2.keys();
-    //var keysParticles = haloParticleValues2.keys();
-    //mapping/foreach can be done here, but I couldn't get it to work
-    // var arrayTest = [];
-    // for(var i = 0; i< keysParticles.length; i++){
-    //     arrayTest[i] = parseInt(keysParticles[i])
-    // ;}
-    // var arrayTest2 = [];
-    // for(var i = 0; i< keys.length; i++){
-    //     arrayTest2[i] = parseInt(keys[i])
-    // ;}
-
-    // //get min/max for domains
-    // var minMass = d3.min(arrayTest2, function(d) { return d; });
-    // var maxMass = d3.max(arrayTest2, function(d) { return d; });
-    // var minParticle = d3.min(arrayTest, function(d) { return d; });
-    // var maxParticle = d3.max(arrayTest, function(d) { return d; });
     x.domain([minMass, maxMass + 10]);
     xParticle.domain([minParticle, maxParticle + 10]); //a bit of buffer
     //make buckets
@@ -291,13 +243,7 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     	.bins(10)(haloMassValues);
     var dataBinParticle = d3.layout.histogram()
     	.bins(10)(haloParticleValues);
-    //console.log(dataBinParticle);
-    //dataBinParticle = d3.layout.histogram()
-    //    .bins(10)(keysParticles);
-    //dataBin = d3.layout.histogram()
-    //    .bins(10)(keys);                
-    //console.log(dataBinParticle);
-    //set up bins min values as x axis ticks
+
     var finalArray = [];
     for(var i=0; i< dataBin.length; i++){
     	var min = d3.min(dataBin[i], function(d) { return d; });
@@ -393,7 +339,6 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
 });
 
 function update(source) {
-    
     // Compute the new tree layout.
     var nodes = tree.nodes(root);
     var links = tree.links(nodes);
@@ -409,13 +354,11 @@ function update(source) {
     // Enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")
         .attr("class", "node")
-        .attr("transform", function(d) { return "translate(" + source.x0 + "," + source.y0 + ")"; })
+        .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
         .on("click", click);
 
     nodeEnter.append("circle")
         .attr("r", 1e-6)
-        //.style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
-        //.style("stroke", function(d) { return (d.Prog==1) ? "red" : "lightsteelblue"; })
     	.on('mouseover', tip.show)
         .on('mouseout', tip.hide);
 
@@ -435,7 +378,7 @@ function update(source) {
     // Transition nodes to their new position.
     var nodeUpdate = node.transition()
         .duration(duration)
-        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+        .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
     nodeUpdate.select("circle")
         .attr("r", function(d) { return massScale(d.HaloMass); })
@@ -476,22 +419,6 @@ function update(source) {
                 } else {return "red";}
             }
         });
-        // .filter(function(d){
-        //     console.log(d.TotalParticles, brushParticle.empty() || (d.TotalParticles >= brushParticle.extent()[0] && d.TotalParticles <= brushParticle.extent()[1]));
-        //     return (!brush.empty() || !brushParticle.empty())
-        //     && (brush.empty() || (d.HaloMass >= brush.extent()[0] && d.HaloMass <= brush.extent()[1]))
-        //     && (brushParticle.empty() || (d.TotalParticles >= brushParticle.extent()[0] && d.TotalParticles <= brushParticle.extent()[1])); })
-        // .style("fill", "red");
-	 
-	 /*nodeUpdate.selectAll("text")
-    	 .filter(function(d){
-            //console.log(brush.empty() && brushParticle.empty());
-            //console.log(!brush.empty() && (d.HaloMass < brush.extent()[0] || d.HaloMass > brush.extent()[1]));
-            //console.log(!brushParticle.empty() && (d.TotalParticles < brushParticle.extent()[0] || d.TotalParticles > brushParticle.extent()[1]));
-            return (brush.empty() && brush.empty())
-            || (!brush.empty() && (d.HaloMass < brush.extent()[0] || d.HaloMass > brush.extent()[1]))
-            || (!brushParticle.empty() && (d.TotalParticles < brushParticle.extent()[0] || d.TotalParticles > brushParticle.extent()[1]));})
-         .style("fill", "black");*/
 	
     nodeUpdate.select("text")
     .style("fill-opacity", 1);
@@ -499,7 +426,7 @@ function update(source) {
     // Transition exiting nodes to the parent's new position.
     var nodeExit = node.exit().transition()
         .duration(duration)
-        .attr("transform", function(d) { return "translate(" + source.x + "," + source.y + ")"; })
+        .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
         .remove();
 
     nodeExit.select("circle")
@@ -594,59 +521,115 @@ function zoomed() {
     var tx = d3.event.translate[0];
     var ty = d3.event.translate[1];
     //console.log(timeScale.domain(), timeScale.range(), scale);
+    //console.log(tx, ty);
     //100 for padding
-    tx = Math.min(Math.max(tx, -scale*width+50), width-50);
-    ty = Math.min(Math.max(ty, -scale*(27-3)*nodeDistance), height-100);
+    ty = Math.min(Math.max(ty, -scale*height+scale*height/5), height-scale*height/5);
+    tx = Math.min(Math.max(tx, -scale*(maxTime-4)*nodeDistance), width-3*scale*nodeDistance);
+    //set the zoom translate so if user keeps on scrolling, it doesn't register with zoom
+    zoom.translate([tx,ty]);
     graph.attr("transform", "translate(" + [tx,ty] + ")scale(" + scale + ")");
-    if (ty == d3.event.translate[1]) {
+    if (tx == d3.event.translate[0]) {
         svg.select(".timeaxis").selectAll("g.axisgroup")
             .attr("transform", function(d) {
                 //console.log(d, timeScale(d)); 
-                return "translate(0," + timeScale(d) + ")";
+                return "translate(" + timeScale(d) + ", 0)";
             });
         }
 }
 
 function updateTree(grp) {
-    var halo = haloMap.get(grp);
-    root = halo.root;
-    nodesMap = halo.nodes;
-    linksMap = halo.links;
-    haloMassExtent = d3.extent(nodesMap, function(k, v) { return v.HaloMass; });
-    haloParticleExtent = d3.extent(nodesMap, function(k, v) { return v.TotalParticles; });
+    zoom.scale(1);
+    zoom.translate([0,0]);
+    graph.transition().duration(duration).attr("transform", "translate(" + [0,0] + ")scale(" + 1 + ")");
+    svg.select(".timeaxis").selectAll("g.axisgroup").transition().duration(duration)
+        .attr("transform", function(d) {
+            //console.log(d, timeScale(d)); 
+            return "translate(" + timeScale(d) + ", 0)";
+        });
 
-    //exit current tree
-    var node = graph.selectAll("g.node")
-    .data([]);
-    //transition exiting nodes
-    var nodeExit = node.exit().transition()
-    .duration(duration)
-    .attr("transform", function(d) { return "translate(" + root.x0 + "," + root.y0 + ")"; })
-    .remove();
+    setTimeout(function(){
+        function expand(d) {
+            //must check if children and _children so don't expand leaf
+            if (d._children) {
+                d.children = d._children;
+                d._children = null;
+                update(d);
+                d.children.forEach(expand);
+            }
+            else if (d.children) {
+                d.children.forEach(expand);
+            }
+        }
+        expand(root)
+    }, duration);
+    //pause for the transition to complete
+    setTimeout(function(){
+        var halo = haloMap.get(grp);
+        root = halo.root;
+        nodesMap = halo.nodes;
+        linksMap = halo.links;
+        haloMassExtent = d3.extent(nodesMap, function(k, v) { return v.HaloMass; });
+        haloParticleExtent = d3.extent(nodesMap, function(k, v) { return v.TotalParticles; });
 
-    nodeExit.select("circle")
-    .attr("r", 1e-6);
+        //exit current tree
+        var node = graph.selectAll("g.node")
+        .data([]);
+        //transition exiting nodes
+        var nodeExit = node.exit().transition()
+        .duration(duration)
+        .attr("transform", function(d) { return "translate(" + root.y0 + "," + root.x0 + ")"; })
+        .remove();
 
-    nodeExit.select("text")
-    .style("fill-opacity", 1e-6);
+        nodeExit.select("circle")
+        .attr("r", 1e-6);
 
-    //exit link
-    var link = graph.selectAll("path.link")
-    .data([]);
+        nodeExit.select("text")
+        .style("fill-opacity", 1e-6);
 
-    // Transition exiting nodes
-    link.exit().transition()
-    .duration(duration)
-    .attr("d", function(d) {
-       var o = {x: root.x0, y: root.y0};
-       return diagonal({source: o, target: o});
-    })
-    .remove();
-    setTimeout(function() {
-        update(root);
-    }, 750);
+        //exit link
+        var link = graph.selectAll("path.link")
+        .data([]);
 
-    
+        // Transition exiting nodes
+        link.exit().transition()
+        .duration(duration)
+        .attr("d", function(d) {
+           var o = {x: root.x0, y: root.y0};
+           return diagonal({source: o, target: o});
+        })
+        .remove();
+        setTimeout(function() {
+            update(root);
+        }, duration);
+    }, 2*duration); //must pause for two transitions
+}
+
+function resetTree() {
+    zoom.scale(1);
+    zoom.translate([0,0]);
+    graph.transition().duration(duration).attr("transform", "translate(" + [0,0] + ")scale(" + 1 + ")");
+    svg.select(".timeaxis").selectAll("g.axisgroup").transition().duration(duration)
+        .attr("transform", function(d) {
+            //console.log(d, timeScale(d)); 
+            return "translate(" + timeScale(d) + ", 0)";
+        });
+    //pause for the transition to complete
+    setTimeout(function(){
+        function expand(d) {
+            //must check if children and _children so don't expand leaf
+            if (d._children) {
+                d.children = d._children;
+                d._children = null;
+                update(d);
+                setTimeout(function() { d.children.forEach(expand); }, duration);
+                //update(d);
+            }
+            else if (d.children) {
+                d.children.forEach(expand);
+            }
+        }
+        expand(root)
+    }, duration);
 }
 
 function brushed() {

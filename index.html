@@ -7,43 +7,38 @@
 
 </head>
 <body>
-<div id="windowDiv" style="display:inline-block;">
-  <div id="header" style="display:block;"> Galactic Merger Trees </div>
-  <div id="main" style="display:block;">
-  <!-- <div id="topbarSelectHalo">
-    Select Present Day Halo:
-    <select>
-      <option value="Halo16">Halo16</option>
-      <option value="Halo10">Halo10</option>
-      <option value="Halo20">Halo20</option>
-      <option value="Halo50">Halo50</option>
-    </select>
-  </div> -->
-  <table>
-  <tr>
-  <td>
-    <div id="leftPanel" style="width:530px; display:inline-block"> 
-      <p><h2> Highlights </h2></p> <br/> <br/>
-	     <font size =3px> Please select mass and particle count range to highlight nodes</font>
-		<p><b>Mass</b></p>
-		<div id="massPanel">
-		</div>
-		<p><b>Particle Count</b></p>
-		<div id="particlePanel">
-		</div>
-    </div></td>
-    <td>
-    <div id="svgContent" style="display:inline-block;">	
+  <div id="windowDiv" style="display:inline-block;">
+    <div id="header" style="display:block;"> Galactic Merger Trees </div>
+    <div id="main" style="display:block;">
+      <table>
+        <tr>
+          <td>
+            <div id="svgContent" style="display:inline-block;">	
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div id="leftPanel" style="height:300px; display:inline-block"> 
+              <p><h2> Highlights </h2></p> <br/> <br/>
+              <div><button onclick='resetTree()'>Reset Tree</button></div>
+              <div><button onclick='updateTree(15)'>Change Tree</button></div>
+              <font size =3px> Please select mass and particle count range to highlight nodes</font>
+              <p><b>Mass</b></p>
+              <div id="massPanel">
+              </div>
+              <p><b>Particle Count</b></p>
+              <div id="particlePanel">
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
     </div>
-    </td>
-    </tr>
-    </table>
   </div>
-  </div>
-  </div>
-  <!-- <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script> -->
-  <script src="http://d3js.org/d3.v3.js"></script>
-  <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-  <script src="interaction_collapse.js"></script>
+<!-- <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script> -->
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script src="interaction_collapse.js"></script>
 </body>
 </html>
