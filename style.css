@@ -2,31 +2,32 @@
   cursor: pointer;
 }
 
-.node circle {
-  fill: #fff;
-  stroke: steelblue;
-  stroke-width: 3px;
-}
-
 .node text {
   font-size: 12px;
   font-family: arial;
 }
 
+path.children {
+  fill: #DDDDDD;
+}
+
 .link {
   fill: none;
-  stroke: #ccc;
+  stroke: #DDDDDD;
+  stroke-opacity: 0.7;
   stroke-width: 2px;
 }
 
-.axis {
-  stroke: #ddd;
+.timeaxisline {
+  stroke: #FFFFFF;
+  stroke-opacity: 0.2;
   stroke-width: 1px;
 }
 
-.axislabel {
+.timeaxislabel {
   font-size: 16px;
   font-family: arial;
+  fill: #DDDDDD;
 }
 
 div {
@@ -35,15 +36,13 @@ div {
     padding: 0;
 }
 
-#svgContent {
-     align:center;
+rect {
+  stroke : white;
+  fill : #3B3B3B;
 }
 
-#topbarSelectHalo
-{
-    text-align:center;
-	  font-size: 18px;
-    font-family:arial;
+#svgContent {
+     align:center;
 }
 
 #leftPanel {
@@ -89,17 +88,6 @@ div {
   margin: -1px 0 0 0;
   top: 100%;
   left: 0;}
-  
-  .axis text {
-    font-family: sans-serif;
-    font-size: 10px;
-}
-
-/*path { 
-  stroke: steelblue;
-  stroke-width: 2;
-  fill: none;
-}*/
 
 svgBrush {
   font: 10px sans-serif;

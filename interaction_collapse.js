@@ -61,16 +61,12 @@ svg.call(tip);
 
 svg.append("rect")
     .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .attr("stroke", "black")
-    .attr("fill", "white");
+    .attr("height", height + margin.top + margin.bottom);
 
 svg.append("rect")
     .attr("width", width)
     .attr("height", height)
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    .attr("stroke", "black")
-    .attr("fill", "white");
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -177,20 +173,20 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     //graph.attr("transform", "translate(" + [(width/2)*(1-shrink),0] + ")scale(" + (height/26)/nodeDistance + ")");
     zoom.x(timeScale).scaleExtent([shrink,(width/5)/nodeDistance]).on("zoom", zoomed);
 
-    var yaxis = svg.select(".timeaxis").selectAll("g.axisgroup")
+    var yaxis = svg.select(".timeaxis").selectAll("g.timeaxisgroup")
         .data(d3.range(1, maxTime+1))
         .enter().append("g")
-        .attr("class","axisgroup")
+        .attr("class","timeaxisgroup")
         .attr("transform", function(d) {
             return "translate(" + timeScale(d) + ", 0)"; });
         
     yaxis.append("line")
-        .attr("class", "axis")
+        .attr("class", "timeaxisline")
         .attr("y1", -margin.top)
         .attr("y2", height+margin.top);
 
     yaxis.append("text")
-        .attr("class", "axislabel")
+        .attr("class", "timeaxislabel")
         .attr("y", -35)
         .attr("dx", "0.35em")
         .attr("text-anchor", "end")
@@ -364,15 +360,14 @@ function update(source) {
     nodeEnter.append("path") //0 0 is center of circle
         .attr("class", "children")
         .attr("d", "M 0 0")
-        .style("fill-opacity", function(d) { return d._children ? 1 : 1e-6; })
-        .style("fill", "green");
-
-    nodeEnter.append("text")
-        .attr("x", function(d) { return -massScale(d.HaloMass)-5; })
-        .attr("dy", ".35em")
-        .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-        .text(function(d) { return d.HaloID; })
         .style("fill-opacity", 1e-6);
+
+    // nodeEnter.append("text")
+    //     .attr("x", function(d) { return -massScale(d.HaloMass)-5; })
+    //     .attr("dy", ".35em")
+    //     .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+    //     .text(function(d) { return d.HaloID; })
+    //     .style("fill-opacity", 1e-6);
 
     // Transition nodes to their new position.
     var nodeUpdate = node.transition()
@@ -381,47 +376,41 @@ function update(source) {
 
     nodeUpdate.select("circle")
         .attr("r", function(d) { return massScale(d.HaloMass); })
-        .style("stroke", function(d) { return d.Prog=='1' ? "red" : "lightsteelblue"; })
+        .style("stroke", function(d) { return d.Prog=='1' ? "#D28378" : "lightsteelblue"; })
     	.style("stroke-width", "3");
 
     nodeUpdate.select("path.children")
-        .style("fill-opacity", function(d) { return d._children ? 1 : 1e-6; })
+        .style("fill-opacity", function(d) { return d._children ? 0.7 : 1e-6; })
         .attr("d", function(d) {
-            var r = 5*massScale(d.HaloMass)/6;
+            var r = massScale(d.HaloMass)+2; //2 for stroke width
             var p = 10;
-            var str = "M -" + p + " " + 1.5*r + " L " + p + " " + 1.5*r + " L 0 " + (1.5*p+1.5*r) + " z";
-            //var str = "M -" + r + " " + 1.5*r + " L " + r + " " + 1.5*r + " L 0 " + 3*r + " z";
-            //console.log(str);
+            var str = "M " + r + " -" + p + " L " + r + " " + p + " L " + (1.5*p+r) + " 0 z";
             return str;
         });
 	
 	// color filters based on brushes
 	 nodeUpdate.selectAll("circle")
         .style("fill", function(d) {
+            var not_selected = "#3B3B3B";
+            var selected = "#E3C937";
             if(brush.empty() && brushParticle.empty()) {
-                return "black";
+                return not_selected;
             } else if (!brush.empty() && brushParticle.empty()) {
                 if (d.HaloMass < brush.extent()[0] || d.HaloMass > brush.extent()[1]) {
-                    return "black";
-                } else {
-                    return "gold";
+                    return not_selected;
                 }
             } else if (brush.empty() && !brushParticle.empty()) {
                 if (d.TotalParticles < brushParticle.extent()[0] || d.TotalParticles > brushParticle.extent()[1]) {
-                    return "black";
-                } else {
-                    return "gold";
+                    return not_selected;
                 }
             } else {
                 if (d.HaloMass < brush.extent()[0] || d.HaloMass > brush.extent()[1] || d.TotalParticles < brushParticle.extent()[0] || d.TotalParticles > brushParticle.extent()[1]) {
-                    return "black";
-                } else {return "gold";}
+                    return not_selected;
+                }
             }
+            return selected;
         });
 	
-    nodeUpdate.select("text")
-    .style("fill-opacity", 1);
-
     // Transition exiting nodes to the parent's new position.
     var nodeExit = node.exit().transition()
         .duration(duration)
@@ -528,7 +517,7 @@ function zoomed() {
     zoom.translate([tx,ty]);
     graph.attr("transform", "translate(" + [tx,ty] + ")scale(" + scale + ")");
     if (tx == d3.event.translate[0]) {
-        svg.select(".timeaxis").selectAll("g.axisgroup")
+        svg.select(".timeaxis").selectAll("g.timeaxisgroup")
             .attr("transform", function(d) {
                 //console.log(d, timeScale(d)); 
                 return "translate(" + timeScale(d) + ", 0)";
@@ -537,19 +526,24 @@ function zoomed() {
 }
 
 function updateTree(grp) {
-    zoom.scale(1);
-    zoom.translate([0,0]);
-    graph.transition().duration(duration).attr("transform", "translate(" + [0,0] + ")scale(" + 1 + ")");
-    svg.select(".timeaxis").selectAll("g.axisgroup").transition().duration(duration)
-        .attr("transform", function(d) {
-            //console.log(d, timeScale(d)); 
-            return "translate(" + timeScale(d) + ", 0)";
-        });
+    var timeOut1, timeOut2 = 0;
+    if (zoom.scale() != 1 || zoom.translate()[0] != 0 || zoom.translate()[1] != 0) {
+        timeOut1 = duration;
+        zoom.scale(1);
+        zoom.translate([0,0]);
+        graph.transition().duration(duration).attr("transform", "translate(" + [0,0] + ")scale(" + 1 + ")");
+        svg.select(".timeaxis").selectAll("g.timeaxisgroup").transition().duration(duration)
+            .attr("transform", function(d) {
+                //console.log(d, timeScale(d)); 
+                return "translate(" + timeScale(d) + ", 0)";
+            });
+    }
 
     setTimeout(function(){
         function expand(d) {
             //must check if children and _children so don't expand leaf
             if (d._children) {
+                timeOut2 = duration;
                 d.children = d._children;
                 d._children = null;
                 update(d);
@@ -560,58 +554,62 @@ function updateTree(grp) {
             }
         }
         expand(root)
-    }, duration);
-    //pause for the transition to complete
-    setTimeout(function(){
-        var halo = haloMap.get(grp);
-        root = halo.root;
-        nodesMap = halo.nodes;
-        linksMap = halo.links;
-        haloMassExtent = d3.extent(nodesMap, function(k, v) { return v.HaloMass; });
-        haloParticleExtent = d3.extent(nodesMap, function(k, v) { return v.TotalParticles; });
+        //pause for the transition to complete
+        setTimeout(function(){
+            var halo = haloMap.get(grp);
+            root = halo.root;
+            nodesMap = halo.nodes;
+            linksMap = halo.links;
+            haloMassExtent = d3.extent(nodesMap, function(k, v) { return v.HaloMass; });
+            haloParticleExtent = d3.extent(nodesMap, function(k, v) { return v.TotalParticles; });
 
-        //exit current tree
-        var node = graph.selectAll("g.node")
-        .data([]);
-        //transition exiting nodes
-        var nodeExit = node.exit().transition()
-        .duration(duration)
-        .attr("transform", function(d) { return "translate(" + root.y0 + "," + root.x0 + ")"; })
-        .remove();
+            //exit current tree
+            var node = graph.selectAll("g.node")
+            .data([]);
+            //transition exiting nodes
+            var nodeExit = node.exit().transition()
+            .duration(duration)
+            .attr("transform", function(d) { return "translate(" + root.y0 + "," + root.x0 + ")"; })
+            .remove();
 
-        nodeExit.select("circle")
-        .attr("r", 1e-6);
+            nodeExit.select("circle")
+            .attr("r", 1e-6);
 
-        nodeExit.select("text")
-        .style("fill-opacity", 1e-6);
+            nodeExit.select("text")
+            .style("fill-opacity", 1e-6);
 
-        //exit link
-        var link = graph.selectAll("path.link")
-        .data([]);
+            //exit link
+            var link = graph.selectAll("path.link")
+            .data([]);
 
-        // Transition exiting nodes
-        link.exit().transition()
-        .duration(duration)
-        .attr("d", function(d) {
-           var o = {x: root.x0, y: root.y0};
-           return diagonal({source: o, target: o});
-        })
-        .remove();
-        setTimeout(function() {
-            update(root);
-        }, duration);
-    }, 2*duration); //must pause for two transitions
+            // Transition exiting nodes
+            link.exit().transition()
+            .duration(duration)
+            .attr("d", function(d) {
+               var o = {x: root.x0, y: root.y0};
+               return diagonal({source: o, target: o});
+            })
+            .remove();
+            setTimeout(function() {
+                update(root);
+            }, duration);
+        }, timeOut2);
+    }, timeOut1);
 }
 
 function resetTree() {
-    zoom.scale(1);
-    zoom.translate([0,0]);
-    graph.transition().duration(duration).attr("transform", "translate(" + [0,0] + ")scale(" + 1 + ")");
-    svg.select(".timeaxis").selectAll("g.axisgroup").transition().duration(duration)
-        .attr("transform", function(d) {
-            //console.log(d, timeScale(d)); 
-            return "translate(" + timeScale(d) + ", 0)";
-        });
+    var timeOut1 = 0;
+    if (zoom.scale() != 1 || zoom.translate()[0] != 0 || zoom.translate()[1] != 0) {
+        timeOut1 = duration;
+        zoom.scale(1);
+        zoom.translate([0,0]);
+        graph.transition().duration(duration).attr("transform", "translate(" + [0,0] + ")scale(" + 1 + ")");
+        svg.select(".timeaxis").selectAll("g.timeaxisgroup").transition().duration(duration)
+            .attr("transform", function(d) {
+                //console.log(d, timeScale(d)); 
+                return "translate(" + timeScale(d) + ", 0)";
+            });
+    }
     //pause for the transition to complete
     setTimeout(function(){
         function expand(d) {
@@ -628,7 +626,7 @@ function resetTree() {
             }
         }
         expand(root)
-    }, duration);
+    }, timeOut1);
 }
 
 function brushed() {
