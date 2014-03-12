@@ -31,9 +31,9 @@ path.children {
 }
 
 div {
-    margin: 0;
-    border: 0;
-    padding: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
 }
 
 rect {
@@ -42,35 +42,33 @@ rect {
 }
 
 #svgContent {
-     align: center;
+  align: center;
 }
 
 #leftPanel {
-    background-color: white;
-	  font-size: 18px;
-    font-family: arial;
+  background-color: white;
+  font-size: 18px;
+  font-family: arial;
 }
 
 #header{
-    width: 100%;
-    background: white;
-    border: 0px;
-    border-color: gray;
-    border-style: solid;
-  	text-align: center;
-  	font-size: 40px;
-    font-family: arial;
+  background: white;
+  border: 0px;
+  border-color: gray;
+  border-style: solid;
+  margin-top: 10px;
+  text-align: center;
+  font-size: 40px;
+  font-family: arial;
 
 }
 
 .d3-tip {
   line-height: 1;
-  background: #EEEEEE;
+  background: rgba(238, 238, 238, 0.9);
   font-family: arial;
   padding: 10px;
-  font-color: #FF0000;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
+  color: #000000;
   border: 0px;
   border-radius: 12px;
   pointer-events: none;
@@ -82,7 +80,7 @@ rect {
   font-size: 10px;
   width: 100%;
   line-height: 1;
-  color: rgba(0, 0, 0, 0.8);
+  color: rgba(238, 238, 238, 0.9);
   content: "\25BC";
   position: absolute;
   text-align: center;
@@ -100,21 +98,21 @@ svgBrush {
 .axis text {
   font-family: courier;
   font-size: 12px;
-	stroke: black;
-	fill: black;
-	
+  stroke: black;
+  fill: black;
+
 }
 .axis path,
 .axis line {
-	fill: none;
-	stroke: grey;
-	stroke-width: 1;
-	shape-rendering: crispEdges;
+  fill: none;
+  stroke: grey;
+  stroke-width: 1;
+  shape-rendering: crispEdges;
 }
 
 .area {
-    fill: lightsteelblue;
-    stroke-width: 0;
+  fill: lightsteelblue;
+  stroke-width: 0;
 }
 .brush .extent {
   stroke: #fff;

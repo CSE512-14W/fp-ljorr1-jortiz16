@@ -7,12 +7,12 @@ var leftPanelHeight = document.getElementById("leftPanel").style.height;
 leftPanelHeight = +leftPanelHeight.replace(/\D/g,"");
 var margin = {top: 70, right: 20, bottom: 20, left: 20},
 width = clientWidth - margin.right - margin.left,
-height = doc.clientHeight - margin.top - margin.bottom - leftPanelHeight - 80; //80 for header
+height = doc.clientHeight - margin.top - margin.bottom - leftPanelHeight - 60; //60 for header
 
 d3.select("#header").style("width", clientWidth+"px");
-d3.select("#header").style("height", 80+"px");
+d3.select("#header").style("height", 60+"px");
 d3.select("#windowDiv").style("width", clientWidth+"px");
-//d3.select("#windowDiv").style("height", (doc.clientHeight-80)+"px");
+//d3.select("#windowDiv").style("height", (doc.clientHeight-60)+"px");
 
 //******************************SET UP SVG GRAPH WINDOW
 var i = 0,
@@ -44,12 +44,12 @@ var tip = d3.tip()
   .attr("class", "d3-tip")
   .direction("n")
   .offset([-10,0])
-  .style("font-color", "#FF0000")
   .html(function(d) {
-    return "Halo Grp: "  + d.GrpID + "<br/>" 
-	      + "Halo Mass: " + d.HaloMass + "<br/>" 
-		  + "Total Particles: " + d.TotalParticles + "<br/>"
-		  + "Total Dark Particles: " + d.TotalDarkParticles + "<br/>";
+    var color = "black";
+    return "Halo Group: <span style='color:" + color +"'>"  + d.GrpID + "</span><br/>" 
+	      + "Halo Mass: <span style='color:" + color +"'>" + d.HaloMass + "</span><br/>" 
+		  + "Total Particles: <span style='color:" + color +"'>" + d.TotalParticles + "</span><br/>"
+		  + "Total Dark Particles: <span style='color:" + color +"'>" + d.TotalDarkParticles + "</span><br/>";
   });
 
 var svg = d3.select("#svgContent")
@@ -390,7 +390,7 @@ function update(source) {
 
     nodeUpdate.select("circle")
         .attr("r", function(d) { return massScale(d.HaloMass); })
-        .style("stroke", function(d) { return d.Prog=='1' ? "#D28378" : "lightsteelblue"; })
+        .style("stroke", function(d) { return d.Prog=='1' ? "#D44848" : "lightsteelblue"; })
     	.style("stroke-width", "3");
 
     nodeUpdate.select("path.children")
