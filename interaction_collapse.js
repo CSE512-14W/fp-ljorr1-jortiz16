@@ -1,7 +1,7 @@
 
     
 var doc = document.documentElement;
-var clientWidth = Math.min(doc.clientWidth, 1400);
+var clientWidth = Math.min(doc.clientWidth, 1700);
 //global replace all non-digits with nothing to get the height number
 var leftPanelHeight = document.getElementById("leftPanel").style.height;
 leftPanelHeight = +leftPanelHeight.replace(/\D/g,"");
@@ -36,6 +36,9 @@ var linkScale = d3.scale.log();
 var timeScale = d3.scale.linear();
 
 var zoom = d3.behavior.zoom();
+
+var nodeMouseDown = false;
+var tooltipShown = false;
 
 var tip = d3.tip()
   .attr("class", "d3-tip")
@@ -356,21 +359,29 @@ function update(source) {
 
     nodeEnter.append("circle")
         .attr("r", 1e-6)
-    	.on("mouseover", tip.show)
-        .on("mouseout", tip.hide)
-        .on("mouseup", tip.show);
+    	//.on("mouseover", tip.show)
+        .on("mouseout", function(d) { 
+            tip.hide(d);
+            tooltipShown = false;
+        })
+        .on("mouseup", function(d) { nodeMouseDown = false; })
+        .on("mousedown", function(d) { nodeMouseDown = true; })
+        .on("mousemove", function(d) { 
+            //console.log(nodeMouseDown, tooltipShown);
+            // if (nodeMouseDown && tooltipShown) {
+            //     tip.hide();
+            //     tooltipShown = false;
+            // } else 
+            if (!nodeMouseDown && !tooltipShown) {
+                tip.show(d);
+                tooltipShown = true;
+            }
+        });
 
     nodeEnter.append("path") //0 0 is center of circle
         .attr("class", "children")
         .attr("d", "M 0 0")
         .style("fill-opacity", 1e-6);
-
-    // nodeEnter.append("text")
-    //     .attr("x", function(d) { return -massScale(d.HaloMass)-5; })
-    //     .attr("dy", ".35em")
-    //     .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-    //     .text(function(d) { return d.HaloID; })
-    //     .style("fill-opacity", 1e-6);
 
     // Transition nodes to their new position.
     var nodeUpdate = node.transition()
@@ -461,7 +472,8 @@ function update(source) {
 
     // Stash the old positions for transition.
     nodes.forEach(function(d) {
-        //if node moved, we don't want to display tooltip
+        //if node moved with click, we don't want to display tooltip
+        //movement via drag is handled with transform, not d.x and d.y
         if (d.x0 != d.x || d.y0 != d.y) {
             tip.hide();
         }
@@ -512,8 +524,9 @@ function click(d) {
 }
 
 function zoomed() {
-    //hide tooltip for transformation (will display again if no zoom but that happens in node)
+    //hide tooltip on zoom and drag; will be shown again when user moved mouse
     tip.hide();
+    tooltipShown = false;
     var currentTransform = graph.attr("transform");
     var scale = d3.event.scale;
     var tx = d3.event.translate[0];
