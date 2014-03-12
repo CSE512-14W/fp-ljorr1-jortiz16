@@ -42,34 +42,38 @@ rect {
 }
 
 #svgContent {
-     align:center;
+     align: center;
 }
 
 #leftPanel {
-    background-color:white;
+    background-color: white;
 	  font-size: 18px;
-    font-family:Arial;
+    font-family: arial;
 }
 
 #header{
-    width:100%;
-    background:white;
-    border:0px;
-    border-color:gray;
-    border-style:solid;
+    width: 100%;
+    background: white;
+    border: 0px;
+    border-color: gray;
+    border-style: solid;
   	text-align: center;
   	font-size: 40px;
-    font-family:Arial;
+    font-family: arial;
 
 }
 
 .d3-tip {
   line-height: 1;
-  font-weight: bold;
-  padding: 12px;
+  background: #EEEEEE;
+  font-family: arial;
+  padding: 10px;
+  font-color: #FF0000;
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
-  border-radius: 2px;
+  border: 0px;
+  border-radius: 12px;
+  pointer-events: none;
 }
 
 .d3-tip:after {
@@ -87,7 +91,8 @@ rect {
 .d3-tip.n:after {
   margin: -1px 0 0 0;
   top: 100%;
-  left: 0;}
+  left: 0;
+}
 
 svgBrush {
   font: 10px sans-serif;
@@ -95,8 +100,8 @@ svgBrush {
 .axis text {
   font-family: courier;
   font-size: 12px;
-	stroke:black;
-	fill:black;
+	stroke: black;
+	fill: black;
 	
 }
 .axis path,

@@ -38,13 +38,15 @@ var timeScale = d3.scale.linear();
 var zoom = d3.behavior.zoom();
 
 var tip = d3.tip()
-  .attr('class', 'd3-tip')
-  .offset([-10, 0])
+  .attr("class", "d3-tip")
+  .direction("n")
+  .offset([-10,0])
+  .style("font-color", "#FF0000")
   .html(function(d) {
-    return "<font color=\"red\">Halo Grp: </font>"  + d.GrpID + "<br/>" 
-	      + "<font color=\"red\">Halo Mass: </font>" + d.HaloMass + "<br/>" 
-		  + "<font color=\"red\">Total Particles: </font>" + d.TotalParticles + "<br/>"
-		  + "<font color=\"red\">Total Dark Particles: </font>" + d.TotalDarkParticles + "<br/>";
+    return "Halo Grp: "  + d.GrpID + "<br/>" 
+	      + "Halo Mass: " + d.HaloMass + "<br/>" 
+		  + "Total Particles: " + d.TotalParticles + "<br/>"
+		  + "Total Dark Particles: " + d.TotalDarkParticles + "<br/>";
   });
 
 var svg = d3.select("#svgContent")
@@ -354,8 +356,9 @@ function update(source) {
 
     nodeEnter.append("circle")
         .attr("r", 1e-6)
-    	.on('mouseover', tip.show)
-        .on('mouseout', tip.hide);
+    	.on("mouseover", tip.show)
+        .on("mouseout", tip.hide)
+        .on("mouseup", tip.show);
 
     nodeEnter.append("path") //0 0 is center of circle
         .attr("class", "children")
@@ -458,6 +461,10 @@ function update(source) {
 
     // Stash the old positions for transition.
     nodes.forEach(function(d) {
+        //if node moved, we don't want to display tooltip
+        if (d.x0 != d.x || d.y0 != d.y) {
+            tip.hide();
+        }
         d.x0 = d.x;
         d.y0 = d.y;
     });
@@ -505,11 +512,13 @@ function click(d) {
 }
 
 function zoomed() {
+    //hide tooltip for transformation (will display again if no zoom but that happens in node)
+    tip.hide();
+    var currentTransform = graph.attr("transform");
     var scale = d3.event.scale;
     var tx = d3.event.translate[0];
     var ty = d3.event.translate[1];
-    //console.log(timeScale.domain(), timeScale.range(), scale);
-    //console.log(tx, ty);
+
     //100 for padding
     ty = Math.min(Math.max(ty, -scale*height+scale*height/5), height-scale*height/5);
     tx = Math.min(Math.max(tx, -scale*(maxTime-4)*nodeDistance), width-3*scale*nodeDistance);
@@ -519,7 +528,6 @@ function zoomed() {
     if (tx == d3.event.translate[0]) {
         svg.select(".timeaxis").selectAll("g.timeaxisgroup")
             .attr("transform", function(d) {
-                //console.log(d, timeScale(d)); 
                 return "translate(" + timeScale(d) + ", 0)";
             });
         }
