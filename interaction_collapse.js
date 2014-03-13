@@ -10,10 +10,10 @@ var leftPanelHeight = document.getElementById("leftPanel").style.height;
 leftPanelHeight = +leftPanelHeight.replace(/\D/g,"");
 var margin = {top: 70, right: 20, bottom: 20, left: 20},
 width = clientWidth - margin.right - margin.left,
-height = doc.clientHeight - margin.top - margin.bottom - leftPanelHeight - 180; //60 for header
+height = doc.clientHeight - margin.top - margin.bottom - leftPanelHeight - 120; //60 for header
 
 d3.select("#header").style("width", clientWidth+"px");
-d3.select("#header").style("height", 60+"px");
+d3.select("#header").style("height", 50+"px");
 d3.select("#windowDiv").style("width", clientWidth+"px");
 d3.select("#table").style("width", clientWidth+"px");
 //d3.select("#windowDiv").style("height", (doc.clientHeight-60)+"px");
