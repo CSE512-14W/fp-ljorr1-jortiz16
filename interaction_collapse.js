@@ -132,7 +132,7 @@ var brushParticle = d3.svg.brush()
 	
 //adding brushes to panels
 var svgBrushMass = d3.select("#massPanel").append("svg")
-    .attr("width", clientWidth/2 - 100) //width a bit more b/c of text
+    .attr("width", clientWidth/2 - 100 + 30) //width a bit more b/c of text
     .attr("height", 200);
 var svgBrushParticle = d3.select("#particlePanel").append("svg")
     .attr("width", clientWidth/2 - 100) //width a bit more b/c of text
