@@ -10,8 +10,8 @@ var leftPanelHeight = document.getElementById("leftPanel").style.height;
 leftPanelHeight = +leftPanelHeight.replace(/\D/g,"");
 var margin = {top: 70, right: 20, bottom: 20, left: 20},
 width = clientWidth - margin.right - margin.left,
-height = doc.clientHeight - margin.top - margin.bottom - leftPanelHeight - 120; //60 for header
-
+height = doc.clientHeight - margin.top - margin.bottom - leftPanelHeight - 120; //header, buttons, and padding for header
+//console.log(doc.clientHeight);
 d3.select("#header").style("width", clientWidth+"px");
 d3.select("#header").style("height", 50+"px");
 d3.select("#windowDiv").style("width", clientWidth+"px");
@@ -106,7 +106,7 @@ var kformat = d3.format(".1s");
 var	xAxisMass = d3.svg.axis().scale(x).orient("bottom").ticks(10).tickFormat(function(d) { return exponentFormat(Math.exp(d)); });
 var	yAxisMass = d3.svg.axis().scale(y).orient("left").ticks(5);
 
-var xAxisParticle = d3.svg.axis().scale(xParticle).orient("bottom").tickFormat(function (d) { return kformat(Math.exp(d)); });
+var xAxisParticle = d3.svg.axis().scale(xParticle).orient("bottom").tickFormat(function(d) { return kformat(Math.exp(d)); });
 var	yAxisParticle = d3.svg.axis().scale(yParticle).orient("left").ticks(5);
 
 //areas- based on respective domains
@@ -132,10 +132,10 @@ var brushParticle = d3.svg.brush()
 	
 //adding brushes to panels
 var svgBrushMass = d3.select("#massPanel").append("svg")
-    .attr("width", clientWidth/2 - 100) //width a bit more b/c of text
+    .attr("width", clientWidth/2) //width a bit more b/c of text
     .attr("height", 200);
 var svgBrushParticle = d3.select("#particlePanel").append("svg")
-    .attr("width", clientWidth/2 - 100) //width a bit more b/c of text
+    .attr("width", clientWidth/2) //width a bit more b/c of text
     .attr("height", 200);
 	
 //transform position to brush 
@@ -245,113 +245,49 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
 		haloParticleValuesCurrentHalo.push(+Math.log(d[0].TotalParticles));
 	});
     	
-	//HACKY FIX
-	// haloMassValuesCurrentHalo.push(+31);
-	// haloMassValuesLog.push(+31);
- //    haloMassValuesCurrentHalo.push(+24);
-	// haloMassValuesLog.push(+24);
-	
-	// haloParticleValuesCurrentHalo.push(+5);
-	// haloParticleValuesLog.push(+5);
- //    haloParticleValuesCurrentHalo.push(+13);
-	// haloParticleValuesLog.push(+13);
-
     x.domain([Math.log(minMass), Math.log(maxMass)]);
     xParticle.domain([Math.log(minParticle), Math.log(maxParticle)]); //a bit of buffer
 	
     //make buckets
     var dataBinMassAllHalos = d3.layout.histogram()
-		.bins(10)(haloMassValuesLog);
+    .bins(10)(haloMassValuesLog);
 
     var temp = [];
-   temp.x = +Math.log(maxMass);
-   temp.y = 0;
-   dataBinMassAllHalos.push(temp);
-   
-				
-	var dataBinMassCurrentHalo = d3.layout.histogram()
-	   .bins(10)(haloMassValuesCurrentHalo);
+    temp.x = +Math.log(maxMass);
+    temp.y = 0;
+    dataBinMassAllHalos.push(temp);
+
+
+    var dataBinMassCurrentHalo = d3.layout.histogram()
+    .bins(10)(haloMassValuesCurrentHalo);
 
     dataBinMassCurrentHalo.push(temp);
     temp = []; 
-   temp.x = +Math.log(minMass);
-   temp.y = 0;
-   dataBinMassCurrentHalo.unshift(temp);
-   
-   console.log(dataBinMassCurrentHalo);
-	
+    temp.x = +Math.log(minMass);
+    temp.y = 0;
+    dataBinMassCurrentHalo.unshift(temp);
+
+    //console.log(dataBinMassCurrentHalo);
+
     var dataBinParticleAllHalos = d3.layout.histogram()
-    	.bins(10)(haloParticleValuesLog);
-temp = [];
-temp.y = 0;
-   temp.x = +Math.log(maxParticle);
-   temp.y = 0;
-   dataBinParticleAllHalos.push(temp);
-   
-		
-	var dataBinParticleCurrentHalo = d3.layout.histogram()
-		.bins(10)(haloParticleValuesCurrentHalo);
+    .bins(10)(haloParticleValuesLog);
+    temp = [];
+    temp.y = 0;
+    temp.x = +Math.log(maxParticle);
+    temp.y = 0;
+    dataBinParticleAllHalos.push(temp);
 
-        dataBinParticleCurrentHalo.push(temp);
+    var dataBinParticleCurrentHalo = d3.layout.histogram()
+    .bins(10)(haloParticleValuesCurrentHalo);
 
-temp = [];
+    dataBinParticleCurrentHalo.push(temp);
 
-   temp.x = +Math.log(minParticle);
-   temp.y = 0;
-   dataBinParticleCurrentHalo.unshift(temp);
-   
-   
+    temp = [];
 
- //    var finalArrayMassAllHalos = [];
- //    for(var i=0; i< dataBinMassAllHalos.length; i++){
- //    	var min = d3.min(dataBinMassAllHalos[i], function(d) { return d; });
- //    	finalArrayMassAllHalos[i] = {x: min, y: dataBinMassAllHalos[i].length};
- //    }
-	
-	// var finalArrayMassCurrentHalo = [];
- //    for(var i=0; i< dataBinMassCurrentHalo.length; i++){
-	// //if the bucket was empty, min has a problem
-	// if(dataBinMassCurrentHalo[i].length!=0)
-	// 	{
- //    	var min = d3.min(dataBinMassCurrentHalo[i], function(d) { return d; });
- //    	finalArrayMassCurrentHalo[i] = {x: min, y: dataBinMassCurrentHalo[i].length};
-	// 	}
-	// 	else
-	// 	{
-	// 	finalArrayMassCurrentHalo[i] = {x: dataBinMassCurrentHalo[i], y: 0};
-	// 	}
- //    }
- //    var finalArrayParticleAllHalos = [];
-	// console.log(dataBinParticleAllHalos);
- //    for(var i=0; i< dataBinParticleAllHalos.length; i++){
- //        if(dataBinParticleAllHalos[i].length!=0)
-	// 	{
-		
- //    	var min = d3.min(dataBinParticleAllHalos[i], function(d) { return d; });
- //    	finalArrayParticleAllHalos[i] = {x: min, y: dataBinParticleAllHalos[i].length};
-	
-	// 	}
-	// 	else
-	// 	{
-	// 	finalArrayParticleAllHalos[i] = {x: dataBinParticleAllHalos[i], y: 0};
+    temp.x = +Math.log(minParticle);
+    temp.y = 0;
+    dataBinParticleCurrentHalo.unshift(temp);
 
-	// 	}
- //    }
-	
-	// console.log(finalArrayParticleAllHalos);
-	
-	// var finalArrayParticleCurrentHalo = [];
- //    for(var i=0; i< dataBinParticleCurrentHalo.length; i++){
-	// if(dataBinParticleCurrentHalo[i].length!=0)
-	// 	{
- //    	var min = d3.min(dataBinParticleCurrentHalo[i], function(d) { return d; });
- //    	finalArrayParticleCurrentHalo[i] = {x: min, y: dataBinParticleCurrentHalo[i].length};
-	// 	}
-	// 	else{
-	// 	finalArrayParticleCurrentHalo[i] = {x: dataBinParticleCurrentHalo[i], y: 0};
-	// 	}
- //    }
-	
     //set y domains based on bin values
     y.domain([0, d3.max(dataBinMassAllHalos, function(d) { return d.y; })]);
     yParticle.domain([0, d3.max(dataBinParticleAllHalos, function(d) { return d.y; })]);
@@ -449,19 +385,19 @@ temp = [];
 });
 
 function update(source) {
-    // Compute the new tree layout.
+    //compute the new tree layout.
     var nodes = tree.nodes(root);
     var links = tree.links(nodes);
     //console.log(nodes);
     //console.log(links)
-    // Normalize for fixed-depth.
+    //normalize for fixed-depth.
     nodes.forEach(function(d) { d.y = d.depth * nodeDistance; });
 
     // Update the nodes…
     var node = graph.selectAll("g.node")
         .data(nodes, function(d, i) { return d.HaloID; });
 
-    // Enter any new nodes at the parent's previous position.
+    //enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")
         .attr("class", "node")
         .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
@@ -477,11 +413,6 @@ function update(source) {
         .on("mouseup", function(d) { nodeMouseDown = false; })
         .on("mousedown", function(d) { nodeMouseDown = true; })
         .on("mousemove", function(d) { 
-            //console.log(nodeMouseDown, tooltipShown);
-            // if (nodeMouseDown && tooltipShown) {
-            //     tip.hide();
-            //     tooltipShown = false;
-            // } else 
             if (!nodeMouseDown && !tooltipShown) {
                 tip.show(d);
                 tooltipShown = true;
@@ -493,7 +424,7 @@ function update(source) {
         .attr("d", "M 0 0")
         .style("fill-opacity", 1e-6);
 
-    // Transition nodes to their new position.
+    //transition nodes to their new position.
     var nodeUpdate = node.transition()
         .duration(duration)
         .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
@@ -512,21 +443,20 @@ function update(source) {
             return str;
         });
 	
-	// color filters based on brushes
-		var brushExtentMin = Math.exp(brushMass.extent()[0]);
-	 var brushExtentMax = Math.exp(brushMass.extent()[1]);
-	 
-	 var brushExtentMinP = Math.exp(brushParticle.extent()[0]);
-	 var brushExtentMaxP = Math.exp(brushParticle.extent()[1]);
-	
-	
-	 counterSel = 0;
-	 nodeUpdate.selectAll("circle")
+	//color filters based on brushes
+    var brushExtentMin = Math.exp(brushMass.extent()[0]);
+    var brushExtentMax = Math.exp(brushMass.extent()[1]);
+
+    var brushExtentMinP = Math.exp(brushParticle.extent()[0]);
+    var brushExtentMaxP = Math.exp(brushParticle.extent()[1]);
+
+
+    counterSel = 0;
+    nodeUpdate.selectAll("circle")
         .style("fill", function(d) {
             var not_selected = "#3B3B3B";
             var selected = "#E3C937";
             if(brushMass.empty() && brushParticle.empty()) {
-				 
                 return not_selected;
             } else if (!brushMass.empty() && brushParticle.empty()) {
                 if (d.HaloMass < brushExtentMin || d.HaloMass > brushExtentMax) {
@@ -541,12 +471,12 @@ function update(source) {
                     return not_selected;
                 }
             }
-			counterSel = counterSel +1;
+            counterSel = counterSel +1;
             return selected;
         });
-		console.log(counterSel);
-	
-    // Transition exiting nodes to the parent's new position.
+    //console.log(counterSel);
+
+    //transition exiting nodes to the parent's new position.
     var nodeExit = node.exit().transition()
         .duration(duration)
         .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
@@ -558,31 +488,29 @@ function update(source) {
     nodeExit.select("text")
         .style("fill-opacity", 1e-6);
 
-    //console.log(links);
-    // Update the links…
+    //update the links…
     var link = graph.selectAll("path.link")
         .data(links, function(d) { return d.target.HaloID; });
 
-    // Enter any new links at the parent's previous position.
+    //enter any new links at the parent's previous position.
     link.enter().insert("path", "g")
         .attr("class", "link")
         .attr("d", function(d) {
             var o = {x: source.x0, y: source.y0};
             return diagonal({source: o, target: o});
         });
-    //console.log("here");
-    // Transition links to their new position.
+
+    //transition links to their new position.
     link.transition()
         .duration(duration)
         .attr("d", function(d) {
             return diagonal(d);
-            //return diagonal({source: nodesMap.get(d.CurrentHalo)[0], target:nodesMap.get(d.NextHalo)[0]});
         })
         .style("stroke-width", function(d) { return linkScale(+linksMap.get(d.target.HaloID)[0].sharedParticleCount); })
         .style("opacity","0.4")
         .style("stroke-linecap", "round"); //can be butt or square
-    //console.log("her3e");
-    // Transition exiting nodes to the parent's new position.
+
+    //transition exiting nodes to the parent's new position.
     link.exit().transition()
         .duration(duration)
         .attr("d", function(d) {
@@ -591,7 +519,7 @@ function update(source) {
         })
         .remove();
 
-    // Stash the old positions for transition.
+    //stash the old positions for transition.
     nodes.forEach(function(d) {
         //if node moved with click, we don't want to display tooltip
         //movement via drag is handled with transform, not d.x and d.y
@@ -603,7 +531,7 @@ function update(source) {
     });
 }
 
-// Returns a list of all nodes under the root.
+//returns a list of all nodes under the root.
 function flatten(root) {
     var nodes = [];
 
@@ -629,7 +557,7 @@ function linkage(nodes) {
     }));
 }
 
-// Toggle children on click.
+//toggle children on click.
 function click(d) {
     if (d3.event.defaultPrevented) {
         return;
@@ -668,7 +596,6 @@ function zoomed() {
 }
 
 function changeTree() {
-
     var timeOut1, timeOut2 = 0;
     if (zoom.scale() != 1 || zoom.translate()[0] != 0 || zoom.translate()[1] != 0) {
         timeOut1 = duration;
@@ -819,7 +746,5 @@ function resetTree() {
 }
 
 function brushed() {
-   // console.log(brushParticle.extent(), "vs", brushParticle.extent());
-    //console.log(brush.empty(), "vs", brushParticle.empty());
     update(root);
 }
