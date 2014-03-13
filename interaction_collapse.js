@@ -103,7 +103,7 @@ var	yAxisParticle = d3.svg.axis().scale(yParticle).orient("left").ticks(5);
 //areas- based on respective domains
 var area = d3.svg.area()
 	.interpolate("monotone")
-    .x(function(d) { return x(d.x); })
+    .x(function(d) { console.log(x(d.x)); return x(d.x); })
     .y0(75)
     .y1(function(d) { return y(d.y); }); 
 var areaParticle = d3.svg.area()
@@ -236,11 +236,12 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     haloParticleExtent = d3.extent(nodesMap.values(), function(d) { return +d[0].TotalParticles; });
     update(root);
 
-    x.domain([minMass, maxMass + 10]);
+    x.domain([-1e12, maxMass + (1e11)]);
     xParticle.domain([minParticle, maxParticle + 10]); //a bit of buffer
     //make buckets
     var dataBin = d3.layout.histogram()
     	.bins(10)(haloMassValues);
+        console.log(dataBin);
     var dataBinParticle = d3.layout.histogram()
     	.bins(10)(haloParticleValues);
 
@@ -249,6 +250,7 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     	var min = d3.min(dataBin[i], function(d) { return d; });
     	finalArray[i] = {x: min, y: dataBin[i].length};
     }
+    finalArray.unshift({x: minMass-(1e12), y: 0});
     var finalArrayParticle = [];
     for(var i=0; i< dataBinParticle.length; i++){
         var min = d3.min(dataBinParticle[i], function(d) { return d; });
@@ -257,7 +259,7 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     //set y domains based on bin values
     y.domain([0, d3.max(finalArray, function(d) { return d.y; })]);
     yParticle.domain([0, d3.max(finalArrayParticle, function(d) { return d.y; })]);
-    //console.log(finalArrayParticle);
+    console.log(finalArray);
     //tie context to area
     context.append("path")
         .datum(finalArray)
