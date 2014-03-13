@@ -1,3 +1,8 @@
+//FOR DEMO
+var roots = ["15","16"];
+var rootIndex = 1;
+
+//REAL STUFF
 var doc = document.documentElement;
 var clientWidth = Math.min(doc.clientWidth, 1700);
 //global replace all non-digits with nothing to get the height number
@@ -18,7 +23,7 @@ duration = 600,root;
 
 var haloMap, nodesMap, linksMap;
 
-var haloMassExtent, haloParticleExtent;
+var maxMass = 0, minMass, maxParticle = 0, minParticle;
 
 var maxTime = 0;
 
@@ -97,9 +102,7 @@ var	yParticle = d3.scale.linear().range([xHeight, 0]);
 var exponentFormat = function (x) {return x.toExponential(1);};
 var kformat = d3.format(".1s");
 
-var	xAxisMass = d3.svg.axis().scale(x).orient("bottom").ticks(10).tickFormat(function(d) {
-console.log(d); 
-return  exponentFormat(Math.exp(d)); });
+var	xAxisMass = d3.svg.axis().scale(x).orient("bottom").ticks(10).tickFormat(function(d) { return exponentFormat(Math.exp(d)); });
 var	yAxisMass = d3.svg.axis().scale(y).orient("left").ticks(5);
 
 var xAxisParticle = d3.svg.axis().scale(xParticle).orient("bottom").tickFormat(function (d) { return kformat(Math.exp(d)); });
@@ -147,7 +150,7 @@ d3.csv("links2.csv", function(error1, raw_links) {
 d3.csv("nodes2.csv", function(error2, raw_nodes) {
 
     //CREATE DATA DEPENDENT VARIABLES
-    var maxMass = 0, minMass, maxParticle = 0, minParticle, maxSharedParticle = 0, minSharedParticle;
+    var maxSharedParticle = 0, minSharedParticle;
     var haloMassValues = [], haloParticleValues = [], haloMassValuesLog = [], haloParticleValuesLog = [];
     minMass = raw_nodes[0].HaloMass;
     minParticle = raw_nodes[0].TotalParticles;
@@ -235,128 +238,152 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     root = halo.root;
     nodesMap = halo.nodes;
     linksMap = halo.links;
-    haloMassExtent = d3.extent(nodesMap.values(), function(d) { return +d[0].HaloMass; });
-    haloParticleExtent = d3.extent(nodesMap.values(), function(d) { return +d[0].TotalParticles; });
 	haloMassValuesCurrentHalo = [], haloParticleValuesCurrentHalo = [];
 	nodesMap.values().forEach(function(d) {
 		haloMassValuesCurrentHalo.push(+Math.log(d[0].HaloMass))
 		haloParticleValuesCurrentHalo.push(+Math.log(d[0].TotalParticles));
 	});
-    update(root);
-	
+    	
 	//HACKY FIX
-	haloMassValuesCurrentHalo.push(+31);
-	haloMassValuesLog.push(+31);
-    haloMassValuesCurrentHalo.push(+24);
-	haloMassValuesLog.push(+24);
+	// haloMassValuesCurrentHalo.push(+31);
+	// haloMassValuesLog.push(+31);
+ //    haloMassValuesCurrentHalo.push(+24);
+	// haloMassValuesLog.push(+24);
 	
-	haloParticleValuesCurrentHalo.push(+5);
-	haloParticleValuesLog.push(+5);
-    haloParticleValuesCurrentHalo.push(+13);
-	haloParticleValuesLog.push(+13);
+	// haloParticleValuesCurrentHalo.push(+5);
+	// haloParticleValuesLog.push(+5);
+ //    haloParticleValuesCurrentHalo.push(+13);
+	// haloParticleValuesLog.push(+13);
 
-    x.domain([Math.log(minMass), Math.log(maxMass+ 10)]);
-    xParticle.domain([Math.log(minParticle), Math.log(maxParticle + 10)]); //a bit of buffer
+    x.domain([Math.log(minMass), Math.log(maxMass)]);
+    xParticle.domain([Math.log(minParticle), Math.log(maxParticle)]); //a bit of buffer
 	
     //make buckets
     var dataBinMassAllHalos = d3.layout.histogram()
-			.bins(10)(haloMassValuesLog);
-		
-		
+		.bins(10)(haloMassValuesLog);
+
+    var temp = [];
+   temp.x = +Math.log(maxMass);
+   temp.y = 0;
+   dataBinMassAllHalos.push(temp);
+   
+				
 	var dataBinMassCurrentHalo = d3.layout.histogram()
-			.bins(10)(haloMassValuesCurrentHalo);
+	   .bins(10)(haloMassValuesCurrentHalo);
+
+    dataBinMassCurrentHalo.push(temp);
+    temp = []; 
+   temp.x = +Math.log(minMass);
+   temp.y = 0;
+   dataBinMassCurrentHalo.unshift(temp);
+   
+   console.log(dataBinMassCurrentHalo);
 	
     var dataBinParticleAllHalos = d3.layout.histogram()
     	.bins(10)(haloParticleValuesLog);
-		console.log(dataBinParticleAllHalos);
+temp = [];
+temp.y = 0;
+   temp.x = +Math.log(maxParticle);
+   temp.y = 0;
+   dataBinParticleAllHalos.push(temp);
+   
 		
 	var dataBinParticleCurrentHalo = d3.layout.histogram()
 		.bins(10)(haloParticleValuesCurrentHalo);
 
-    var finalArrayMassAllHalos = [];
-    for(var i=0; i< dataBinMassAllHalos.length; i++){
-    	var min = d3.min(dataBinMassAllHalos[i], function(d) { return d; });
-    	finalArrayMassAllHalos[i] = {x: min, y: dataBinMassAllHalos[i].length};
-    }
-	
-	var finalArrayMassCurrentHalo = [];
-    for(var i=0; i< dataBinMassCurrentHalo.length; i++){
-	//if the bucket was empty, min has a problem
-	if(dataBinMassCurrentHalo[i].length!=0)
-		{
-    	var min = d3.min(dataBinMassCurrentHalo[i], function(d) { return d; });
-    	finalArrayMassCurrentHalo[i] = {x: min, y: dataBinMassCurrentHalo[i].length};
-		}
-		else
-		{
-		finalArrayMassCurrentHalo[i] = {x: dataBinMassCurrentHalo[i], y: 0};
-		}
-    }
-    var finalArrayParticleAllHalos = [];
-	console.log(dataBinParticleAllHalos);
-    for(var i=0; i< dataBinParticleAllHalos.length; i++){
-        if(dataBinParticleAllHalos[i].length!=0)
-		{
-		
-    	var min = d3.min(dataBinParticleAllHalos[i], function(d) { return d; });
-    	finalArrayParticleAllHalos[i] = {x: min, y: dataBinParticleAllHalos[i].length};
-	
-		}
-		else
-		{
-		finalArrayParticleAllHalos[i] = {x: dataBinParticleAllHalos[i], y: 0};
+        dataBinParticleCurrentHalo.push(temp);
 
-		}
-    }
+temp = [];
+
+   temp.x = +Math.log(minParticle);
+   temp.y = 0;
+   dataBinParticleCurrentHalo.unshift(temp);
+   
+   
+
+ //    var finalArrayMassAllHalos = [];
+ //    for(var i=0; i< dataBinMassAllHalos.length; i++){
+ //    	var min = d3.min(dataBinMassAllHalos[i], function(d) { return d; });
+ //    	finalArrayMassAllHalos[i] = {x: min, y: dataBinMassAllHalos[i].length};
+ //    }
 	
-	console.log(finalArrayParticleAllHalos);
+	// var finalArrayMassCurrentHalo = [];
+ //    for(var i=0; i< dataBinMassCurrentHalo.length; i++){
+	// //if the bucket was empty, min has a problem
+	// if(dataBinMassCurrentHalo[i].length!=0)
+	// 	{
+ //    	var min = d3.min(dataBinMassCurrentHalo[i], function(d) { return d; });
+ //    	finalArrayMassCurrentHalo[i] = {x: min, y: dataBinMassCurrentHalo[i].length};
+	// 	}
+	// 	else
+	// 	{
+	// 	finalArrayMassCurrentHalo[i] = {x: dataBinMassCurrentHalo[i], y: 0};
+	// 	}
+ //    }
+ //    var finalArrayParticleAllHalos = [];
+	// console.log(dataBinParticleAllHalos);
+ //    for(var i=0; i< dataBinParticleAllHalos.length; i++){
+ //        if(dataBinParticleAllHalos[i].length!=0)
+	// 	{
+		
+ //    	var min = d3.min(dataBinParticleAllHalos[i], function(d) { return d; });
+ //    	finalArrayParticleAllHalos[i] = {x: min, y: dataBinParticleAllHalos[i].length};
 	
-	var finalArrayParticleCurrentHalo = [];
-    for(var i=0; i< dataBinParticleCurrentHalo.length; i++){
-	if(dataBinParticleCurrentHalo[i].length!=0)
-		{
-    	var min = d3.min(dataBinParticleCurrentHalo[i], function(d) { return d; });
-    	finalArrayParticleCurrentHalo[i] = {x: min, y: dataBinParticleCurrentHalo[i].length};
-		}
-		else{
-		finalArrayParticleCurrentHalo[i] = {x: dataBinParticleCurrentHalo[i], y: 0};
-		}
-    }
+	// 	}
+	// 	else
+	// 	{
+	// 	finalArrayParticleAllHalos[i] = {x: dataBinParticleAllHalos[i], y: 0};
+
+	// 	}
+ //    }
+	
+	// console.log(finalArrayParticleAllHalos);
+	
+	// var finalArrayParticleCurrentHalo = [];
+ //    for(var i=0; i< dataBinParticleCurrentHalo.length; i++){
+	// if(dataBinParticleCurrentHalo[i].length!=0)
+	// 	{
+ //    	var min = d3.min(dataBinParticleCurrentHalo[i], function(d) { return d; });
+ //    	finalArrayParticleCurrentHalo[i] = {x: min, y: dataBinParticleCurrentHalo[i].length};
+	// 	}
+	// 	else{
+	// 	finalArrayParticleCurrentHalo[i] = {x: dataBinParticleCurrentHalo[i], y: 0};
+	// 	}
+ //    }
 	
     //set y domains based on bin values
-    y.domain([0, d3.max(finalArrayMassAllHalos, function(d) { return d.y; })]);
-    yParticle.domain([0, d3.max(finalArrayParticleAllHalos, function(d) { return d.y; })]);
-    //console.log(finalArrayParticle);
+    y.domain([0, d3.max(dataBinMassAllHalos, function(d) { return d.y; })]);
+    yParticle.domain([0, d3.max(dataBinParticleAllHalos, function(d) { return d.y; })]);
+    //console.log(d3.max(dataBinMassAllHalos, function(d) { return d.y; }));
     //tie context to area
     contextMass.append("path")
-        .datum(finalArrayMassAllHalos)
+        .datum(dataBinMassAllHalos)
         .attr("class", "area")
         .attr("d", area);
 				
 	contextMass.append("path")
-        .datum(finalArrayMassCurrentHalo)
+        .datum(dataBinMassCurrentHalo)
         .attr("class", "areaTop")
         .attr("d", area);
-		console.log(finalArrayParticleAllHalos);
 		
     contextParticle.append("path")
-        .datum(finalArrayParticleAllHalos)
+        .datum(dataBinParticleAllHalos)
         .attr("class", "area")
         .attr("d", areaParticle);
 		
 	contextParticle.append("path")
-        .datum(finalArrayParticleCurrentHalo)
+        .datum(dataBinParticleCurrentHalo)
         .attr("class", "areaTop")
         .attr("d", areaParticle);
     	
     //x, y axes and calling brush
     contextMass.append("g")
-        .attr("class", "x axis")
+        .attr("class", "brushxaxis")
         .attr("transform", "translate(0," + xHeight + ")") //axis position
         .call(xAxisMass);
     	  
     contextMass.append("text")
-        .attr("class", "x label")
+        .attr("class", "brushxlabel")
         .attr("text-anchor", "end")
     	.style("font-size", "14px")
         .attr("x", 350)
@@ -364,18 +391,18 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
         .text("Mass");
     	
     contextMass.append("g")
-        .attr("class", "y axis")
+        .attr("class", "brushyaxis")
         .attr("transform", "translate(0," + 0 + ")") //axis position
         .call(yAxisMass);
 
-    contextMass.attr("class", "x brush")
+    contextMass.attr("class", "xbrush")
         .call(brushMass)
         .selectAll("rect")
         .attr("height", xHeight + 10)
     	.attr("y", -6);   
 
     contextMass.append("text")
-        .attr("class", "y label")
+        .attr("class", "brushylabel")
         .attr("text-anchor", "end")
     	.style("font-size", "14px")
     	.attr("transform", "rotate(-90)")
@@ -384,12 +411,12 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
         .text("Frequency");
 
     contextParticle.append("g")
-        .attr("class", "x axis")
+        .attr("class", "brushxaxis")
         .attr("transform", "translate(0," + xHeight + ")") //axis position
         .call(xAxisParticle);
     	  
     contextParticle.append("text")
-        .attr("class", "x label")
+        .attr("class", "brushxlabel")
         .attr("text-anchor", "end")
     	.style("font-size", "14px")
         .attr("x", 400)
@@ -397,12 +424,12 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
         .text("Total Particle Count");
     	  
     contextParticle.append("g")
-        .attr("class", "y axis")
+        .attr("class", "brushyaxis")
         .attr("transform", "translate(0," + 0 + ")") //axis position
         .call(yAxisParticle);
     	
     contextParticle.append("text")
-        .attr("class", "y label")
+        .attr("class", "brushylabel")
         .attr("text-anchor", "end")
     	.style("font-size", "14px")
     	.attr("transform", "rotate(-90)")
@@ -410,86 +437,15 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
         .attr("y", -35)
         .text("Frequency");
     	  
-    contextParticle.attr("class", "x brush")
-        .call(brushParticle)
-        .selectAll("rect")
-        .attr("height", xHeight + 10)
-    	.attr("y", -6);
-});
-});
-
-function updateGraph(grp)
-{
-   // Compute the new tree layout.
-    var halo = haloMap.get(grp);
-     root = halo.root;
-     nodesMap = halo.nodes;
-	 nodesMap.values().forEach(function(d) {
-		haloMassValuesCurrentHalo.push(+Math.log(d[0].HaloMass))
-		haloParticleValuesCurrentHalo.push(+Math.log(d[0].TotalParticles));
-	});
-	
-	var dataBinMassCurrentHalo = d3.layout.histogram()
-			.bins(10)(haloMassValuesCurrentHalo);
-	var dataBinParticleCurrentHalo = d3.layout.histogram()
-		.bins(10)(haloParticleValuesCurrentHalo);
-		
-    var finalArrayMassCurrentHalo = [];
-    for(var i=0; i< dataBinMassCurrentHalo.length; i++){
-	//if the bucket was empty, min has a problem
-	if(dataBinMassCurrentHalo[i].length!=0)
-		{
-    	var min = d3.min(dataBinMassCurrentHalo[i], function(d) { return d; });
-    	finalArrayMassCurrentHalo[i] = {x: min, y: dataBinMassCurrentHalo[i].length};
-		}
-		else
-		{
-		finalArrayMassCurrentHalo[i] = {x: dataBinMassCurrentHalo[i], y: 0};
-		}
-    }
-	
-	
-		var finalArrayParticleCurrentHalo = [];
-    for(var i=0; i< dataBinParticleCurrentHalo.length; i++){
-	if(dataBinParticleCurrentHalo[i].length!=0)
-		{
-    	var min = d3.min(dataBinParticleCurrentHalo[i], function(d) { return d; });
-    	finalArrayParticleCurrentHalo[i] = {x: min, y: dataBinParticleCurrentHalo[i].length};
-		}
-		else{
-		finalArrayParticleCurrentHalo[i] = {x: dataBinParticleCurrentHalo[i], y: 0};
-		}
-    }
-	
-	contextMass.selectAll("path.areaTop").exit().remove();
-	contextMass.selectAll("rect").remove();
-	contextParticle.selectAll("path.areaTop").exit().remove();
-	contextParticle.selectAll("rect").remove();
-	
-	contextMass.append("path")
-        .datum(finalArrayMassCurrentHalo)
-        .attr("class", "areaTop")
-        .attr("d", area);
-		
-	contextMass.attr("class", "x brush")
-        .call(brushMass)
-        .selectAll("rect")
-        .attr("height", xHeight + 10)
-    	.attr("y", -6);
-		
-		
-	contextParticle.append("path")
-        .datum(finalArrayParticleCurrentHalo)
-        .attr("class", "areaTop")
-        .attr("d", areaParticle);
-		
-	contextParticle.attr("class", "x brush")
+    contextParticle.attr("class", "xbrush")
         .call(brushParticle)
         .selectAll("rect")
         .attr("height", xHeight + 10)
     	.attr("y", -6);
 
-}
+    update(root);
+});
+});
 
 function update(source) {
     // Compute the new tree layout.
@@ -556,7 +512,7 @@ function update(source) {
         });
 	
 	// color filters based on brushes
-		 var brushExtentMin = Math.exp(brushMass.extent()[0]);
+		var brushExtentMin = Math.exp(brushMass.extent()[0]);
 	 var brushExtentMax = Math.exp(brushMass.extent()[1]);
 	 
 	 var brushExtentMinP = Math.exp(brushParticle.extent()[0]);
@@ -710,8 +666,8 @@ function zoomed() {
         }
 }
 
-function updateTree(grp) {
-	updateGraph(grp);
+function changeTree() {
+
     var timeOut1, timeOut2 = 0;
     if (zoom.scale() != 1 || zoom.translate()[0] != 0 || zoom.translate()[1] != 0) {
         timeOut1 = duration;
@@ -742,13 +698,12 @@ function updateTree(grp) {
         expand(root)
         //pause for the transition to complete
         setTimeout(function(){
-            var halo = haloMap.get(grp);
+            rootIndex = (rootIndex+1)%2;
+            var halo = haloMap.get(roots[rootIndex]);
             root = halo.root;
             nodesMap = halo.nodes;
             linksMap = halo.links;
-            haloMassExtent = d3.extent(nodesMap, function(k, v) { return v.HaloMass; });
-            haloParticleExtent = d3.extent(nodesMap, function(k, v) { return v.TotalParticles; });
-
+            changeGraph();
             //exit current tree
             var node = graph.selectAll("g.node")
             .data([]);
@@ -781,6 +736,53 @@ function updateTree(grp) {
             }, duration);
         }, timeOut2);
     }, timeOut1);
+}
+
+function changeGraph() {
+    var haloMassValuesCurrentHalo = [], haloParticleValuesCurrentHalo = [];
+    nodesMap.values().forEach(function(d) {
+        haloMassValuesCurrentHalo.push(+Math.log(d[0].HaloMass))
+        haloParticleValuesCurrentHalo.push(+Math.log(d[0].TotalParticles));
+    });
+    
+    var dataBinMassCurrentHalo = d3.layout.histogram()
+        .bins(10)(haloMassValuesCurrentHalo);
+    var dataBinParticleCurrentHalo = d3.layout.histogram()
+        .bins(10)(haloParticleValuesCurrentHalo);
+
+    var temp = [];
+    temp.x = +Math.log(maxMass);
+    temp.y = 0;
+    dataBinMassCurrentHalo.push(temp);
+
+    temp = [];
+    temp.x = +Math.log(minMass);
+    temp.y = 0;
+    dataBinMassCurrentHalo.unshift(temp);
+
+    console.log(dataBinMassCurrentHalo);
+
+    temp = [];
+    temp.x = +Math.log(maxParticle);
+    temp.y = 0;
+    dataBinParticleCurrentHalo.push(temp);
+
+    temp = [];
+    temp.x = +Math.log(minParticle);
+    temp.y = 0;
+    dataBinParticleCurrentHalo.unshift(temp);
+        
+    contextMass.select(".areaTop")
+        .datum(dataBinMassCurrentHalo)
+        .transition()
+        .duration(duration)
+        .attr("d", area);
+
+    contextParticle.select(".areaTop")
+        .datum(dataBinParticleCurrentHalo)
+        .transition()
+        .duration(duration)
+        .attr("d", areaParticle);
 }
 
 function resetTree() {

@@ -37,7 +37,7 @@ div {
 }
 
 rect {
-  stroke : white;
+  stroke : none;
   fill : #3B3B3B;
 }
 
@@ -100,25 +100,33 @@ svgBrush {
   fill: black;
 
 }
-.axis path,
-.axis line {
-  fill: none;
-  stroke: grey;
+
+#leftPanel .brushxaxis,
+#leftPanel .brushyaxis {
+  fill: black;
+  stroke: black;
   stroke-width: 1;
   shape-rendering: crispEdges;
 }
 
-.area {
+#leftPanel line, #leftPanel path {
+  fill: none;
+  stroke: black;
+  stroke-width: 1.5;
+  shape-rendering: crispEdges;
+}
+
+#leftPanel .area {
     fill: #D7D7D7;
     stroke-width: 0;
 }
-.areaTop {
+#leftPanel .areaTop {
     fill: #464646;
     stroke-width: 0;
 }
 
-.brush .extent {
-   stroke: #fff;
+#leftPanel .extent {
+  stroke: #fff;
   fill: #E3C937;
   fill-opacity: .4;
   
