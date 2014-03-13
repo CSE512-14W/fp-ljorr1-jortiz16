@@ -4,16 +4,16 @@ var rootIndex = 1;
 
 //REAL STUFF
 var doc = document.documentElement;
-var clientWidth = Math.min(doc.clientWidth, 1700);
+var clientWidth = Math.min(doc.clientWidth, 1670);
 //global replace all non-digits with nothing to get the height number
 var leftPanelHeight = document.getElementById("leftPanel").style.height;
 leftPanelHeight = +leftPanelHeight.replace(/\D/g,"");
 var margin = {top: 70, right: 20, bottom: 20, left: 20},
 width = clientWidth - margin.right - margin.left,
-height = doc.clientHeight - margin.top - margin.bottom - leftPanelHeight - 120; //header, buttons, and padding for header
+height = doc.clientHeight - margin.top - margin.bottom - leftPanelHeight - 100; //header, buttons, and padding for header
 //console.log(doc.clientHeight);
 d3.select("#header").style("width", clientWidth+"px");
-d3.select("#header").style("height", 50+"px");
+d3.select("#header").style("height", 18+"px");
 d3.select("#windowDiv").style("width", clientWidth+"px");
 d3.select("#table").style("width", clientWidth+"px");
 //d3.select("#windowDiv").style("height", (doc.clientHeight-60)+"px");
@@ -132,11 +132,11 @@ var brushParticle = d3.svg.brush()
 	
 //adding brushes to panels
 var svgBrushMass = d3.select("#massPanel").append("svg")
-    .attr("width", clientWidth/2 - 100 + 30) //width a bit more b/c of text
-    .attr("height", 200);
+    .attr("width", clientWidth/2) //width a bit more b/c of text
+    .attr("height", 190);
 var svgBrushParticle = d3.select("#particlePanel").append("svg")
     .attr("width", clientWidth/2) //width a bit more b/c of text
-    .attr("height", 200);
+    .attr("height", 190);
 	
 //transform position to brush 
 var contextMass = svgBrushMass.append("g")
