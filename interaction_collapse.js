@@ -10,11 +10,12 @@ var leftPanelHeight = document.getElementById("leftPanel").style.height;
 leftPanelHeight = +leftPanelHeight.replace(/\D/g,"");
 var margin = {top: 70, right: 20, bottom: 20, left: 20},
 width = clientWidth - margin.right - margin.left,
-height = doc.clientHeight - margin.top - margin.bottom - leftPanelHeight - 60; //60 for header
+height = doc.clientHeight - margin.top - margin.bottom - leftPanelHeight - 180; //60 for header
 
 d3.select("#header").style("width", clientWidth+"px");
 d3.select("#header").style("height", 60+"px");
 d3.select("#windowDiv").style("width", clientWidth+"px");
+d3.select("#table").style("width", clientWidth+"px");
 //d3.select("#windowDiv").style("height", (doc.clientHeight-60)+"px");
 
 //******************************SET UP SVG GRAPH WINDOW
@@ -131,18 +132,18 @@ var brushParticle = d3.svg.brush()
 	
 //adding brushes to panels
 var svgBrushMass = d3.select("#massPanel").append("svg")
-    .attr("width", 800) //width a bit more b/c of text
+    .attr("width", clientWidth/2 - 100) //width a bit more b/c of text
     .attr("height", 200);
 var svgBrushParticle = d3.select("#particlePanel").append("svg")
-    .attr("width", 750) //width a bit more b/c of text
+    .attr("width", clientWidth/2 - 100) //width a bit more b/c of text
     .attr("height", 200);
 	
 //transform position to brush 
 var contextMass = svgBrushMass.append("g")
-    .attr("transform", "translate(" + 45 + "," + 10 + ")"); //staring position
+    .attr("transform", "translate(" + 80 + "," + 10 + ")"); //staring position
 	
 var contextParticle = svgBrushParticle.append("g")
-    .attr("transform", "translate(" + 45 + "," + 10 + ")"); //staring position
+    .attr("transform", "translate(" + 80 + "," + 10 + ")"); //staring position
 
 
 //******************************LOAD DATA
@@ -385,9 +386,9 @@ temp = [];
     contextMass.append("text")
         .attr("class", "brushxlabel")
         .attr("text-anchor", "end")
-    	.style("font-size", "14px")
+    	.style("font-size", "20px")
         .attr("x", 350)
-        .attr("y", 160)
+        .attr("y", 165)
         .text("Mass");
     	
     contextMass.append("g")
@@ -404,10 +405,10 @@ temp = [];
     contextMass.append("text")
         .attr("class", "brushylabel")
         .attr("text-anchor", "end")
-    	.style("font-size", "14px")
+    	.style("font-size", "20px")
     	.attr("transform", "rotate(-90)")
-        .attr("x", -45)
-        .attr("y", -35)
+        .attr("x", -20)
+        .attr("y", -55)
         .text("Frequency");
 
     contextParticle.append("g")
@@ -418,9 +419,9 @@ temp = [];
     contextParticle.append("text")
         .attr("class", "brushxlabel")
         .attr("text-anchor", "end")
-    	.style("font-size", "14px")
-        .attr("x", 400)
-        .attr("y", 160)
+    	.style("font-size", "20px")
+        .attr("x", 440)
+        .attr("y", 165)
         .text("Total Particle Count");
     	  
     contextParticle.append("g")
@@ -431,10 +432,10 @@ temp = [];
     contextParticle.append("text")
         .attr("class", "brushylabel")
         .attr("text-anchor", "end")
-    	.style("font-size", "14px")
+    	.style("font-size", "20px")
     	.attr("transform", "rotate(-90)")
-        .attr("x", -45)
-        .attr("y", -35)
+        .attr("x", -20)
+        .attr("y", -55)
         .text("Frequency");
     	  
     contextParticle.attr("class", "xbrush")

@@ -8,11 +8,18 @@
 </head>
 <body>
   <div id="windowDiv" style="display:inline-block;">
-    <div id="header" style="display:block;"> Galactic Merger Trees </div>
+    <div id="header" style="display:block;"> GALACTIC MERGER TREES </div>
     <div id="main" style="display:block;">
-     <div><button onclick='resetTree()'>Reset Tree</button></div>
-     <div><button onclick='changeTree()'>Change Tree</button></div>
+   
      <table>
+     <tr>
+        <td>
+          <div style="display:inline-block;"> 
+            <button class="button" id="resetButton" onclick='resetTree()'>Reset Tree</button>
+            <button class="button" id="changeTreeButton" onclick='changeTree()'>Change Tree</button>
+          </div>
+        </td>
+      </tr>
       <tr>
         <td>
           <div id="svgContent" style="display:inline-block;">	
@@ -23,15 +30,15 @@
         <td>
           <div id="leftPanel" style="height:300px; display:inline-block"> 
             <p><h2> Highlights </h2></p>
-            <table width = "3000px">
+            <table id="table">
               <tr>
                 <td>
-                  <p><b>Mass</b></p>
+                  
                   <div id="massPanel">
                   </div>
                 </td>
                 <td>
-                  <p><b>Total Particles</b></p>
+                  
                   <div id="particlePanel">
                   </div>
                 </td>
