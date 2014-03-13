@@ -1,5 +1,3 @@
-
-    
 var doc = document.documentElement;
 var clientWidth = Math.min(doc.clientWidth, 1700);
 //global replace all non-digits with nothing to get the height number
@@ -88,32 +86,40 @@ var graph = svg.select(".graph");
 //brushing details
 //var infoBox = d3.select("#leftPanel");
 //scales for both charts -- scaled properly later
-var	x = d3.scale.linear().range([0, 450]);
-var	y = d3.scale.linear().range([75, 0]);
-var	xParticle = d3.scale.linear().range([0, 450]);
-var	yParticle = d3.scale.linear().range([75, 0]);
+var xHeight = 120; //used for various sections of the graph/areas
+var	x = d3.scale.linear().range([0, 700]);
+var	y = d3.scale.linear().range([xHeight, 0]);
+var	xParticle = d3.scale.linear().range([0, 700]);
+var	yParticle = d3.scale.linear().range([xHeight, 0]);
 
 //axes
+//formatting
 var exponentFormat = function (x) {return x.toExponential(1);};
-var	xAxis = d3.svg.axis().scale(x).orient("bottom").ticks(10).tickFormat(function(d) { return  exponentFormat(d); });
-var	yAxis = d3.svg.axis().scale(y).orient("left").ticks(5);
-var xAxisParticle = d3.svg.axis().scale(xParticle).orient("bottom").tickFormat(d3.format("s"));
+var kformat = d3.format(".1s");
+
+var	xAxisMass = d3.svg.axis().scale(x).orient("bottom").ticks(10).tickFormat(function(d) {
+console.log(d); 
+return  exponentFormat(Math.exp(d)); });
+var	yAxisMass = d3.svg.axis().scale(y).orient("left").ticks(5);
+
+var xAxisParticle = d3.svg.axis().scale(xParticle).orient("bottom").tickFormat(function (d) { return kformat(Math.exp(d)); });
 var	yAxisParticle = d3.svg.axis().scale(yParticle).orient("left").ticks(5);
 
 //areas- based on respective domains
 var area = d3.svg.area()
 	.interpolate("monotone")
-    .x(function(d) { console.log(x(d.x)); return x(d.x); })
-    .y0(75)
+    .x(function(d) { return x(d.x); })
+    .y0(xHeight)
     .y1(function(d) { return y(d.y); }); 
+	
 var areaParticle = d3.svg.area()
 	.interpolate("monotone")
     .x(function(d) { return xParticle(d.x); })
-    .y0(75)
+    .y0(xHeight)
     .y1(function(d) { return yParticle(d.y); });
-
+	
 //initialize brushes
-var brush = d3.svg.brush()
+var brushMass = d3.svg.brush()
     .x(x)
     .on("brush", brushed);
 var brushParticle = d3.svg.brush()
@@ -121,20 +127,15 @@ var brushParticle = d3.svg.brush()
     .on("brush", brushed);
 	
 //adding brushes to panels
-var svgBrush = d3.select("#massPanel").append("svg")
-    .attr("width", 550) //width a bit more b/c of text
+var svgBrushMass = d3.select("#massPanel").append("svg")
+    .attr("width", 800) //width a bit more b/c of text
     .attr("height", 200);
 var svgBrushParticle = d3.select("#particlePanel").append("svg")
-    .attr("width", 550) //width a bit more b/c of text
+    .attr("width", 750) //width a bit more b/c of text
     .attr("height", 200);
-
-//getter used for line 
-var	valueline = d3.svg.line()
-	.x(function(d) { return x(d.x); })
-	.y(function(d) { return y(d.y); });
 	
 //transform position to brush 
-var context = svgBrush.append("g")
+var contextMass = svgBrushMass.append("g")
     .attr("transform", "translate(" + 45 + "," + 10 + ")"); //staring position
 	
 var contextParticle = svgBrushParticle.append("g")
@@ -147,7 +148,7 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
 
     //CREATE DATA DEPENDENT VARIABLES
     var maxMass = 0, minMass, maxParticle = 0, minParticle, maxSharedParticle = 0, minSharedParticle;
-    var haloMassValues = [], haloParticleValues = [];
+    var haloMassValues = [], haloParticleValues = [], haloMassValuesLog = [], haloParticleValuesLog = [];
     minMass = raw_nodes[0].HaloMass;
     minParticle = raw_nodes[0].TotalParticles;
     minSharedParticle = raw_links[0].sharedParticleCount;
@@ -164,7 +165,9 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
         maxParticle = Math.max(maxParticle, +d.TotalParticles);
         minParticle = Math.min(minParticle, +d.TotalParticles);
         haloMassValues.push(+d.HaloMass);
+		haloMassValuesLog.push(+Math.log(d.HaloMass));
         haloParticleValues.push(+d.TotalParticles);
+		haloParticleValuesLog.push(+Math.log(d.TotalParticles));
     });
     //know that maximum halo mass is 83751473296264 and minimum is 875591334
     massScale.domain([minMass, maxMass]).range([1,18]);
@@ -234,88 +237,163 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     linksMap = halo.links;
     haloMassExtent = d3.extent(nodesMap.values(), function(d) { return +d[0].HaloMass; });
     haloParticleExtent = d3.extent(nodesMap.values(), function(d) { return +d[0].TotalParticles; });
+	haloMassValuesCurrentHalo = [], haloParticleValuesCurrentHalo = [];
+	nodesMap.values().forEach(function(d) {
+		haloMassValuesCurrentHalo.push(+Math.log(d[0].HaloMass))
+		haloParticleValuesCurrentHalo.push(+Math.log(d[0].TotalParticles));
+	});
     update(root);
+	
+	//HACKY FIX
+	haloMassValuesCurrentHalo.push(+31);
+	haloMassValuesLog.push(+31);
+    haloMassValuesCurrentHalo.push(+24);
+	haloMassValuesLog.push(+24);
+	
+	haloParticleValuesCurrentHalo.push(+5);
+	haloParticleValuesLog.push(+5);
+    haloParticleValuesCurrentHalo.push(+13);
+	haloParticleValuesLog.push(+13);
 
-    x.domain([-1e12, maxMass + (1e11)]);
-    xParticle.domain([minParticle, maxParticle + 10]); //a bit of buffer
+    x.domain([Math.log(minMass), Math.log(maxMass+ 10)]);
+    xParticle.domain([Math.log(minParticle), Math.log(maxParticle + 10)]); //a bit of buffer
+	
     //make buckets
-    var dataBin = d3.layout.histogram()
-    	.bins(10)(haloMassValues);
-        console.log(dataBin);
-    var dataBinParticle = d3.layout.histogram()
-    	.bins(10)(haloParticleValues);
+    var dataBinMassAllHalos = d3.layout.histogram()
+			.bins(10)(haloMassValuesLog);
+		
+		
+	var dataBinMassCurrentHalo = d3.layout.histogram()
+			.bins(10)(haloMassValuesCurrentHalo);
+	
+    var dataBinParticleAllHalos = d3.layout.histogram()
+    	.bins(10)(haloParticleValuesLog);
+		console.log(dataBinParticleAllHalos);
+		
+	var dataBinParticleCurrentHalo = d3.layout.histogram()
+		.bins(10)(haloParticleValuesCurrentHalo);
 
-    var finalArray = [];
-    for(var i=0; i< dataBin.length; i++){
-    	var min = d3.min(dataBin[i], function(d) { return d; });
-    	finalArray[i] = {x: min, y: dataBin[i].length};
+    var finalArrayMassAllHalos = [];
+    for(var i=0; i< dataBinMassAllHalos.length; i++){
+    	var min = d3.min(dataBinMassAllHalos[i], function(d) { return d; });
+    	finalArrayMassAllHalos[i] = {x: min, y: dataBinMassAllHalos[i].length};
     }
-    finalArray.unshift({x: minMass-(1e12), y: 0});
-    var finalArrayParticle = [];
-    for(var i=0; i< dataBinParticle.length; i++){
-        var min = d3.min(dataBinParticle[i], function(d) { return d; });
-        finalArrayParticle[i] = {x: min, y: dataBinParticle[i].length };
+	
+	var finalArrayMassCurrentHalo = [];
+    for(var i=0; i< dataBinMassCurrentHalo.length; i++){
+	//if the bucket was empty, min has a problem
+	if(dataBinMassCurrentHalo[i].length!=0)
+		{
+    	var min = d3.min(dataBinMassCurrentHalo[i], function(d) { return d; });
+    	finalArrayMassCurrentHalo[i] = {x: min, y: dataBinMassCurrentHalo[i].length};
+		}
+		else
+		{
+		finalArrayMassCurrentHalo[i] = {x: dataBinMassCurrentHalo[i], y: 0};
+		}
     }
+    var finalArrayParticleAllHalos = [];
+	console.log(dataBinParticleAllHalos);
+    for(var i=0; i< dataBinParticleAllHalos.length; i++){
+        if(dataBinParticleAllHalos[i].length!=0)
+		{
+		
+    	var min = d3.min(dataBinParticleAllHalos[i], function(d) { return d; });
+    	finalArrayParticleAllHalos[i] = {x: min, y: dataBinParticleAllHalos[i].length};
+	
+		}
+		else
+		{
+		finalArrayParticleAllHalos[i] = {x: dataBinParticleAllHalos[i], y: 0};
+
+		}
+    }
+	
+	console.log(finalArrayParticleAllHalos);
+	
+	var finalArrayParticleCurrentHalo = [];
+    for(var i=0; i< dataBinParticleCurrentHalo.length; i++){
+	if(dataBinParticleCurrentHalo[i].length!=0)
+		{
+    	var min = d3.min(dataBinParticleCurrentHalo[i], function(d) { return d; });
+    	finalArrayParticleCurrentHalo[i] = {x: min, y: dataBinParticleCurrentHalo[i].length};
+		}
+		else{
+		finalArrayParticleCurrentHalo[i] = {x: dataBinParticleCurrentHalo[i], y: 0};
+		}
+    }
+	
     //set y domains based on bin values
-    y.domain([0, d3.max(finalArray, function(d) { return d.y; })]);
-    yParticle.domain([0, d3.max(finalArrayParticle, function(d) { return d.y; })]);
-    console.log(finalArray);
+    y.domain([0, d3.max(finalArrayMassAllHalos, function(d) { return d.y; })]);
+    yParticle.domain([0, d3.max(finalArrayParticleAllHalos, function(d) { return d.y; })]);
+    //console.log(finalArrayParticle);
     //tie context to area
-    context.append("path")
-        .datum(finalArray)
+    contextMass.append("path")
+        .datum(finalArrayMassAllHalos)
         .attr("class", "area")
         .attr("d", area);
-    		
+				
+	contextMass.append("path")
+        .datum(finalArrayMassCurrentHalo)
+        .attr("class", "areaTop")
+        .attr("d", area);
+		console.log(finalArrayParticleAllHalos);
+		
     contextParticle.append("path")
-        .datum(finalArrayParticle)
+        .datum(finalArrayParticleAllHalos)
         .attr("class", "area")
+        .attr("d", areaParticle);
+		
+	contextParticle.append("path")
+        .datum(finalArrayParticleCurrentHalo)
+        .attr("class", "areaTop")
         .attr("d", areaParticle);
     	
     //x, y axes and calling brush
-    context.append("g")
+    contextMass.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + 75 + ")") //axis position
-        .call(xAxis);
+        .attr("transform", "translate(0," + xHeight + ")") //axis position
+        .call(xAxisMass);
     	  
-    context.append("text")
+    contextMass.append("text")
         .attr("class", "x label")
         .attr("text-anchor", "end")
-    	.style("font-size", "11px")
-        .attr("x", 250)
-        .attr("y", 110)
+    	.style("font-size", "14px")
+        .attr("x", 350)
+        .attr("y", 160)
         .text("Mass");
     	
-    context.append("g")
+    contextMass.append("g")
         .attr("class", "y axis")
         .attr("transform", "translate(0," + 0 + ")") //axis position
-        .call(yAxis);
+        .call(yAxisMass);
 
-    context.attr("class", "x brush")
-        .call(brush)
+    contextMass.attr("class", "x brush")
+        .call(brushMass)
         .selectAll("rect")
-        .attr("height", 80)
+        .attr("height", xHeight + 10)
     	.attr("y", -6);   
 
-    context.append("text")
+    contextMass.append("text")
         .attr("class", "y label")
         .attr("text-anchor", "end")
-    	.style("font-size", "11px")
+    	.style("font-size", "14px")
     	.attr("transform", "rotate(-90)")
-        .attr("x", -15)
+        .attr("x", -45)
         .attr("y", -35)
         .text("Frequency");
 
     contextParticle.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + 75 + ")") //axis position
+        .attr("transform", "translate(0," + xHeight + ")") //axis position
         .call(xAxisParticle);
     	  
     contextParticle.append("text")
         .attr("class", "x label")
         .attr("text-anchor", "end")
-    	.style("font-size", "11px")
-        .attr("x", 250)
-        .attr("y", 110)
+    	.style("font-size", "14px")
+        .attr("x", 400)
+        .attr("y", 160)
         .text("Total Particle Count");
     	  
     contextParticle.append("g")
@@ -326,19 +404,92 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     contextParticle.append("text")
         .attr("class", "y label")
         .attr("text-anchor", "end")
-    	.style("font-size", "11px")
+    	.style("font-size", "14px")
     	.attr("transform", "rotate(-90)")
-        .attr("x", -15)
+        .attr("x", -45)
         .attr("y", -35)
         .text("Frequency");
     	  
     contextParticle.attr("class", "x brush")
         .call(brushParticle)
         .selectAll("rect")
-        .attr("height", 80)
+        .attr("height", xHeight + 10)
     	.attr("y", -6);
 });
 });
+
+function updateGraph(grp)
+{
+   // Compute the new tree layout.
+    var halo = haloMap.get(grp);
+     root = halo.root;
+     nodesMap = halo.nodes;
+	 nodesMap.values().forEach(function(d) {
+		haloMassValuesCurrentHalo.push(+Math.log(d[0].HaloMass))
+		haloParticleValuesCurrentHalo.push(+Math.log(d[0].TotalParticles));
+	});
+	
+	var dataBinMassCurrentHalo = d3.layout.histogram()
+			.bins(10)(haloMassValuesCurrentHalo);
+	var dataBinParticleCurrentHalo = d3.layout.histogram()
+		.bins(10)(haloParticleValuesCurrentHalo);
+		
+    var finalArrayMassCurrentHalo = [];
+    for(var i=0; i< dataBinMassCurrentHalo.length; i++){
+	//if the bucket was empty, min has a problem
+	if(dataBinMassCurrentHalo[i].length!=0)
+		{
+    	var min = d3.min(dataBinMassCurrentHalo[i], function(d) { return d; });
+    	finalArrayMassCurrentHalo[i] = {x: min, y: dataBinMassCurrentHalo[i].length};
+		}
+		else
+		{
+		finalArrayMassCurrentHalo[i] = {x: dataBinMassCurrentHalo[i], y: 0};
+		}
+    }
+	
+	
+		var finalArrayParticleCurrentHalo = [];
+    for(var i=0; i< dataBinParticleCurrentHalo.length; i++){
+	if(dataBinParticleCurrentHalo[i].length!=0)
+		{
+    	var min = d3.min(dataBinParticleCurrentHalo[i], function(d) { return d; });
+    	finalArrayParticleCurrentHalo[i] = {x: min, y: dataBinParticleCurrentHalo[i].length};
+		}
+		else{
+		finalArrayParticleCurrentHalo[i] = {x: dataBinParticleCurrentHalo[i], y: 0};
+		}
+    }
+	
+	contextMass.selectAll("path.areaTop").exit().remove();
+	contextMass.selectAll("rect").remove();
+	contextParticle.selectAll("path.areaTop").exit().remove();
+	contextParticle.selectAll("rect").remove();
+	
+	contextMass.append("path")
+        .datum(finalArrayMassCurrentHalo)
+        .attr("class", "areaTop")
+        .attr("d", area);
+		
+	contextMass.attr("class", "x brush")
+        .call(brushMass)
+        .selectAll("rect")
+        .attr("height", xHeight + 10)
+    	.attr("y", -6);
+		
+		
+	contextParticle.append("path")
+        .datum(finalArrayParticleCurrentHalo)
+        .attr("class", "areaTop")
+        .attr("d", areaParticle);
+		
+	contextParticle.attr("class", "x brush")
+        .call(brushParticle)
+        .selectAll("rect")
+        .attr("height", xHeight + 10)
+    	.attr("y", -6);
+
+}
 
 function update(source) {
     // Compute the new tree layout.
@@ -405,27 +556,38 @@ function update(source) {
         });
 	
 	// color filters based on brushes
+		 var brushExtentMin = Math.exp(brushMass.extent()[0]);
+	 var brushExtentMax = Math.exp(brushMass.extent()[1]);
+	 
+	 var brushExtentMinP = Math.exp(brushParticle.extent()[0]);
+	 var brushExtentMaxP = Math.exp(brushParticle.extent()[1]);
+	
+	
+	 counterSel = 0;
 	 nodeUpdate.selectAll("circle")
         .style("fill", function(d) {
             var not_selected = "#3B3B3B";
             var selected = "#E3C937";
-            if(brush.empty() && brushParticle.empty()) {
+            if(brushMass.empty() && brushParticle.empty()) {
+				 
                 return not_selected;
-            } else if (!brush.empty() && brushParticle.empty()) {
-                if (d.HaloMass < brush.extent()[0] || d.HaloMass > brush.extent()[1]) {
+            } else if (!brushMass.empty() && brushParticle.empty()) {
+                if (d.HaloMass < brushExtentMin || d.HaloMass > brushExtentMax) {
                     return not_selected;
                 }
-            } else if (brush.empty() && !brushParticle.empty()) {
-                if (d.TotalParticles < brushParticle.extent()[0] || d.TotalParticles > brushParticle.extent()[1]) {
+            } else if (brushMass.empty() && !brushParticle.empty()) {
+                if (d.TotalParticles < brushExtentMinP || d.TotalParticles > brushExtentMaxP) {
                     return not_selected;
                 }
             } else {
-                if (d.HaloMass < brush.extent()[0] || d.HaloMass > brush.extent()[1] || d.TotalParticles < brushParticle.extent()[0] || d.TotalParticles > brushParticle.extent()[1]) {
+                if (d.HaloMass < brushExtentMin || d.HaloMass > brushExtentMax || d.TotalParticles < brushExtentMinP || d.TotalParticles > brushExtentMaxP) {
                     return not_selected;
                 }
             }
+			counterSel = counterSel +1;
             return selected;
         });
+		console.log(counterSel);
 	
     // Transition exiting nodes to the parent's new position.
     var nodeExit = node.exit().transition()
@@ -549,6 +711,7 @@ function zoomed() {
 }
 
 function updateTree(grp) {
+	updateGraph(grp);
     var timeOut1, timeOut2 = 0;
     if (zoom.scale() != 1 || zoom.translate()[0] != 0 || zoom.translate()[1] != 0) {
         timeOut1 = duration;
@@ -653,7 +816,7 @@ function resetTree() {
 }
 
 function brushed() {
-    //console.log(brush.extent(), "vs", brushParticle.extent());
+   // console.log(brushParticle.extent(), "vs", brushParticle.extent());
     //console.log(brush.empty(), "vs", brushParticle.empty());
     update(root);
 }

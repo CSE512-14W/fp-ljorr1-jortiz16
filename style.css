@@ -60,7 +60,6 @@ rect {
   text-align: center;
   font-size: 40px;
   font-family: arial;
-
 }
 
 .d3-tip {
@@ -89,8 +88,7 @@ rect {
 .d3-tip.n:after {
   margin: -1px 0 0 0;
   top: 100%;
-  left: 0;
-}
+  left: 0;}
 
 svgBrush {
   font: 10px sans-serif;
@@ -111,11 +109,17 @@ svgBrush {
 }
 
 .area {
-  fill: lightsteelblue;
-  stroke-width: 0;
+    fill: #D7D7D7;
+    stroke-width: 0;
 }
+.areaTop {
+    fill: #464646;
+    stroke-width: 0;
+}
+
 .brush .extent {
-  stroke: #fff;
-  fill-opacity: .125;
-  shape-rendering: crispEdges;
+   stroke: #fff;
+  fill: #E3C937;
+  fill-opacity: .4;
+  
 }
