@@ -332,9 +332,7 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
         .datum(finalArrayMassAllHalos)
         .attr("class", "area")
         .attr("d", area);
-		
-	
-    		
+				
 	contextMass.append("path")
         .datum(finalArrayMassCurrentHalo)
         .attr("class", "areaTop")
@@ -357,13 +355,13 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
         .attr("transform", "translate(0," + xHeight + ")") //axis position
         .call(xAxisMass);
     	  
-    /*context.append("text")
+    contextMass.append("text")
         .attr("class", "x label")
         .attr("text-anchor", "end")
-    	.style("font-size", "11px")
-        .attr("x", 250)
-        .attr("y", 110)
-        .text("Mass");*/
+    	.style("font-size", "14px")
+        .attr("x", 350)
+        .attr("y", 160)
+        .text("Mass");
     	
     contextMass.append("g")
         .attr("class", "y axis")
@@ -376,41 +374,41 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
         .attr("height", xHeight + 10)
     	.attr("y", -6);   
 
-   /* context.append("text")
+    contextMass.append("text")
         .attr("class", "y label")
         .attr("text-anchor", "end")
-    	.style("font-size", "11px")
+    	.style("font-size", "14px")
     	.attr("transform", "rotate(-90)")
-        .attr("x", -15)
+        .attr("x", -45)
         .attr("y", -35)
-        .text("Frequency");*/
+        .text("Frequency");
 
     contextParticle.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + xHeight + ")") //axis position
         .call(xAxisParticle);
     	  
-    /*contextParticle.append("text")
+    contextParticle.append("text")
         .attr("class", "x label")
         .attr("text-anchor", "end")
-    	.style("font-size", "11px")
-        .attr("x", 250)
-        .attr("y", 110)
-        .text("Total Particle Count");*/
+    	.style("font-size", "14px")
+        .attr("x", 400)
+        .attr("y", 160)
+        .text("Total Particle Count");
     	  
     contextParticle.append("g")
         .attr("class", "y axis")
         .attr("transform", "translate(0," + 0 + ")") //axis position
         .call(yAxisParticle);
     	
-    /*contextParticle.append("text")
+    contextParticle.append("text")
         .attr("class", "y label")
         .attr("text-anchor", "end")
-    	.style("font-size", "11px")
+    	.style("font-size", "14px")
     	.attr("transform", "rotate(-90)")
-        .attr("x", -15)
+        .attr("x", -45)
         .attr("y", -35)
-        .text("Frequency");*/
+        .text("Frequency");
     	  
     contextParticle.attr("class", "x brush")
         .call(brushParticle)
@@ -419,6 +417,79 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     	.attr("y", -6);
 });
 });
+
+function updateGraph(grp)
+{
+   // Compute the new tree layout.
+    var halo = haloMap.get(grp);
+     root = halo.root;
+     nodesMap = halo.nodes;
+	 nodesMap.values().forEach(function(d) {
+		haloMassValuesCurrentHalo.push(+Math.log(d[0].HaloMass))
+		haloParticleValuesCurrentHalo.push(+Math.log(d[0].TotalParticles));
+	});
+	
+	var dataBinMassCurrentHalo = d3.layout.histogram()
+			.bins(10)(haloMassValuesCurrentHalo);
+	var dataBinParticleCurrentHalo = d3.layout.histogram()
+		.bins(10)(haloParticleValuesCurrentHalo);
+		
+    var finalArrayMassCurrentHalo = [];
+    for(var i=0; i< dataBinMassCurrentHalo.length; i++){
+	//if the bucket was empty, min has a problem
+	if(dataBinMassCurrentHalo[i].length!=0)
+		{
+    	var min = d3.min(dataBinMassCurrentHalo[i], function(d) { return d; });
+    	finalArrayMassCurrentHalo[i] = {x: min, y: dataBinMassCurrentHalo[i].length};
+		}
+		else
+		{
+		finalArrayMassCurrentHalo[i] = {x: dataBinMassCurrentHalo[i], y: 0};
+		}
+    }
+	
+	
+		var finalArrayParticleCurrentHalo = [];
+    for(var i=0; i< dataBinParticleCurrentHalo.length; i++){
+	if(dataBinParticleCurrentHalo[i].length!=0)
+		{
+    	var min = d3.min(dataBinParticleCurrentHalo[i], function(d) { return d; });
+    	finalArrayParticleCurrentHalo[i] = {x: min, y: dataBinParticleCurrentHalo[i].length};
+		}
+		else{
+		finalArrayParticleCurrentHalo[i] = {x: dataBinParticleCurrentHalo[i], y: 0};
+		}
+    }
+	
+	contextMass.selectAll("path.areaTop").exit().remove();
+	contextMass.selectAll("rect").remove();
+	contextParticle.selectAll("path.areaTop").exit().remove();
+	contextParticle.selectAll("rect").remove();
+	
+	contextMass.append("path")
+        .datum(finalArrayMassCurrentHalo)
+        .attr("class", "areaTop")
+        .attr("d", area);
+		
+	contextMass.attr("class", "x brush")
+        .call(brushMass)
+        .selectAll("rect")
+        .attr("height", xHeight + 10)
+    	.attr("y", -6);
+		
+		
+	contextParticle.append("path")
+        .datum(finalArrayParticleCurrentHalo)
+        .attr("class", "areaTop")
+        .attr("d", areaParticle);
+		
+	contextParticle.attr("class", "x brush")
+        .call(brushParticle)
+        .selectAll("rect")
+        .attr("height", xHeight + 10)
+    	.attr("y", -6);
+
+}
 
 function update(source) {
     // Compute the new tree layout.
@@ -630,6 +701,7 @@ function zoomed() {
 }
 
 function updateTree(grp) {
+	updateGraph(grp);
     var timeOut1, timeOut2 = 0;
     if (zoom.scale() != 1 || zoom.translate()[0] != 0 || zoom.translate()[1] != 0) {
         timeOut1 = duration;
@@ -734,7 +806,7 @@ function resetTree() {
 }
 
 function brushed() {
-    console.log(brushParticle.extent(), "vs", brushParticle.extent());
+   // console.log(brushParticle.extent(), "vs", brushParticle.extent());
     //console.log(brush.empty(), "vs", brushParticle.empty());
     update(root);
 }
