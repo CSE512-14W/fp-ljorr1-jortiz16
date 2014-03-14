@@ -4,19 +4,20 @@ var rootIndex = 1;
 
 //REAL STUFF
 var doc = document.documentElement;
-var clientWidth = Math.min(doc.clientWidth, 1670);
+var clientWidth = Math.min(doc.clientWidth, 1600);
+var clientHeight = doc.clientHeight;
 //global replace all non-digits with nothing to get the height number
-var leftPanelHeight = document.getElementById("leftPanel").style.height;
-leftPanelHeight = +leftPanelHeight.replace(/\D/g,"");
+// var leftPanelHeight = document.getElementById("leftPanel").style.height;
+// leftPanelHeight = +leftPanelHeight.replace(/\D/g,"");
 var margin = {top: 70, right: 20, bottom: 20, left: 20},
 width = clientWidth - margin.right - margin.left,
-height = doc.clientHeight - margin.top - margin.bottom - leftPanelHeight - 100; //header, buttons, and padding for header
-//console.log(doc.clientHeight);
+height = clientHeight - margin.top - margin.bottom - clientHeight/6 - 120; //leftPanelHeight, header, buttons, and padding for header
+//console.log(clientHeight);
+d3.select("#leftPanel").style("height", clientHeight/6+"px")
 d3.select("#header").style("width", clientWidth+"px");
-d3.select("#header").style("height", 18+"px");
 d3.select("#windowDiv").style("width", clientWidth+"px");
 d3.select("#table").style("width", clientWidth+"px");
-//d3.select("#windowDiv").style("height", (doc.clientHeight-60)+"px");
+//d3.select("#windowDiv").style("height", (clientHeight-60)+"px");
 
 //******************************SET UP SVG GRAPH WINDOW
 var i = 0,
@@ -92,10 +93,10 @@ var graph = svg.select(".graph");
 //brushing details
 //var infoBox = d3.select("#leftPanel");
 //scales for both charts -- scaled properly later
-var xHeight = 120; //used for various sections of the graph/areas
-var	x = d3.scale.linear().range([0, 700]);
+var xHeight = clientHeight/6-70; //used for various sections of the graph/areas
+var	x = d3.scale.linear().range([0, clientWidth/2-100]);
 var	y = d3.scale.linear().range([xHeight, 0]);
-var	xParticle = d3.scale.linear().range([0, 700]);
+var	xParticle = d3.scale.linear().range([0, clientWidth/2-100]);
 var	yParticle = d3.scale.linear().range([xHeight, 0]);
 
 //axes
@@ -133,17 +134,17 @@ var brushParticle = d3.svg.brush()
 //adding brushes to panels
 var svgBrushMass = d3.select("#massPanel").append("svg")
     .attr("width", clientWidth/2) //width a bit more b/c of text
-    .attr("height", 190);
+    .attr("height", clientHeight/6);
 var svgBrushParticle = d3.select("#particlePanel").append("svg")
     .attr("width", clientWidth/2) //width a bit more b/c of text
-    .attr("height", 190);
+    .attr("height", clientHeight/6);
 	
 //transform position to brush 
 var contextMass = svgBrushMass.append("g")
-    .attr("transform", "translate(" + 80 + "," + 10 + ")"); //staring position
+    .attr("transform", "translate(" + 70 + "," + 10 + ")"); //staring position
 	
 var contextParticle = svgBrushParticle.append("g")
-    .attr("transform", "translate(" + 80 + "," + 10 + ")"); //staring position
+    .attr("transform", "translate(" + 70 + "," + 10 + ")"); //staring position
 
 
 //******************************LOAD DATA
@@ -173,13 +174,13 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
         haloParticleValues.push(+d.TotalParticles);
 		haloParticleValuesLog.push(+Math.log(d.TotalParticles));
     });
-    //know that maximum halo mass is 83751473296264 and minimum is 875591334
+
     massScale.domain([minMass, maxMass]).range([1,18]);
     linkScale.domain([minSharedParticle, maxSharedParticle]).range([2,20]);
 
     timeScale.domain([1,maxTime]).range([0,(maxTime-1)*nodeDistance]);
     //calculates the scale factor to fit all timesteps
-    //height/26 is how far apart nodes need to be from eachother to fit
+    //height/maxTime is how far apart nodes need to be from eachother to fit
     //nodes are currently nodeDistance px apart
     var shrink = (width/maxTime)/nodeDistance;
     //graph.attr("transform", "translate(" + [(width/2)*(1-shrink),0] + ")scale(" + (height/26)/nodeDistance + ")");
@@ -201,7 +202,7 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
         .attr("class", "timeaxislabel")
         .attr("y", -35)
         .attr("dx", "0.35em")
-        .attr("text-anchor", "end")
+        .attr("text-anchor", "middle")
         .text(function(d) { return d; });
 
     //CREATE HALO TREE MAPS
@@ -321,10 +322,10 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     	  
     contextMass.append("text")
         .attr("class", "brushxlabel")
-        .attr("text-anchor", "end")
-    	.style("font-size", "20px")
-        .attr("x", 350)
-        .attr("y", 165)
+        .attr("text-anchor", "middle")
+        .attr("dy", "0.35em")
+        .attr("x", clientWidth/4-40)
+        .attr("y", clientHeight/6-30)
         .text("Mass");
     	
     contextMass.append("g")
@@ -340,11 +341,10 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
 
     contextMass.append("text")
         .attr("class", "brushylabel")
-        .attr("text-anchor", "end")
-    	.style("font-size", "20px")
+        .attr("text-anchor", "middle")
     	.attr("transform", "rotate(-90)")
-        .attr("x", -20)
-        .attr("y", -55)
+        .attr("x", -xHeight/2)
+        .attr("y", -45)
         .text("Frequency");
 
     contextParticle.append("g")
@@ -354,10 +354,10 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     	  
     contextParticle.append("text")
         .attr("class", "brushxlabel")
-        .attr("text-anchor", "end")
-    	.style("font-size", "20px")
-        .attr("x", 440)
-        .attr("y", 165)
+        .attr("text-anchor", "middle")
+    	//.style("font-size", "20px")
+        .attr("x", clientWidth/4-40)
+        .attr("y", clientHeight/6-30)
         .text("Total Particle Count");
     	  
     contextParticle.append("g")
@@ -367,11 +367,11 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     	
     contextParticle.append("text")
         .attr("class", "brushylabel")
-        .attr("text-anchor", "end")
-    	.style("font-size", "20px")
+        .attr("text-anchor", "middle")
+    	//.style("font-size", "20px")
     	.attr("transform", "rotate(-90)")
-        .attr("x", -20)
-        .attr("y", -55)
+        .attr("x", -xHeight/2)
+        .attr("y", -45)
         .text("Frequency");
     	  
     contextParticle.attr("class", "xbrush")
@@ -747,6 +747,7 @@ function resetTree() {
 
 function brushed() {
     var oldDuration = duration;
+    //set duration to 0 so the color change is automatic
     duration = 0;
     update(root);
     duration = oldDuration;

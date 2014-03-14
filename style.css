@@ -25,7 +25,7 @@ path.children {
 }
 
 .timeaxislabel {
-  font-size: 20px;
+  font-size: 18px;
   font-family: arial;
   fill: #DDDDDD;
 }
@@ -47,18 +47,19 @@ rect {
 
 #leftPanel {
   background-color: white;
-  font-size: 18px;
+  font-size: 16px;
   font-family: arial;
 }
 
 #header{
+  height: 30px;
   background: white;
   border: 0px;
   border-color: gray;
   border-style: solid;
-  margin-top: 5px;
+  margin-top: 3px;
   text-align: center;
-  font-size: 35px;
+  font-size: 30px;
   font-weight: bold;
   font-family: arial;
 }
@@ -94,23 +95,12 @@ rect {
 svgBrush {
   font: 10px sans-serif;
 }
-.axis text {
-  font-family: courier;
-  font-size: 20px;
-  stroke: black;
-  fill: black;
-
-}
-
-.brushxlabel text
-{
-font-size: 20px;
-}
 
 #leftPanel .brushxaxis,
 #leftPanel .brushyaxis {
   fill: black;
   stroke: black;
+  font-size: 14px;
   stroke-width: 1;
   shape-rendering: crispEdges;
 }
@@ -118,7 +108,7 @@ font-size: 20px;
 #leftPanel line, #leftPanel path {
   fill: none;
   stroke: black;
-  stroke-width: 2;
+  stroke-width: 1;
   shape-rendering: crispEdges;
 }
 
@@ -143,6 +133,7 @@ font-size: 20px;
   display:inline-block;
   color:#ffffff;
   font-family:arial;
-  font-size:16px;
-  padding:10px 12px;
+  font-size:12px;
+  padding: 6px 8px;
+  margin: 0px;
 }
