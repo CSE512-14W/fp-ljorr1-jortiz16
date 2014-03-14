@@ -180,7 +180,7 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     timeScale.domain([1,maxTime]).range([0,(maxTime-1)*nodeDistance]);
     //calculates the scale factor to fit all timesteps
     //height/26 is how far apart nodes need to be from eachother to fit
-    //nodes are currently nodeDistancepx apart
+    //nodes are currently nodeDistance px apart
     var shrink = (width/maxTime)/nodeDistance;
     //graph.attr("transform", "translate(" + [(width/2)*(1-shrink),0] + ")scale(" + (height/26)/nodeDistance + ")");
     zoom.x(timeScale).scaleExtent([shrink,(width/5)/nodeDistance]).on("zoom", zoomed);
