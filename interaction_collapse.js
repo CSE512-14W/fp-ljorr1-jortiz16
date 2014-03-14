@@ -181,9 +181,8 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     //calculates the scale factor to fit all timesteps
     //height/26 is how far apart nodes need to be from eachother to fit
     //nodes are currently nodeDistancepx apart
-    //FIX ZOOM OUT
     var shrink = (width/maxTime)/nodeDistance;
-    //graph.attr("transform", "translate(" + [(height/2)*(1-shrink),0] + ")scale(" + (width/26)/nodeDistance + ")");
+    //graph.attr("transform", "translate(" + [(width/2)*(1-shrink),0] + ")scale(" + (height/26)/nodeDistance + ")");
     zoom.x(timeScale).scaleExtent([shrink,(width/5)/nodeDistance]).on("zoom", zoomed);
 
     var yaxis = svg.select(".timeaxis").selectAll("g.timeaxisgroup")
@@ -747,8 +746,5 @@ function resetTree() {
 }
 
 function brushed() {
-    durationOld = duration;
-    duration = 0;
     update(root);
-    duration = durationOld;
 }
