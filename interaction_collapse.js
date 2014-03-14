@@ -189,7 +189,7 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
 
     timeScale.domain([1,maxTime]).range([0,(maxTime-1)*nodeDistance]);
     //calculates the max scale factor
-    zoom.x(timeScale).scaleExtent([1,(width/5)/nodeDistance]).on("zoom", zoomed);
+    zoom.x(timeScale).scaleExtent([1,(width/8)/nodeDistance]).on("zoom", zoomed);
 
     var yaxis = svg.select(".timeaxis")
         .selectAll("g.timeaxisgroup")
@@ -714,7 +714,7 @@ function changeGraph() {
     temp.y = 0;
     dataBinMassCurrentHalo.unshift(temp);
 
-    console.log(dataBinMassCurrentHalo);
+    //console.log(dataBinMassCurrentHalo);
 
     temp = [];
     temp.x = +Math.log(maxParticle);
