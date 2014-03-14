@@ -746,5 +746,8 @@ function resetTree() {
 }
 
 function brushed() {
+    var oldDuration = duration;
+    duration = 0;
     update(root);
+    duration = oldDuration;
 }
