@@ -9,7 +9,7 @@ var clientHeight = doc.clientHeight;
 //global replace all non-digits with nothing to get the height number
 // var leftPanelHeight = document.getElementById("leftPanel").style.height;
 // leftPanelHeight = +leftPanelHeight.replace(/\D/g,"");
-var margin = {top: 70, right: 20, bottom: 20, left: 20},
+var margin = {top: 60, right: 20, bottom: 20, left: 20},
 width = clientWidth - margin.right - margin.left,
 height = clientHeight - margin.top - margin.bottom - clientHeight/6 - 120; //leftPanelHeight, header, buttons, and padding for header
 //console.log(clientHeight);
@@ -35,7 +35,7 @@ var tree = d3.layout.tree()
 var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
 
-var nodeDistance = 100;
+var nodeDistance;
 var massScale = d3.scale.log();
 var linkScale = d3.scale.log();
 var timeScale = d3.scale.linear();
@@ -62,8 +62,15 @@ var svg = d3.select("#svgContent")
     .style("height", height + margin.top + margin.bottom)
     .append("svg")
     .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
+    .attr("height", height + margin.top + margin.bottom);
+
+svg.append("g")
+    .attr("class","timeaxislabel")
+    .append("rect")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", margin.top - margin.bottom);
+
+svg = svg.insert("g",".timeaxislabel")
     .call(zoom)
     .on("dblclick.zoom", null);
 	
@@ -71,8 +78,10 @@ svg.call(tip);
 
 svg.append("rect")
     .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom);
+    .attr("height", height + 2*margin.bottom)
+    .attr("transform", "translate(" + 0 + "," + (margin.top-margin.bottom) + ")");
 
+//just for margin barriers, can remove
 svg.append("rect")
     .attr("width", width)
     .attr("height", height)
@@ -172,17 +181,18 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
 		haloParticleValuesLog.push(+Math.log(d.TotalParticles));
     });
 
-    massScale.domain([minMass, maxMass]).range([1,18]);
-    linkScale.domain([minSharedParticle, maxSharedParticle]).range([2,20]);
+    //scale to fit all timesteps
+    nodeDistance = width/maxTime
+
+    massScale.domain([minMass, maxMass]).range([2,12]);
+    linkScale.domain([minSharedParticle, maxSharedParticle]).range([2,12]);
 
     timeScale.domain([1,maxTime]).range([0,(maxTime-1)*nodeDistance]);
-    //calculates the scale factor to fit all timesteps
-    //height/maxTime is how far apart nodes need to be from eachother to fit
-    //nodes are currently nodeDistance px apart
-    var shrink = (width/maxTime)/nodeDistance;
-    zoom.x(timeScale).scaleExtent([shrink,(width/5)/nodeDistance]).on("zoom", zoomed);
+    //calculates the max scale factor
+    zoom.x(timeScale).scaleExtent([1,(width/5)/nodeDistance]).on("zoom", zoomed);
 
-    var yaxis = svg.select(".timeaxis").selectAll("g.timeaxisgroup")
+    var yaxis = svg.select(".timeaxis")
+        .selectAll("g.timeaxisgroup")
         .data(d3.range(1, maxTime+1))
         .enter().append("g")
         .attr("class","timeaxisgroup")
@@ -191,13 +201,20 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
         
     yaxis.append("line")
         .attr("class", "timeaxisline")
-        .attr("y1", -margin.top)
-        .attr("y2", height+margin.top);
+        .attr("y1", -margin.bottom)
+        .attr("y2", height+margin.bottom);
 
-    yaxis.append("text")
-        .attr("class", "timeaxislabel")
-        .attr("y", -35)
-        .attr("dx", "0.35em")
+    var yaxislabel = d3.select(".timeaxislabel")
+        .selectAll("g.timeaxisgroup")
+        .data(d3.range(1, maxTime+1))
+        .enter().append("g")
+        .attr("class", "timeaxisgroup")
+        .attr("transform", function(d) {
+            return "translate(" + timeScale(d) + ", 0)"; });
+
+    yaxislabel.append("text")
+        .attr("x", margin.left)
+        .attr("y", margin.top/2-5)
         .attr("text-anchor", "middle")
         .text(function(d) { return d; });
 
@@ -227,7 +244,6 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
         tempRoot = tempNodesMap.get(tempHaloLinksMap.get(k)[0].CurrentHalo)[0];
         tempRoot.x0 = height/2;
         tempRoot.y0 = 0;
-
         haloMap.set(k, {root: tempRoot, nodes: tempNodesMap, links: tempLinksMap});
     });
     //default group
@@ -434,7 +450,7 @@ function update(source) {
     nodeUpdate.select("circle.visible")
         .attr("r", function(d) { return massScale(d.HaloMass); })
         .style("stroke", function(d) { return d.Prog=='1' ? "#D44848" : "lightsteelblue"; })
-    	.style("stroke-width", "3");
+    	.style("stroke-width", "2");
 
     nodeUpdate.select("path.children")
         .style("fill-opacity", function(d) { return d._children ? 0.7 : 1e-6; })
@@ -594,6 +610,10 @@ function zoomed() {
             .attr("transform", function(d) {
                 return "translate(" + timeScale(d) + ", 0)";
             });
+        d3.select(".timeaxislabel").selectAll("g.timeaxisgroup")
+            .attr("transform", function(d) {
+                return "translate(" + timeScale(d) + ", 0)";
+            });
         }
 }
 
@@ -607,6 +627,10 @@ function changeTree() {
         svg.select(".timeaxis").selectAll("g.timeaxisgroup").transition().duration(duration)
             .attr("transform", function(d) {
                 //console.log(d, timeScale(d)); 
+                return "translate(" + timeScale(d) + ", 0)";
+            });
+        d3.select(".timeaxislabel").selectAll("g.timeaxisgroup")
+            .attr("transform", function(d) {
                 return "translate(" + timeScale(d) + ", 0)";
             });
     }
@@ -725,6 +749,10 @@ function resetTree() {
         svg.select(".timeaxis").selectAll("g.timeaxisgroup").transition().duration(duration)
             .attr("transform", function(d) {
                 //console.log(d, timeScale(d)); 
+                return "translate(" + timeScale(d) + ", 0)";
+            });
+        d3.select(".timeaxislabel").selectAll("g.timeaxisgroup")
+            .attr("transform", function(d) {
                 return "translate(" + timeScale(d) + ", 0)";
             });
     }

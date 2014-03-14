@@ -25,7 +25,7 @@ path.children {
 }
 
 .timeaxislabel {
-  font-size: 18px;
+  font-size: 16px;
   font-family: arial;
   fill: #DDDDDD;
 }
@@ -38,6 +38,7 @@ div {
 
 rect {
   stroke : none;
+  stroke-width: 1;
   fill: #111111;
 }
 
