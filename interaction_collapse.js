@@ -90,17 +90,14 @@ svg.select(".transform").append("g")
 var graph = svg.select(".graph");	
 
 //******************************SET UP LEFT PANEL
-//brushing details
-//var infoBox = d3.select("#leftPanel");
-//scales for both charts -- scaled properly later
+//scales for both charts
 var xHeight = clientHeight/6-70; //used for various sections of the graph/areas
-var	x = d3.scale.linear().range([0, clientWidth/2-100]);
+var	x = d3.scale.linear().range([0, clientWidth/3-100]);
 var	y = d3.scale.linear().range([xHeight, 0]);
-var	xParticle = d3.scale.linear().range([0, clientWidth/2-100]);
+var	xParticle = d3.scale.linear().range([0, clientWidth/3-100]);
 var	yParticle = d3.scale.linear().range([xHeight, 0]);
 
-//axes
-//formatting
+//axes formatting
 var exponentFormat = function (x) {return x.toExponential(1);};
 var kformat = d3.format(".1s");
 
@@ -133,10 +130,10 @@ var brushParticle = d3.svg.brush()
 	
 //adding brushes to panels
 var svgBrushMass = d3.select("#massPanel").append("svg")
-    .attr("width", clientWidth/2) //width a bit more b/c of text
+    .attr("width", clientWidth/3) //width a bit more b/c of text
     .attr("height", clientHeight/6);
 var svgBrushParticle = d3.select("#particlePanel").append("svg")
-    .attr("width", clientWidth/2) //width a bit more b/c of text
+    .attr("width", clientWidth/3) //width a bit more b/c of text
     .attr("height", clientHeight/6);
 	
 //transform position to brush 
@@ -183,7 +180,6 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     //height/maxTime is how far apart nodes need to be from eachother to fit
     //nodes are currently nodeDistance px apart
     var shrink = (width/maxTime)/nodeDistance;
-    //graph.attr("transform", "translate(" + [(width/2)*(1-shrink),0] + ")scale(" + (height/26)/nodeDistance + ")");
     zoom.x(timeScale).scaleExtent([shrink,(width/5)/nodeDistance]).on("zoom", zoomed);
 
     var yaxis = svg.select(".timeaxis").selectAll("g.timeaxisgroup")
@@ -324,7 +320,7 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
         .attr("class", "brushxlabel")
         .attr("text-anchor", "middle")
         .attr("dy", "0.35em")
-        .attr("x", clientWidth/4-40)
+        .attr("x", clientWidth/6-35)
         .attr("y", clientHeight/6-30)
         .text("Mass");
     	
@@ -356,7 +352,7 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
         .attr("class", "brushxlabel")
         .attr("text-anchor", "middle")
     	//.style("font-size", "20px")
-        .attr("x", clientWidth/4-40)
+        .attr("x", clientWidth/6-35)
         .attr("y", clientHeight/6-30)
         .text("Total Particle Count");
     	  
@@ -381,6 +377,7 @@ d3.csv("nodes2.csv", function(error2, raw_nodes) {
     	.attr("y", -6);
 
     update(root);
+    //start at zoomed out state
 });
 });
 
@@ -400,12 +397,12 @@ function update(source) {
     //enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")
         .attr("class", "node")
-        .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-        .on("click", click);
+        .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; });
 
     nodeEnter.append("circle")
+        .attr("class", "shadow")
         .attr("r", 1e-6)
-    	//.on("mouseover", tip.show)
+        //.on("mouseover", tip.show)
         .on("mouseout", function(d) { 
             tip.hide(d);
             tooltipShown = false;
@@ -417,7 +414,12 @@ function update(source) {
                 tip.show(d);
                 tooltipShown = true;
             }
-        });
+        })
+        .on("click", click);
+
+    nodeEnter.append("circle")
+        .attr("class", "visible")
+        .attr("r", 1e-6);
 
     nodeEnter.append("path") //0 0 is center of circle
         .attr("class", "children")
@@ -429,7 +431,7 @@ function update(source) {
         .duration(duration)
         .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
-    nodeUpdate.select("circle")
+    nodeUpdate.select("circle.visible")
         .attr("r", function(d) { return massScale(d.HaloMass); })
         .style("stroke", function(d) { return d.Prog=='1' ? "#D44848" : "lightsteelblue"; })
     	.style("stroke-width", "3");
@@ -452,7 +454,7 @@ function update(source) {
 
 
     counterSel = 0;
-    nodeUpdate.selectAll("circle")
+    nodeUpdate.selectAll("circle.visible")
         .style("fill", function(d) {
             var not_selected = "#3B3B3B";
             var selected = "#E3C937";
@@ -482,7 +484,7 @@ function update(source) {
         .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
         .remove();
 
-    nodeExit.select("circle")
+    nodeExit.select("circle.visible")
         .attr("r", 1e-6);
 
     nodeExit.select("text")
