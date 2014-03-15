@@ -83,15 +83,39 @@ rect {
   width: 100%;
   line-height: 1;
   color: rgba(238, 238, 238, 0.9);
-  content: "\25BC";
   position: absolute;
   text-align: center;
 }
 
 .d3-tip.n:after {
-  margin: -1px 0 0 0;
+  content: "\25BC";
+  margin: -2px 0 0 0;
   top: 100%;
-  left: 0;}
+  left: 0;
+}
+
+.d3-tip.s:after {
+  content: "\25B2";
+  margin: -8px 0 0 0;
+  top: 0%;
+  left: 0;
+}
+
+.d3-tip.e:after {
+  content: "\25BC";
+  margin: -2px 0 0 0;
+  top: 100%;
+  left: -45%;
+  /*content: "\25C0";*/
+}
+
+.d3-tip.w:after {
+  content: "\25BC";
+  margin: -2px 0 0 0;
+  top: 100%;
+  left: 45%;
+  /*content: "\25B6";*/
+}
 
 svgBrush {
   font: 10px sans-serif;

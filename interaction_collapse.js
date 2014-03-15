@@ -45,17 +45,30 @@ var zoom = d3.behavior.zoom();
 var nodeMouseDown = false;
 var tooltipShown = false;
 
-var tip = d3.tip()
+//Generate tool tips
+var tip_n = d3.tip()
   .attr("class", "d3-tip")
   .direction("n")
   .offset([-10,0])
-  .html(function(d) {
-    var color = "black";
-    return "Halo Group: <span style='color:" + color +"'>"  + d.GrpID + "</span><br/>" 
-	      + "Halo Mass: <span style='color:" + color +"'>" + d.HaloMass + "</span><br/>" 
-		  + "Total Particles: <span style='color:" + color +"'>" + d.TotalParticles + "</span><br/>"
-		  + "Total Dark Particles: <span style='color:" + color +"'>" + d.TotalDarkParticles + "</span><br/>";
-  });
+  .html(function(d) { return tipHtml(d) });
+
+var tip_s = d3.tip()
+  .attr("class", "d3-tip")
+  .direction("s")
+  .offset([10,0])
+  .html(function(d) { return tipHtml(d) });
+
+var tip_e = d3.tip()
+  .attr("class", "d3-tip e")
+  .direction("n")
+  .offset([-10,98])
+  .html(function(d) { return tipHtml(d) });
+
+var tip_w = d3.tip()
+  .attr("class", "d3-tip w")
+  .direction("w")
+  .offset([-55,15])
+  .html(function(d) { return tipHtml(d) });
 
 var svg = d3.select("#svgContent")
     .style("width", width + margin.left + margin.right)
@@ -74,7 +87,10 @@ svg = svg.insert("g",".timeaxislabel")
     .call(zoom)
     .on("dblclick.zoom", null);
 	
-svg.call(tip);
+svg.call(tip_n);
+svg.call(tip_s);
+svg.call(tip_e);
+svg.call(tip_w);
 
 svg.append("rect")
     .attr("width", width + margin.left + margin.right)
@@ -156,7 +172,7 @@ var contextParticle = svgBrushParticle.append("g")
 //******************************LOAD DATA
 d3.csv("links2.csv", function(error1, raw_links) {
 d3.csv("nodes2.csv", function(error2, raw_nodes) {
-
+console.log(raw_nodes);
     //CREATE DATA DEPENDENT VARIABLES
     var maxSharedParticle = 0, minSharedParticle;
     var haloMassValues = [], haloParticleValues = [], haloMassValuesLog = [], haloParticleValuesLog = [];
@@ -415,27 +431,63 @@ function update(source) {
         .attr("class", "node")
         .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; });
 
-    nodeEnter.append("circle")
-        .attr("class", "shadow")
-        .attr("r", 1e-6)
+    // nodeEnter.append("circle")
+    //     .attr("class", "shadow")
+    //     .attr("r", 1e-6)
         //.on("mouseover", tip.show)
+        // .on("mouseout", function(d) { 
+        //     tip.hide(d);
+        //     tooltipShown = false;
+        // })
+        // .on("mouseup", function(d) { nodeMouseDown = false; })
+        // .on("mousedown", function(d) { nodeMouseDown = true; })
+        // .on("mousemove", function(d) { 
+        //     if (!nodeMouseDown && !tooltipShown) {
+        //         tip.show(d);
+        //         tooltipShown = true;
+        //     }
+        // })
+        // .on("click", click);
+
+    nodeEnter.append("circle")
+        .attr("class", "visible")
+        .attr("r", 1e-6)
+        //.on("click", click)
+        .on("mouseover", function(d) {
+            if (d.y <= 125) {
+                tip_e.show(d);
+            } else if (d.x <= 35) {
+                tip_s.show(d);
+            } else if (d.y >= width-60) {
+                tip_w.show(d);
+            } else {
+                tip_n.show(d);
+            }
+            tooltipShown = true;
+        })
         .on("mouseout", function(d) { 
-            tip.hide(d);
+            tip_n.hide(d);
+            tip_s.hide(d);
+            tip_e.hide(d);
+            tip_w.hide(d);
             tooltipShown = false;
         })
         .on("mouseup", function(d) { nodeMouseDown = false; })
         .on("mousedown", function(d) { nodeMouseDown = true; })
         .on("mousemove", function(d) { 
             if (!nodeMouseDown && !tooltipShown) {
-                tip.show(d);
+                if (d.y <= 125) {
+                    tip_e.show(d);
+                } else if (d.x <= 35) {
+                    tip_s.show(d);
+                } else if (d.y >= width-60) {
+                    tip_w.show(d);
+                } else {
+                    tip_n.show(d);
+                }
                 tooltipShown = true;
             }
-        })
-        .on("click", click);
-
-    nodeEnter.append("circle")
-        .attr("class", "visible")
-        .attr("r", 1e-6);
+        });
 
     nodeEnter.append("path") //0 0 is center of circle
         .attr("class", "children")
@@ -542,7 +594,10 @@ function update(source) {
         //if node moved with click, we don't want to display tooltip
         //movement via drag is handled with transform, not d.x and d.y
         if (d.x0 != d.x || d.y0 != d.y) {
-            tip.hide();
+            tip_n.hide();
+            tip_s.hide();
+            tip_e.hide();
+            tip_w.hide();
         }
         d.x0 = d.x;
         d.y0 = d.y;
@@ -592,7 +647,10 @@ function click(d) {
 
 function zoomed() {
     //hide tooltip on zoom and drag; will be shown again when user moved mouse
-    tip.hide();
+    tip_n.hide();
+    tip_s.hide();
+    tip_e.hide();
+    tip_w.hide();
     tooltipShown = false;
     var currentTransform = graph.attr("transform");
     var scale = d3.event.scale;
@@ -781,4 +839,12 @@ function brushed() {
     duration = 0;
     update(root);
     duration = oldDuration;
+}
+
+function tipHtml(d) {
+    var color = "black";
+    return "Halo Group: <span style='color:" + color +"'>"  + d.GrpID + "</span><br/>" 
+          + "Halo Mass: <span style='color:" + color +"'>" + d.HaloMass + "</span><br/>" 
+          + "Total Particles: <span style='color:" + color +"'>" + d.TotalParticles + "</span><br/>"
+          + "Total Dark Particles: <span style='color:" + color +"'>" + d.TotalDarkParticles + "</span><br/>";
 }
