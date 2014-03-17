@@ -15,12 +15,11 @@
      <table style="border-spacing: 0.5px;">
      <tr>
         <td>
-          <div style="display:inline-block;"> 
-		       <button class="button" id="resetButton" onclick='resetTree()'>Reset Tree</button>
-			<form><input class="checked" id="checkedRemoveGraphs" type="checkbox" onclick="toggleGraphs()"> Remove Graphs </form>
-			<form><input class="checked" id="checkedRemoveTooltips" type="checkbox" onclick="toggleTooltips()"> Remove Tooltips </form>
-			<form><input class="checked" id="checkedLuminosity" type="checkbox" onclick="toggleLuminosity()"> Show Halo Luminosity </form>
-            <button class="button" id="resetButton" onclick='resetTree()'>Reset Tree</button>
+          <div id="topContainer" style="display:inline-block;"> 
+			<button class="button" id="resetButton" onclick='resetTree()'>Reset Tree</button>
+			<form style="display:inline"><input class="checked" id="checkedRemoveGraphs" type="checkbox" onclick="toggleGraphs()"> Remove Graphs </form>
+			<form style="display:inline"><input class="checked" id="checkedRemoveTooltips" type="checkbox" onclick="toggleTooltips()"> Remove Tooltips </form>
+			<form style="display:inline"><input class="checked" id="checkedLuminosity" type="checkbox" onclick="toggleLuminosity()"> Luminosity View </form>
           </div>
         </td>
       </tr>
@@ -40,7 +39,8 @@
       <tr>
         <td>
           <div id="panelContent" style="display:inline-block"> 
-            <div id="legend" style="display:inline-block;"></div> <div id="haloTextSelected" style="display:inline-block;">0 Halos Selected</div>
+            <div id="legend" style="display:inline;float:left"></div>
+			<div id="haloTextSelected" style="display:inline;float:right">0 Halos Selected</div>
            <table id="table">
               <tr>
                 <td>
