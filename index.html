@@ -16,6 +16,10 @@
      <tr>
         <td>
           <div style="display:inline-block;"> 
+		       <button class="button" id="resetButton" onclick='resetTree()'>Reset Tree</button>
+			<form><input class="checked" id="checkedRemoveGraphs" type="checkbox" onclick="toggleGraphs()"> Remove Graphs </form>
+			<form><input class="checked" id="checkedRemoveTooltips" type="checkbox" onclick="toggleTooltips()"> Remove Tooltips </form>
+			<form><input class="checked" id="checkedLuminosity" type="checkbox" onclick="toggleLuminosity()"> Show Halo Luminosity </form>
             <button class="button" id="resetButton" onclick='resetTree()'>Reset Tree</button>
           </div>
         </td>
@@ -36,19 +40,38 @@
       <tr>
         <td>
           <div id="panelContent" style="display:inline-block"> 
-            <div style="margin-bottom: 2px; font-size: 25px; font-weight: bold;"></div>
-            <table id="table">
+            <div id="legend" style="display:inline-block;"></div> <div id="haloTextSelected" style="display:inline-block;">0 Halos Selected</div>
+           <table id="table">
               <tr>
                 <td>
-                  
-                  <div id="massPanel">
-                  </div>
+				  <table id="massInformation">
+					<tr>
+						<td width="60%"> <div id="massPanel"> </div> </td>
+						<td width="40%"> 
+							<div id="massTextBoxes">
+								 <form>min: <input id="textboxMinMass" type="text" value="0"/> </form>
+								 <form>max: <input id="textboxMaxMass" type="text" value="0"/> </form>
+								 <div id="buttonMass"><button class="button">Go</button> </div>
+							</div>
+						</td>
+					</tr>
+				  </table>
                 </td>
-                <td>
-                  
-                  <div id="particlePanel">
-                  </div>
-                </td>
+					<td>
+						<table id="particleInformation">
+							<tr>
+								<td width="60%"><div id="particlePanel"> </div></td> 
+								<td width="40%"> 
+									<div id="particleTextBoxes"> 
+										<form>min: <input id="textboxMinParticle" type="text" value="0" /> </form>
+										<form>max: <input id="textboxMaxParticle" type="text" value="0" /> </form>
+										<div id="buttonParticle"><button class="button">Go</button></div>
+										
+									</div>
+								</td>
+							</tr>
+						</table>
+					</td>
               </tr>
             </table>
           </div>
