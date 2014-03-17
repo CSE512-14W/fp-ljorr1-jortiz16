@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="css/overcast/jquery-ui-1.10.4.custom.css">
+  <link rel="stylesheet" type="text/css" href="css/slider.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
   <meta charset=utf-8 />
   <title>JS</title>
-
 </head>
 <body>
   <div id="windowDiv" style="display:inline-block;">
@@ -16,19 +17,25 @@
         <td>
           <div style="display:inline-block;"> 
             <button class="button" id="resetButton" onclick='resetTree()'>Reset Tree</button>
-            <button class="button" id="changeTreeButton" onclick='changeTree()'>Change Tree</button>
           </div>
         </td>
       </tr>
       <tr>
         <td>
-          <div id="svgContent" style="display:inline-block;">	
+        <div>
+          <div id="sliderContent">
+          </div>
           </div>
         </td>
       </tr>
       <tr>
         <td>
-          <div id="leftPanel" style="display:inline-block"> 
+          <div id="svgContent" style="display:inline-block;">
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div id="panelContent" style="display:inline-block"> 
             <div style="margin-bottom: 2px; font-size: 25px; font-weight: bold;"></div>
             <table id="table">
               <tr>
@@ -50,9 +57,11 @@
     </table>
   </div>
 </div>
-<!-- <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script> -->
+<script type="text/javascript" src="js/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.10.4.custom.min.js"></script>
 <script src="http://d3js.org/d3.v3.js"></script>
 <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-<script src="interaction_collapse.js"></script>
+<script src="js/slider.js"></script>
+<script src="js/interaction_collapse.js"></script>
 </body>
 </html>
