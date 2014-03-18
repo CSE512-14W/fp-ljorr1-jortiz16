@@ -205,10 +205,10 @@ var svgBrushParticle = d3.select("#particlePanel").append("svg")
 	
 //transform position to brush 
 var contextMass = svgBrushMass.append("g")
-    .attr("transform", "translate(" + 30 + "," + 10 + ")"); //staring position
+    .attr("transform", "translate(" + 40 + "," + 10 + ")"); //staring position
 	
 var contextParticle = svgBrushParticle.append("g")
-    .attr("transform", "translate(" + 30 + "," + 10 + ")"); //staring position
+    .attr("transform", "translate(" + 40 + "," + 10 + ")"); //staring position
 
 
 //******************************LOAD DATA
@@ -371,24 +371,24 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     dataBinParticleCurrentHalo.unshift(temp);
 
     //set y domains based on bin values
-    y.domain([0, d3.max(dataBinMassCurrentHalo, function(d) { return d.y; })]);
-    yParticle.domain([0, d3.max(dataBinParticleCurrentHalo, function(d) { return d.y; })]);
+    y.domain([0, d3.mean(dataBinMassAllHalos, function(d) { return d.y; })]);
+    yParticle.domain([0, d3.mean(dataBinParticleAllHalos, function(d) { return d.y; })]);
     //console.log(d3.max(dataBinMassAllHalos, function(d) { return d.y; }));
     //tie context to area
-   /* contextMass.append("path")
+    contextMass.append("path")
         .datum(dataBinMassAllHalos)
         .attr("class", "area")
-        .attr("d", area);*/
+        .attr("d", area);
 				
 	contextMass.append("path")
         .datum(dataBinMassCurrentHalo)
         .attr("class", "areaTop")
         .attr("d", area);
 		
-    /*contextParticle.append("path")
+    contextParticle.append("path")
         .datum(dataBinParticleAllHalos)
         .attr("class", "area")
-        .attr("d", areaParticle);*/
+        .attr("d", areaParticle);
 		
 	contextParticle.append("path")
         .datum(dataBinParticleCurrentHalo)
@@ -957,21 +957,6 @@ function changeGraph() {
     temp.y = 0;
     dataBinParticleCurrentHalo.unshift(temp);
 	
-	y.domain([0, d3.max(dataBinMassCurrentHalo, function(d) { return d.y; })]);
-    yParticle.domain([0, d3.max(dataBinParticleCurrentHalo, function(d) { return d.y; })]);
-	
-	d3.selectAll(".brushyaxis .tick").remove();
-	
-	contextMass.append("g")
-        .attr("class", "brushyaxis")
-        .attr("transform", "translate(0," + 0 + ")") //axis position
-        .call(yAxisMass);
-		
-	contextParticle.append("g")
-        .attr("class", "brushyaxis")
-        .attr("transform", "translate(0," + 0 + ")") //axis position
-        .call(yAxisParticle);
-        
     contextMass.select(".areaTop")
         .datum(dataBinMassCurrentHalo)
         .transition()
