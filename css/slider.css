@@ -8,14 +8,14 @@
 }
 #current.viewer {
     margin:0 auto 20px;
-    height:190px;
+    height:130px;
     position:relative;
     padding:1px;
     border:1px solid #898989;
     display: inline-block;
 }
 #similarities.viewer {
-    height:190px;
+    height:130px;
     margin:0 auto 20px auto; /*top right bottom left*/
     padding:1px;
     overflow:hidden;
@@ -27,7 +27,7 @@
     position:relative;
 }
 .item {
-    width:255px;
+    width:205px;
     float:left;
     font-family:arial; 
     text-align:center;

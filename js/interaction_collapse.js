@@ -64,25 +64,25 @@ var tooltipEdgesShown = false;
 var tip_n = d3.tip()
   .attr("class", "d3-tip")
   .direction("n")
-  .offset([-10,0])
+  .offset(function(d) { return [-4/(2*zoom.scale()),0]; })
   .html(function(d) { return tipHtml(d) });
 
 var tip_s = d3.tip()
   .attr("class", "d3-tip")
   .direction("s")
-  .offset([10,0])
+  .offset(function(d) { return [4/(2*zoom.scale()),0]; })
   .html(function(d) { return tipHtml(d) });
 
 var tip_e = d3.tip()
   .attr("class", "d3-tip e")
   .direction("n")
-  .offset([-10,98])
+  .offset(function(d) { return [-4/(2*zoom.scale()), 93.0]; })
   .html(function(d) { return tipHtml(d) });
 
 var tip_w = d3.tip()
   .attr("class", "d3-tip w")
-  .direction("w")
-  .offset([-55,15])
+  .direction("n")
+  .offset(function(d) { return [-4,-93.0]; })
   .html(function(d) { return tipHtml(d) });
   
  var tipEdges = d3.tip()
@@ -112,7 +112,6 @@ svg = svg.insert("g",".timeaxislabel")
     .call(zoom)
     .on("dblclick.zoom", null);
 	
-
 svg.call(tipEdges);
 svg.call(tip_n);
 svg.call(tip_s);
@@ -210,8 +209,8 @@ var contextParticle = svgBrushParticle.append("g")
 
 
 //******************************LOAD DATA
-d3.csv("links2.csv", function(error1, raw_links) {
-d3.csv("nodes2.csv", function(error2, raw_nodes) {
+d3.csv("links_small.csv", function(error1, raw_links) {
+d3.csv("nodes_small.csv", function(error2, raw_nodes) {
 d3.csv("similarities.csv", function(error3, raw_sims) {
     //CREATE DATA DEPENDENT VARIABLES
     var maxSharedParticle = 0, minSharedParticle;
@@ -243,14 +242,13 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
 		haloParticleValuesLog.push(+Math.log(d.TotalParticles));
 		haloLums.push(+d.lum);
     });
-	
+
     //scale to fit all timesteps
     nodeDistance = width/maxTime
 
     massScale.domain([minMass, maxMass]).range([2,12]);
     linkScale.domain([minSharedParticle, maxSharedParticle]).range([2,12]);
 	lumScale.domain([minLum, maxLum]).range([.3, .9]); //for opacity
-
     timeScale.domain([1,maxTime]).range([0,(maxTime-1)*nodeDistance]);
     //calculates the max scale factor
     zoom.x(timeScale).scaleExtent([1,(width/8)/nodeDistance]).on("zoom", zoomed);
@@ -311,6 +309,9 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         tempRoot.y0 = 0;
         haloMap.set(k, {root: tempRoot, nodes: tempNodesMap, links: tempLinksMap, similarities: similaritiesMap.get(k)});
     });
+
+    //COMMENT   
+    //console.log(haloMap.keys());
     //default group
     //updateTree("16");
     var halo = haloMap.get("16");
@@ -552,12 +553,14 @@ function update(source) {
 		.attr("class", "hover")
 		.attr("r", 1e-6)
 		.on("mouseover", function(d) {
-            if (d.y <= 125) {
+            var x = zoom.scale()*d.x + zoom.translate()[1];
+            var y = zoom.scale()*d.y + zoom.translate()[0];
+            if (y <= 80) {
                 tip_e.show(d);
-            } else if (d.x <= 35) {
-                tip_s.show(d);
-            } else if (d.y >= width-60) {
+            } else if (y >= width-100) {
                 tip_w.show(d);
+            } else if (x <= 50) {
+                tip_s.show(d);
             } else {
                 tip_n.show(d);
             }
@@ -574,12 +577,14 @@ function update(source) {
         .on("mousedown", function(d) { nodeMouseDown = true; })
         .on("mousemove", function(d) { 
             if (!nodeMouseDown && !tooltipShown) {
-                if (d.y <= 125) {
+                var x = zoom.scale()*d.x + zoom.translate()[1];
+                var y = zoom.scale()*d.y + zoom.translate()[0];
+                if (y <= 80) {
                     tip_e.show(d);
-                } else if (d.x <= 35) {
-                    tip_s.show(d);
-                } else if (d.y >= width-60) {
+                } else if (y >= width-100) {
                     tip_w.show(d);
+                } else if (x <= 50) {
+                    tip_s.show(d);
                 } else {
                     tip_n.show(d);
                 }
@@ -805,14 +810,13 @@ function zoomed() {
     tip_e.hide();
     tip_w.hide();
     tooltipShown = false;
-    var currentTransform = graph.attr("transform");
     var scale = d3.event.scale;
     var tx = d3.event.translate[0];
     var ty = d3.event.translate[1];
 
     //100 for padding
     ty = Math.min(Math.max(ty, -scale*height+scale*height/5), height-scale*height/5);
-    tx = Math.min(Math.max(tx, -scale*(maxTime-4)*nodeDistance), width-3*scale*nodeDistance);
+    tx = Math.min(Math.max(tx, -scale*(maxTime-5)*nodeDistance), width-3*scale*nodeDistance);
     //set the zoom translate so if user keeps on scrolling, it doesn't register with zoom
     zoom.translate([tx,ty]);
     graph.attr("transform", "translate(" + [tx,ty] + ")scale(" + scale + ")");
@@ -1158,7 +1162,7 @@ function populateSlider() {
 
     currentImage.append("img")
         .attr("src", function(d) {
-            return "images/halo"+8+".png"; //replace num with d.to_Group
+            return "images/halo_small"+d.to_Group+".png"; //replace num with d.to_Group
         });
 
     currentImage = currentImage.append("div")
@@ -1181,7 +1185,7 @@ function populateSlider() {
 
     slider.append("img")
         .attr("src", function(d) {
-            return "images/halo"+8+".png"; //replace num with d.to_Group
+            return "images/halo_small"+d.to_Group+".png"; //replace num with d.to_Group
         })
         .on("click", function(d) { changeTree(d.to_Group); });
 
@@ -1202,6 +1206,7 @@ function changeSlider() {
     var similarities = haloMap.get(curGrp).similarities;
     current = similarities[0];
     similarities = similarities.slice(1,8);
+    console.log(similarities);
 
     //console.log(similarities);
     var currentImage = d3.select("#sliderContent")
@@ -1211,7 +1216,7 @@ function changeSlider() {
 
     currentImage.select("img")
         .attr("src", function(d) {
-            return "images/halo"+8+".png"; //replace num with d.to_Group
+            return "images/halo_small"+d.to_Group+".png"; //replace num with d.to_Group
         });
 
     currentImage.select(".text")
@@ -1224,7 +1229,7 @@ function changeSlider() {
 
     slider.select("img")
         .attr("src", function(d) {
-            return "images/halo"+8+".png"; //change to d.to_Group
+            return "images/halo_small"+d.to_Group+".png"; //change to d.to_Group
         });
 
     slider.select(".text")
