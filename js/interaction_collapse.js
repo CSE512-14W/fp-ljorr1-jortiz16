@@ -9,7 +9,7 @@ width = clientWidth - margin.right - margin.left,
 height = clientHeight - margin.top - margin.bottom - 400; //panelContentHeight, header, buttons, and padding for header
 //console.log(height);
 //TO FIX
-height = 800;
+//height = 800;
 d3.select("#panelContent").style("width", clientWidth+"px")
 d3.select("#topContainer").style("width", clientWidth +"px")
 d3.select("#legend").style("height", 50+"px");
