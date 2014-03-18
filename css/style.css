@@ -88,7 +88,7 @@ rect {
   pointer-events: none;
 }
 
-.d3-tip:after {
+/*.d3-tip:after {
   box-sizing: border-box;
   display: inline;
   font-size: 10px;
@@ -111,23 +111,8 @@ rect {
   margin: -8px 0 0 0;
   top: 0%;
   left: 0;
-}
+}*/
 
-.d3-tip.e:after {
-  content: "\25BC";
-  margin: -2px 0 0 0;
-  top: 100%;
-  left: -45%;
-  /*content: "\25C0";*/
-}
-
-.d3-tip.w:after {
-  content: "\25BC";
-  margin: -2px 0 0 0;
-  top: 100%;
-  left: 45%;
-  /*content: "\25B6";*/
-}
 
 svgBrush {
   font: 10px sans-serif;

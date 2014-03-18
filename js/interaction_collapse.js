@@ -7,7 +7,9 @@ var clientHeight = doc.clientHeight;
 var margin = {top: 60, right: 20, bottom: 20, left: 20},
 width = clientWidth - margin.right - margin.left,
 height = clientHeight - margin.top - margin.bottom - 400; //panelContentHeight, header, buttons, and padding for header
-//console.log(clientHeight);
+//console.log(height);
+//TO FIX
+height = 800;
 d3.select("#panelContent").style("width", clientWidth+"px")
 d3.select("#topContainer").style("width", clientWidth +"px")
 d3.select("#legend").style("height", 50+"px");
@@ -65,25 +67,25 @@ var tooltipEdgesShown = false;
 var tip_n = d3.tip()
   .attr("class", "d3-tip")
   .direction("n")
-  .offset(function(d) { return [-4/(2*zoom.scale()),0]; })
+  .offset(function(d) { return [0,0]; })
   .html(function(d) { return tipHtml(d) });
 
 var tip_s = d3.tip()
   .attr("class", "d3-tip")
   .direction("s")
-  .offset(function(d) { return [4/(2*zoom.scale()),0]; })
+  .offset(function(d) { return [0,0]; })
   .html(function(d) { return tipHtml(d) });
 
 var tip_e = d3.tip()
   .attr("class", "d3-tip e")
-  .direction("n")
-  .offset(function(d) { return [-4/(2*zoom.scale()), 93.0]; })
+  .direction("ne")
+  .offset(function(d) { return [0, 0]; })
   .html(function(d) { return tipHtml(d) });
 
 var tip_w = d3.tip()
   .attr("class", "d3-tip w")
-  .direction("n")
-  .offset(function(d) { return [-4,-93.0]; })
+  .direction("nw")
+  .offset(function(d) { return [0,0]; })
   .html(function(d) { return tipHtml(d) });
   
 /* var tipEdges = d3.tip()
@@ -546,24 +548,6 @@ function update(source) {
     var nodeEnter = node.enter().append("g")
         .attr("class", "node")
         .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; });
-
-    // nodeEnter.append("circle")
-    //     .attr("class", "shadow")
-    //     .attr("r", 1e-6)
-        //.on("mouseover", tip.show)
-        // .on("mouseout", function(d) { 
-        //     tip.hide(d);
-        //     tooltipShown = false;
-        // })
-        // .on("mouseup", function(d) { nodeMouseDown = false; })
-        // .on("mousedown", function(d) { nodeMouseDown = true; })
-        // .on("mousemove", function(d) { 
-        //     if (!nodeMouseDown && !tooltipShown) {
-        //         tip.show(d);
-        //         tooltipShown = true;
-        //     }
-        // })
-        // .on("click", click);
 
     nodeEnter.append("circle")
         .attr("class", "shadow")
@@ -1261,8 +1245,7 @@ function populateSlider() {
         .append("img")
         .attr("src", function(d) {
             return "images/halo_small"+d.to_Group+".png"; //replace num with d.to_Group
-        })
-        ;
+        });
 
     slider = slider.append("div")
         .attr("class", "text ui-helper-clearfix")
@@ -1281,7 +1264,7 @@ function changeSlider() {
     var similarities = haloMap.get(curGrp).similarities;
     current = similarities[0];
     similarities = similarities.slice(1,8);
-    console.log(similarities);
+    //console.log(similarities);
 
     //console.log(similarities);
     var currentImage = d3.select("#sliderContent")
@@ -1302,9 +1285,11 @@ function changeSlider() {
         .selectAll(".item")
         .data(similarities);
 
-    slider.select("img")
+    slider.select("a")
+        .on("click", function(d) { changeTree(d.to_Group); })
+        .select("img")
         .attr("src", function(d) {
-            return "images/halo_small"+d.to_Group+".png"; //change to d.to_Group
+            return "images/halo_small"+d.to_Group+".png"; //replace num with d.to_Group
         });
 
     slider.select(".text")
