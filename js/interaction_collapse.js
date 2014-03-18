@@ -87,15 +87,16 @@ var tip_w = d3.tip()
   .offset([-55,15])
   .html(function(d) { return tipHtml(d) });
   
- var tipEdges = d3.tip()
-  .attr("class", "d3-tip")
+/* var tipEdges = d3.tip()
+  .attr("class", "d3-tipPath")
   .direction("n")
   .offset([-10,0])
   .html(function(d) {
-    console.log("in tool tip function object", d);
+    //console.log("in tool tip function object", d);
     var color = "black";
-    return "Shared Total Particles: <span style='color:" + color +"'>"  + d.sharedParticleCount + "</span><br/>";
-  });
+    return "Shared Total Particles: <span style='color:" + color +"'>"  + d.sharedParticleCount + "</span><br/>"
+	+ "Shared Total Dark Particles: <span style='color:" + color +"'>"  + d.sharedDarkParticleCount + "</span><br/>";
+  });*/
 
 var svg = d3.select("#svgContent")
     .style("width", width + margin.left + margin.right)
@@ -115,7 +116,7 @@ svg = svg.insert("g",".timeaxislabel")
     .on("dblclick.zoom", null);
 	
 
-svg.call(tipEdges);
+//svg.call(tipEdges);
 svg.call(tip_n);
 svg.call(tip_s);
 svg.call(tip_e);
@@ -417,8 +418,8 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         .attr("dy", "0.35em")
 		.style("font-size", "10px")
 		.style("font-weight", "bold")
-        .attr("x", clientWidth/8 + 15)
-        .attr("y", clientHeight/8-10)
+        .attr("x", clientWidth/8 + 19)
+        .attr("y", clientHeight/8-13)
         .text("10");
 		
 	contextMass.append("text")
@@ -427,7 +428,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         .attr("dy", "0.35em")
 		.style("font-size", "14px")
 		.style("font-weight", "bold")
-        .attr("x", clientWidth/8 + 23)
+        .attr("x", clientWidth/8 + 27)
         .attr("y", clientHeight/8-10)
         .text(")");
     	
@@ -617,18 +618,18 @@ function update(source) {
         .on("click", click)
 		.style("opacity", ".001");
 		
-	var hoverLink = d3.selectAll("path.link")				
+	/*var hoverLink = d3.selectAll("path.link")				
 		.on("mousemove", function(d) { 
 		//console.log(linksMap.get(d.target.HaloID)[0]);
 		   if(!tooltipEdgesShown) {
-                tipEdges.show(d);
+                tipEdges.show(linksMap.get(d.target.HaloID)[0]);
 				tooltipShown = true;
            }
         })
 		.on("mouseout", function(d) {
 			tipEdges.hide(d);
             tooltipEdgesShown = false;
-		});
+		});*/
 		
     //transition nodes to their new position.
     var nodeUpdate = node.transition()
@@ -810,7 +811,7 @@ if( checkBoxToggleLuminosity.checked)
 
 
     if (d3.event.defaultPrevented ) {
-
+		
         return;
     }
     if (d.children) {
@@ -1111,7 +1112,7 @@ function toggleGraphs() {
 	   svgBrushParticle.select(".xbrush").call(brushParticle.clear());
 	   brushedMass();
 	   brushedParticle();
-	   $('#leftPanel').toggle();
+	   $('#panelContent').toggle();
 	 
 };
 
