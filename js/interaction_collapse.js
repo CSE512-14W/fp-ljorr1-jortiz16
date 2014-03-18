@@ -322,9 +322,19 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     nodesMap = halo.nodes;
     linksMap = halo.links;
 	haloMassValuesCurrentHalo = [], haloParticleValuesCurrentHalo = [];
+	minMassC = 0;
+	maxMassC = 0;
+	minParticleC = 0;
+	maxParticleC = 0;
+	
 	nodesMap.values().forEach(function(d) {
 		haloMassValuesCurrentHalo.push(+Math.log(d[0].HaloMass))
 		haloParticleValuesCurrentHalo.push(+Math.log(d[0].TotalParticles));
+		minMassC = Math.min(minMassC, +d[0].HaloMass);
+		maxMassC = Math.max(maxMassC, +d[0].HaloMass);
+		minParticleC = Math.min(minParticleC, +d[0].TotalParticles);
+		maxParticleC = Math.max(maxParticleC, +d[0].HaloMass);
+		
 	});
     	
     x.domain([Math.log(minMass), Math.log(maxMass)]);
@@ -369,31 +379,59 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     temp.x = +Math.log(minParticle);
     temp.y = 0;
     dataBinParticleCurrentHalo.unshift(temp);
+	
+	arrayMeans = [];
+	var currentmean = 0;
+	
+	
 
+	/*
+	for(var i = 0; i< dataBinMassAllHalos.length; i++)
+	{
+	  if(dataBinMassAllHalos[i].length !=0)
+	  {
+		currentmean = d3.min(dataBinMassAllHalos[i]);
+		dataBinMassAllHalos[i].y = currentmean;
+	  }
+	}
+	
+	for(var i = 0; i <dataBinParticleAllHalos.length; i++)
+{
+	if(dataBinMassAllHalos[i].length !=0)
+	  {
+	  currentmean = d3.min(dataBinParticleAllHalos[i]);
+	  dataBinParticleAllHalos[i].y = +currentmean;
+	  }
+	}*/
+	
+	
+    console.log(dataBinParticleAllHalos);
     //set y domains based on bin values
-    y.domain([0, d3.mean(dataBinMassAllHalos, function(d) { return d.y; })]);
-    yParticle.domain([0, d3.mean(dataBinParticleAllHalos, function(d) { return d.y; })]);
+    y.domain([0, d3.max(dataBinMassCurrentHalo, function(d) { return d.y; })]);
+    yParticle.domain([0, d3.max(dataBinParticleCurrentHalo, function(d) { return d.y; })]);
     //console.log(d3.max(dataBinMassAllHalos, function(d) { return d.y; }));
     //tie context to area
-    contextMass.append("path")
+    /*contextMass.append("path")
         .datum(dataBinMassAllHalos)
         .attr("class", "area")
-        .attr("d", area);
+        .attr("d", area);*/
 				
 	contextMass.append("path")
         .datum(dataBinMassCurrentHalo)
         .attr("class", "areaTop")
-        .attr("d", area);
+        .attr("d", area)
+		.style("opacity", ".7");
 		
-    contextParticle.append("path")
+    /*contextParticle.append("path")
         .datum(dataBinParticleAllHalos)
         .attr("class", "area")
-        .attr("d", areaParticle);
+        .attr("d", areaParticle);*/
 		
 	contextParticle.append("path")
         .datum(dataBinParticleCurrentHalo)
         .attr("class", "areaTop")
-        .attr("d", areaParticle);
+        .attr("d", areaParticle)
+		.style("opacity", ".7");
     	
     //x, y axes and calling brush
     contextMass.append("g")
@@ -494,7 +532,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     	.attr("y", -6);
 		
 	//adding the legend	
-	var areaColors = [{text: "All Halos", color:"lightsteelblue"}, {text: "Current Halo", color:"darkblue"}];
+	var areaColors = [{text: "Average", color:"lightsteelblue"}, {text: "Current Halo", color:"darkblue"}];
 	var legend =  d3.select("#legend").append("svg")
 		  .attr("class","legend")
 	      .attr("width", 300)
@@ -687,7 +725,7 @@ function update(source) {
 					{
 						if(
 						   (!brushMass.empty() && brushParticle.empty() && ((d.HaloMass >= brushExtentMin) && (d.HaloMass <= brushExtentMax))) || //mass brush and conditions
-						   (brushMass.empty() && !brushParticle.empty()  && ((d.TotalParticles >= brushExtentMinP) && (d.TotalParticles <= brushExtentMax))) || //particle brush and conditions
+						   (brushMass.empty() && !brushParticle.empty()  && ((d.TotalParticles >= brushExtentMinP) && (d.TotalParticles <= brushExtentMaxP))) || //particle brush and conditions
 						   (((d.HaloMass >= brushExtentMin) && (d.HaloMass <= brushExtentMax)) && ((d.TotalParticles >= brushExtentMinP) && (d.TotalParticles <= brushExtentMaxP)))) //both selected
 						   {
 						     counterHaloSelected = counterHaloSelected + 1;
@@ -705,7 +743,7 @@ function update(source) {
 	 .attr("stdDeviation", 15);  
 
 		
-	textBoxSelected.innerHTML = counterHaloSelected + "/" + nodes.length + " Halos selected";
+	textBoxSelected.innerHTML = "<b>" + counterHaloSelected + "/" + nodes.length + " Halos selected </b>";
 	
     //transition exiting nodes to the parent's new position.
     var nodeExit = node.exit().transition()
@@ -843,7 +881,8 @@ function zoomed() {
 }
 
 function changeTree(grp) {
-
+	svgBrushMass.select(".xbrush").call(brushMass.clear());
+	   svgBrushParticle.select(".xbrush").call(brushParticle.clear());
 	if (checkBoxToggleLuminosity.checked)
 	{
 	  checkBoxToggleLuminosity.checked = false;
@@ -957,17 +996,36 @@ function changeGraph() {
     temp.y = 0;
     dataBinParticleCurrentHalo.unshift(temp);
 	
+	y.domain([0, d3.max(dataBinMassCurrentHalo, function(d) { return d.y; })]);
+    yParticle.domain([0, d3.max(dataBinParticleCurrentHalo, function(d) { return d.y; })]);
+	
+	d3.selectAll(".brushyaxis .tick").remove();
+	
+	contextMass.append("g")
+        .attr("class", "brushyaxis")
+        .attr("transform", "translate(0," + 0 + ")") //axis position
+        .call(yAxisMass);
+		
+		
+	contextParticle.append("g")
+        .attr("class", "brushyaxis")
+        .attr("transform", "translate(0," + 0 + ")") //axis position
+        .call(yAxisParticle);
+
+	
     contextMass.select(".areaTop")
         .datum(dataBinMassCurrentHalo)
         .transition()
         .duration(duration)
-        .attr("d", area);
+        .attr("d", area)
+		.style("opacity", ".7");
 
     contextParticle.select(".areaTop")
         .datum(dataBinParticleCurrentHalo)
         .transition()
         .duration(duration)
-        .attr("d", areaParticle);
+        .attr("d", areaParticle)
+		.style("opacity", ".7");
 }
 
 function resetTree() {
@@ -1166,7 +1224,7 @@ function toggleLuminosity() {
 		var edges = d3.selectAll("path.link")
 					.transition()
 					 .style("stroke", "gray")
-					.style("opacity", ".1");
+					.style("opacity", ".3");
 		
 	}
 	else {
