@@ -1168,7 +1168,10 @@ function toggleTooltips() {
 	  d3.selectAll(".d3-tip").remove();
 	}
 	else{
-	  svg.call(tip);
+	  svg.call(tip_n);
+	  svg.call(tip_s);
+	  svg.call(tip_e);
+	  svg.call(tip_w);
 	}
 };
 
@@ -1190,7 +1193,7 @@ function toggleLuminosity() {
 							{
 								if(d.lum == 0)
 								{
-									return ".5";
+									return "0";
 								}
 								else
 								{
@@ -1214,7 +1217,7 @@ function toggleLuminosity() {
 						 
 						 
 		var otherShade = d3.selectAll("circle.shadow")
-						 .filter(function(d) {if(d.lum ==0) { console.log("retruned", d); return d;}})
+						 .filter(function(d) {if(d.lum ==0) {return d;}})
 					     .style("fill", "black")
 						 .style("opacity", 1)
 						 .attr("r",  10);
