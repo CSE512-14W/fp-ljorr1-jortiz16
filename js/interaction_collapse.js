@@ -9,7 +9,9 @@ var margin = {top: 60, right: 20, bottom: 20, left: 20},
 width = clientWidth - margin.right - margin.left,
 height = clientHeight - margin.top - margin.bottom - 120; //panelContentHeight, header, buttons, and padding for header
 //console.log(clientHeight);
-d3.select("#panelContent").style("height", clientHeight/6+"px")
+d3.select("#panelContent").style("width", clientWidth+"px")
+d3.select("#topContainer").style("width", clientWidth +"px")
+d3.select("#legend").style("height", 50+"px");
 d3.select("#header").style("width", clientWidth+"px");
 d3.select("#windowDiv").style("width", clientWidth+"px");
 d3.select("#table").style("width", clientWidth+"px");
@@ -85,15 +87,16 @@ var tip_w = d3.tip()
   .offset(function(d) { return [-4,-93.0]; })
   .html(function(d) { return tipHtml(d) });
   
- var tipEdges = d3.tip()
-  .attr("class", "d3-tip")
+/* var tipEdges = d3.tip()
+  .attr("class", "d3-tipPath")
   .direction("n")
   .offset([-10,0])
   .html(function(d) {
-    console.log("in tool tip function object", d);
+    //console.log("in tool tip function object", d);
     var color = "black";
-    return "Shared Total Particles: <span style='color:" + color +"'>"  + d.sharedParticleCount + "</span><br/>";
-  });
+    return "Shared Total Particles: <span style='color:" + color +"'>"  + d.sharedParticleCount + "</span><br/>"
+	+ "Shared Total Dark Particles: <span style='color:" + color +"'>"  + d.sharedDarkParticleCount + "</span><br/>";
+  });*/
 
 var svg = d3.select("#svgContent")
     .style("width", width + margin.left + margin.right)
@@ -112,7 +115,7 @@ svg = svg.insert("g",".timeaxislabel")
     .call(zoom)
     .on("dblclick.zoom", null);
 	
-svg.call(tipEdges);
+//svg.call(tipEdges);
 svg.call(tip_n);
 svg.call(tip_s);
 svg.call(tip_e);
@@ -135,12 +138,11 @@ var filter = defs.append("filter")
     .attr("id", "blur")
     .attr("height", "130%")
 	.attr("width", "130%");
+	
 filter.append("feGaussianBlur")
     .attr("in", "SourceGraphic")
     .attr("stdDeviation", 2)
     .attr("result", "blur");
-
-
 
 svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -162,7 +164,7 @@ var	xParticle = d3.scale.linear().range([0, clientWidth/3-150]);
 var	yParticle = d3.scale.linear().range([xHeight, 0]);
 
 //axes formatting
-var exponentFormat = function (x) {return x.toExponential(2)/(1e11);};
+var exponentFormat = function (x) {return x.toExponential(2)/(1e10);};
 var kformat = d3.format(".1s");
 
 var	xAxisMass = d3.svg.axis().scale(x).orient("bottom").ticks(10).tickFormat(function(d) { return exponentFormat(Math.exp(d)); });
@@ -248,7 +250,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
 
     massScale.domain([minMass, maxMass]).range([2,12]);
     linkScale.domain([minSharedParticle, maxSharedParticle]).range([2,12]);
-	lumScale.domain([minLum, maxLum]).range([.3, .9]); //for opacity
+	lumScale.domain([minLum, maxLum]).range([.09, 1]); //for opacity
     timeScale.domain([1,maxTime]).range([0,(maxTime-1)*nodeDistance]);
     //calculates the max scale factor
     zoom.x(timeScale).scaleExtent([1,(width/8)/nodeDistance]).on("zoom", zoomed);
@@ -400,7 +402,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
 			.selectAll("text")
 			.style("font-size", "10px")
 			.attr("transform","rotate(0) translate(0,0)");
-    	  
+
     contextMass.append("text")
         .attr("class", "brushxlabel")
         .attr("text-anchor", "middle")
@@ -409,7 +411,27 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
 		.style("font-weight", "bold")
         .attr("x", clientWidth/8-35)
         .attr("y", clientHeight/8-10)
-        .text("Log Mass (1e11)");
+        .text("Log Mass (x e");
+	//this is probably not the best way to add the script
+	contextMass.append("text")
+        .attr("class", "brushxlabel")
+        .attr("text-anchor", "middle")
+        .attr("dy", "0.35em")
+		.style("font-size", "10px")
+		.style("font-weight", "bold")
+        .attr("x", clientWidth/8 + 19)
+        .attr("y", clientHeight/8-13)
+        .text("10");
+		
+	contextMass.append("text")
+		.attr("class", "brushxlabel")
+        .attr("text-anchor", "middle")
+        .attr("dy", "0.35em")
+		.style("font-size", "14px")
+		.style("font-weight", "bold")
+        .attr("x", clientWidth/8 + 27)
+        .attr("y", clientHeight/8-10)
+        .text(")");
     	
     contextMass.append("g")
         .attr("class", "brushyaxis")
@@ -474,7 +496,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
 	var legend =  d3.select("#legend").append("svg")
 		  .attr("class","legend")
 	      .attr("width", 300)
-		  .attr("height", 30)
+		  .attr("height", 20)
 		.selectAll("g")
 			.data(areaColors)
 		.enter().append("g")
@@ -514,6 +536,13 @@ function update(source) {
         .data(nodes, function(d, i) { return d.HaloID; });
 
     //enter any new nodes at the parent's previous position.
+	
+	//var test = d3.select("#testing").append("svg").attr("width", 50).attr("height",50);
+	//var one =  test.append("circle").style("fill","black")
+	//		   .attr("r", 18).attr("cx", 15).attr("cy", 15);	   
+	//var two = test.append("circle").style("fill","blue")
+	//		   .attr("r", 12).attr("cx", 15).attr("cy", 15);
+
     var nodeEnter = node.enter().append("g")
         .attr("class", "node")
         .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; });
@@ -594,18 +623,18 @@ function update(source) {
         .on("click", click)
 		.style("opacity", ".001");
 		
-	var hoverLink = d3.selectAll("path.link")				
+	/*var hoverLink = d3.selectAll("path.link")				
 		.on("mousemove", function(d) { 
-		console.log(linksMap.get(d.target.HaloID)[0]);
+		//console.log(linksMap.get(d.target.HaloID)[0]);
 		   if(!tooltipEdgesShown) {
-                tipEdges.show(d);
+                tipEdges.show(linksMap.get(d.target.HaloID)[0]);
 				tooltipShown = true;
            }
         })
 		.on("mouseout", function(d) {
 			tipEdges.hide(d);
             tooltipEdgesShown = false;
-		});
+		});*/
 		
     //transition nodes to their new position.
     var nodeUpdate = node.transition()
@@ -621,18 +650,15 @@ function update(source) {
 	nodeUpdate.select("circle.shadow") //make a scale instead?
         .attr("r", function(d)
 			{
-			  if(massScale(d.HaloMass) < 3)
-			  {
-			   return massScale(d.HaloMass)+(massScale(d.HaloMass)*3);
-			  }
-			  else if(massScale(d.HaloMass) < 6)
-			   {
-			       return massScale(d.HaloMass)+(massScale(d.HaloMass)*2);
-			   }
-			   else 
-			   {
-			     return  massScale(d.HaloMass)+(massScale(d.HaloMass)*.5);
-			   }
+			 var scaledMass = massScale(d.HaloMass); //up to 12
+			 switch(true)
+			 {
+				case (scaledMass <= 4): return scaledMass+5;
+				case (scaledMass <= 5): return scaledMass*2;
+				case (scaledMass <= 7): return 12;
+				case (scaledMass < 12): return scaledMass+6;
+				
+			 }
 			})
 		.style("opacity", ".01");
 		
@@ -695,7 +721,7 @@ function update(source) {
 	 .attr("stdDeviation", 15);  
 
 		
-	textBoxSelected.innerHTML = counterHaloSelected + " Halos selected";
+	textBoxSelected.innerHTML = counterHaloSelected + "/" + nodes.length + " Halos selected";
 	
     //transition exiting nodes to the parent's new position.
     var nodeExit = node.exit().transition()
@@ -790,7 +816,7 @@ if( checkBoxToggleLuminosity.checked)
 
 
     if (d3.event.defaultPrevented ) {
-
+		
         return;
     }
     if (d.children) {
@@ -1090,7 +1116,7 @@ function toggleGraphs() {
 	   svgBrushParticle.select(".xbrush").call(brushParticle.clear());
 	   brushedMass();
 	   brushedParticle();
-	   $('#leftPanel').toggle();
+	   $('#panelContent').toggle();
 	 
 };
 
@@ -1113,21 +1139,49 @@ function toggleLuminosity() {
 	   textBoxMaxParticle.value = 0;
 	   textBoxMinMass.value = 0;
 	   textBoxMaxMass.value = 0;
+	   
+	   var nodesStroke = d3.selectAll("circle.visible")
+						 .transition()
+					 	 .style("stroke", "white")
+						 .style("stroke-width", "1")
+						 .style("opacity", function(d)
+							{
+								if(d.lum == 0)
+								{
+									return ".5";
+								}
+								else
+								{
+									return ".07";
+								}
+							})
+						 .attr("r",  10); //slightly smaller due to blur of circle.shadow
+	   
 
 		var nodesShadow = d3.selectAll("circle.shadow")
+						 .transition()
+						 .filter(function(d) {if(d.lum !=0) {return d;}})
 					     .style("fill", "white")
-						 .attr("r",  20)
+						 .attr("r",  13)
 						 .style("opacity", function (d) 
 						 {
-						   return lumScale(d.lum);
+							return lumScale(d.lum);
 						 })
 						 .style("filter", "url(#blur)");
+						 
+						 
+		var otherShade = d3.selectAll("circle.shadow")
+						 .filter(function(d) {if(d.lum ==0) { console.log("retruned", d); return d;}})
+					     .style("fill", "black")
+						 .style("opacity", 1)
+						 .attr("r",  10);
 		
-		var nodesStroke = d3.selectAll("circle.visible")
-					 	    .style("opacity", ".001");
+		
 							
 		var edges = d3.selectAll("path.link")
-					.style("opacity", ".2");
+					.transition()
+					 .style("stroke", "gray")
+					.style("opacity", ".1");
 		
 	}
 	else {
@@ -1141,7 +1195,8 @@ function tipHtml(d) {
     return "Halo Group: <span style='color:" + color +"'>"  + d.GrpID + "</span><br/>" 
           + "Halo Mass: <span style='color:" + color +"'>" + d.HaloMass + "</span><br/>" 
           + "Total Particles: <span style='color:" + color +"'>" + d.TotalParticles + "</span><br/>"
-          + "Total Dark Particles: <span style='color:" + color +"'>" + d.TotalDarkParticles + "</span><br/>";
+          + "Total Dark Particles: <span style='color:" + color +"'>" + d.TotalDarkParticles + "</span><br/>"
+		  + "Total Luminosity: <span style='color:" + color +"'>" + d.lum + "</span><br/>";
 }
 
 function populateSlider() {

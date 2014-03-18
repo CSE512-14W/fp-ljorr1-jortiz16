@@ -53,21 +53,33 @@ rect {
 }
 
 #header{
-  height: 30px;
+  height: 50px;
   background: white;
   border: 0px;
   border-color: gray;
   border-style: solid;
   margin-top: 3px;
   text-align: center;
-  font-size: 30px;
+  font-size: 40px;
   font-weight: bold;
   font-family: arial;
+  font-color: white;
 }
 
 .d3-tip {
   line-height: 1;
   background: rgba(238, 238, 238, 0.9);
+  font-family: arial;
+  padding: 10px;
+  color: #000000;
+  border: 0px;
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+.d3-tipPath {
+  line-height: 1;
+  background: #FFFFFF;
   font-family: arial;
   padding: 10px;
   color: #000000;
@@ -162,3 +174,6 @@ svgBrush {
   padding: 6px 8px;
   margin: 0px;
 }
+
+
+
