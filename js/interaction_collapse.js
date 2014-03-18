@@ -3,11 +3,10 @@ var doc = document.documentElement;
 var clientWidth = Math.min(doc.clientWidth, 1600);
 var clientHeight = doc.clientHeight;
 //global replace all non-digits with nothing to get the height number
-// var panelContentHeight = document.getElementById("panelContent").style.height;
 // panelContentHeight = +panelContentHeight.replace(/\D/g,"");
 var margin = {top: 60, right: 20, bottom: 20, left: 20},
 width = clientWidth - margin.right - margin.left,
-height = clientHeight - margin.top - margin.bottom - 120; //panelContentHeight, header, buttons, and padding for header
+height = clientHeight - margin.top - margin.bottom - 400; //panelContentHeight, header, buttons, and padding for header
 //console.log(clientHeight);
 d3.select("#panelContent").style("width", clientWidth+"px")
 d3.select("#topContainer").style("width", clientWidth +"px")
@@ -1213,7 +1212,8 @@ function populateSlider() {
         .data([current])
         .enter()
         .append("div")
-        .attr("class", "item");
+        .attr("class", "item")
+        .style("background-color", "#ebebeb");
 
     currentImage.append("img")
         .attr("src", function(d) {
@@ -1238,11 +1238,14 @@ function populateSlider() {
         .append("div")
         .attr("class", "item");
 
-    slider.append("img")
+    slider.append("a")
+        .attr("href", "#")
+        .on("click", function(d) { changeTree(d.to_Group); })
+        .append("img")
         .attr("src", function(d) {
             return "images/halo_small"+d.to_Group+".png"; //replace num with d.to_Group
         })
-        .on("click", function(d) { changeTree(d.to_Group); });
+        ;
 
     slider = slider.append("div")
         .attr("class", "text ui-helper-clearfix")
