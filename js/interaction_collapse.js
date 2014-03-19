@@ -41,7 +41,7 @@ var haloMap, nodesMap, linksMap;
 
 var maxMass = 0, minMass, maxParticle = 0, minParticle;
 
-var	haloLums = [];
+var haloLums = [];
 
 var maxTime = 0;
 
@@ -96,7 +96,7 @@ var tip_w = d3.tip()
     //console.log("in tool tip function object", d);
     var color = "black";
     return "Shared Total Particles: <span style='color:" + color +"'>"  + d.sharedParticleCount + "</span><br/>"
-	+ "Shared Total Dark Particles: <span style='color:" + color +"'>"  + d.sharedDarkParticleCount + "</span><br/>";
+    + "Shared Total Dark Particles: <span style='color:" + color +"'>"  + d.sharedDarkParticleCount + "</span><br/>";
   });*/
 
 var svg = d3.select("#svgContent")
@@ -115,7 +115,7 @@ svg.append("g")
 svg = svg.insert("g",".timeaxislabel")
     .call(zoom)
     .on("dblclick.zoom", null);
-	
+    
 //svg.call(tipEdges);
 svg.call(tip_n);
 svg.call(tip_s);
@@ -132,14 +132,14 @@ svg.append("rect")
     .attr("width", width)
     .attr("height", height)
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-	
+    
 // filters defined
 var defs = svg.append("defs");
 var filter = defs.append("filter")
     .attr("id", "blur")
     .attr("height", "130%")
-	.attr("width", "130%");
-	
+    .attr("width", "130%");
+    
 filter.append("feGaussianBlur")
     .attr("in", "SourceGraphic")
     .attr("stdDeviation", 2)
@@ -154,39 +154,39 @@ svg.append("g")
 svg.select(".transform").append("g")
     .attr("class", "graph") 
 
-var graph = svg.select(".graph");	
+var graph = svg.select(".graph");   
 
 //******************************SET UP LEFT PANEL
 //scales for both charts
 var xHeight = clientHeight/6-90; //used for various sections of the graph/areas
-var	x = d3.scale.linear().range([0, clientWidth/3-150]);
-var	y = d3.scale.linear().range([xHeight, 0]);
-var	xParticle = d3.scale.linear().range([0, clientWidth/3-150]);
-var	yParticle = d3.scale.linear().range([xHeight, 0]);
+var x = d3.scale.linear().range([0, clientWidth/3-150]);
+var y = d3.scale.linear().range([xHeight, 0]);
+var xParticle = d3.scale.linear().range([0, clientWidth/3-150]);
+var yParticle = d3.scale.linear().range([xHeight, 0]);
 
 //axes formatting
 var exponentFormat = function (x) {return x.toExponential(2)/(1e10);};
 var kformat = d3.format(".1s");
 
-var	xAxisMass = d3.svg.axis().scale(x).orient("bottom").ticks(10).tickFormat(function(d) { return exponentFormat(Math.exp(d)); });
-var	yAxisMass = d3.svg.axis().scale(y).orient("left").ticks(5);
+var xAxisMass = d3.svg.axis().scale(x).orient("bottom").ticks(10).tickFormat(function(d) { return exponentFormat(Math.exp(d)); });
+var yAxisMass = d3.svg.axis().scale(y).orient("left").ticks(5);
 
 var xAxisParticle = d3.svg.axis().scale(xParticle).orient("bottom").tickFormat(function(d) { return kformat(Math.exp(d)); });
-var	yAxisParticle = d3.svg.axis().scale(yParticle).orient("left").ticks(5);
+var yAxisParticle = d3.svg.axis().scale(yParticle).orient("left").ticks(5);
 
 //areas- based on respective domains
 var area = d3.svg.area()
-	.interpolate("monotone")
+    .interpolate("monotone")
     .x(function(d) { return x(d.x); })
     .y0(xHeight)
     .y1(function(d) { return y(d.y); }); 
-	
+    
 var areaParticle = d3.svg.area()
-	.interpolate("monotone")
+    .interpolate("monotone")
     .x(function(d) { return xParticle(d.x); })
     .y0(xHeight)
     .y1(function(d) { return yParticle(d.y); });
-	
+    
 //initialize brushes
 var brushMass = d3.svg.brush()
     .x(x)
@@ -194,7 +194,7 @@ var brushMass = d3.svg.brush()
 var brushParticle = d3.svg.brush()
     .x(xParticle)
     .on("brush", brushedParticle);
-	
+    
 //adding brushes to panels
 var svgBrushMass = d3.select("#massPanel").append("svg")
     .attr("width", clientWidth/3-100) //width a bit more b/c of text
@@ -202,60 +202,57 @@ var svgBrushMass = d3.select("#massPanel").append("svg")
 var svgBrushParticle = d3.select("#particlePanel").append("svg")
     .attr("width", clientWidth/3-100) //width a bit more b/c of text
     .attr("height", clientHeight/8);
-	
+    
 //transform position to brush 
 var contextMass = svgBrushMass.append("g")
     .attr("transform", "translate(" + 40 + "," + 10 + ")"); //staring position
-	
+    
 var contextParticle = svgBrushParticle.append("g")
     .attr("transform", "translate(" + 40 + "," + 10 + ")"); //staring position
 
 
 //******************************LOAD DATA
-d3.csv("links_small.csv", function(error1, raw_links) {
-d3.csv("nodes_small.csv", function(error2, raw_nodes) {
+d3.csv("linksMilky.csv", function(error1, raw_links) {
+d3.csv("nodesMilky.csv", function(error2, raw_nodes) {
 d3.csv("similarities.csv", function(error3, raw_sims) {
+    //console.log(raw_links);
     //CREATE DATA DEPENDENT VARIABLES
     var maxSharedParticle = 0, minSharedParticle;
-    var haloMassValues = [], haloParticleValues = [], haloMassValuesLog = [], haloParticleValuesLog = [];
+    var haloMassValuesLog = [], haloParticleValuesLog = [];
     minMass = raw_nodes[0].HaloMass;
     minParticle = raw_nodes[0].TotalParticles;
     minSharedParticle = raw_links[0].sharedParticleCount;
-	minLum = raw_nodes[0].lum;
-	maxLum = raw_nodes[0].lum;
-	
+    minLum = raw_nodes[0].lum;
+    maxLum = raw_nodes[0].lum;
+    
 
     raw_links.forEach(function(d) {
         maxSharedParticle = Math.max(maxSharedParticle, +d.sharedParticleCount);
         minSharedParticle = Math.min(minSharedParticle, +d.sharedParticleCount);
     });
 
-
-    raw_nodes.forEach(function(d){
+    console.log(raw_nodes.length);
+    raw_nodes.forEach(function(d){       
         maxTime = Math.max(maxTime, +d.Timestep);
         maxMass = Math.max(maxMass, +d.HaloMass);
         minMass = Math.min(minMass, +d.HaloMass);
         maxParticle = Math.max(maxParticle, +d.TotalParticles);
         minParticle = Math.min(minParticle, +d.TotalParticles);
-		minLum = Math.min(minLum, +d.lum);
-		maxLum = Math.max(maxLum, +d.lum);
-        haloMassValues.push(+d.HaloMass);
-		haloMassValuesLog.push(+Math.log(d.HaloMass));
-        haloParticleValues.push(+d.TotalParticles);
-		haloParticleValuesLog.push(+Math.log(d.TotalParticles));
-		haloLums.push(+d.lum);
+        minLum = Math.min(minLum, +d.lum);
+        maxLum = Math.max(maxLum, +d.lum);
+        haloMassValuesLog.push(+getBaseLog(10, d.HaloMass));
+        haloParticleValuesLog.push(+getBaseLog(10, d.TotalParticles));
+        haloLums.push(+d.lum);
     });
-
     //scale to fit all timesteps
     nodeDistance = width/maxTime
 
     massScale.domain([minMass, maxMass]).range([2,12]);
     linkScale.domain([minSharedParticle, maxSharedParticle]).range([2,12]);
-	lumScale.domain([minLum, maxLum]).range([.09, 1]); //for opacity
+    lumScale.domain([minLum, maxLum]).range([.09, 1]); //for opacity
     timeScale.domain([1,maxTime]).range([0,(maxTime-1)*nodeDistance]);
     //calculates the max scale factor
     zoom.x(timeScale).scaleExtent([1,(width/8)/nodeDistance]).on("zoom", zoomed);
-
     var yaxis = svg.select(".timeaxis")
         .selectAll("g.timeaxisgroup")
         .data(d3.range(1, maxTime+1))
@@ -314,48 +311,48 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     });
 
     //COMMENT   
-    //console.log(haloMap.keys());
     //default group
     //updateTree("16");
-    var halo = haloMap.get("16");
+    var halo = haloMap.get("50");
     root = halo.root;
     nodesMap = halo.nodes;
     linksMap = halo.links;
-	haloMassValuesCurrentHalo = [], haloParticleValuesCurrentHalo = [];
-	minMassC = 0;
-	maxMassC = 0;
-	minParticleC = 0;
-	maxParticleC = 0;
-	
-	nodesMap.values().forEach(function(d) {
-		haloMassValuesCurrentHalo.push(+Math.log(d[0].HaloMass))
-		haloParticleValuesCurrentHalo.push(+Math.log(d[0].TotalParticles));
-		minMassC = Math.min(minMassC, +d[0].HaloMass);
-		maxMassC = Math.max(maxMassC, +d[0].HaloMass);
-		minParticleC = Math.min(minParticleC, +d[0].TotalParticles);
-		maxParticleC = Math.max(maxParticleC, +d[0].HaloMass);
-		
-	});
-    	
-    x.domain([Math.log(minMass), Math.log(maxMass)]);
-    xParticle.domain([Math.log(minParticle), Math.log(maxParticle)]); //a bit of buffer
-	
+
+    haloMassValuesCurrentHalo = [], haloParticleValuesCurrentHalo = [];
+    minMassC = 0;
+    maxMassC = 0;
+    minParticleC = 0;
+    maxParticleC = 0;
+    
+    nodesMap.values().forEach(function(d) {
+        haloMassValuesCurrentHalo.push(+getBaseLog(10, d[0].HaloMass))
+        haloParticleValuesCurrentHalo.push(+getBaseLog(10, d[0].TotalParticles));
+        minMassC = Math.min(minMassC, +d[0].HaloMass);
+        maxMassC = Math.max(maxMassC, +d[0].HaloMass);
+        minParticleC = Math.min(minParticleC, +d[0].TotalParticles);
+        maxParticleC = Math.max(maxParticleC, +d[0].HaloMass);
+        
+    });
+    haloMassValuesLog.sort();
+
+    x.domain([getBaseLog(10, minMass), getBaseLog(10, maxMass)]);
+    xParticle.domain([getBaseLog(10, minParticle), getBaseLog(10, maxParticle)]);
+
     //make buckets
     var dataBinMassAllHalos = d3.layout.histogram()
     .bins(10)(haloMassValuesLog);
 
     var temp = [];
-    temp.x = +Math.log(maxMass);
+    temp.x = +getBaseLog(10, maxMass);
     temp.y = 0;
     dataBinMassAllHalos.push(temp);
-
 
     var dataBinMassCurrentHalo = d3.layout.histogram()
     .bins(10)(haloMassValuesCurrentHalo);
 
     dataBinMassCurrentHalo.push(temp);
     temp = []; 
-    temp.x = +Math.log(minMass);
+    temp.x = +getBaseLog(10, minMass);
     temp.y = 0;
     dataBinMassCurrentHalo.unshift(temp);
 
@@ -365,7 +362,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     .bins(10)(haloParticleValuesLog);
     temp = [];
     temp.y = 0;
-    temp.x = +Math.log(maxParticle);
+    temp.x = +getBaseLog(10, maxParticle);
     temp.y = 0;
     dataBinParticleAllHalos.push(temp);
 
@@ -376,103 +373,104 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
 
     temp = [];
 
-    temp.x = +Math.log(minParticle);
+    temp.x = +getBaseLog(10, minParticle);
     temp.y = 0;
     dataBinParticleCurrentHalo.unshift(temp);
-	
-	arrayMeans = [];
-	var currentmean = 0;
-	
-	
+    
+    arrayMeans = [];
+    var currentmean = 0;
+    
+    //compute average per tree
+    dataBinMassAllHalos.forEach(function(d) { d.y = d.y/haloMap.keys().length; });
+    dataBinParticleAllHalos.forEach(function(d) { d.y = d.y/haloMap.keys().length; });
 
-	/*
-	for(var i = 0; i< dataBinMassAllHalos.length; i++)
-	{
-	  if(dataBinMassAllHalos[i].length !=0)
-	  {
-		currentmean = d3.min(dataBinMassAllHalos[i]);
-		dataBinMassAllHalos[i].y = currentmean;
-	  }
-	}
-	
-	for(var i = 0; i <dataBinParticleAllHalos.length; i++)
+    /*
+    for(var i = 0; i< dataBinMassAllHalos.length; i++)
+    {
+      if(dataBinMassAllHalos[i].length !=0)
+      {
+        currentmean = d3.min(dataBinMassAllHalos[i]);
+        dataBinMassAllHalos[i].y = currentmean;
+      }
+    }
+    
+    for(var i = 0; i <dataBinParticleAllHalos.length; i++)
 {
-	if(dataBinMassAllHalos[i].length !=0)
-	  {
-	  currentmean = d3.min(dataBinParticleAllHalos[i]);
-	  dataBinParticleAllHalos[i].y = +currentmean;
-	  }
-	}*/
-	
-	
-    console.log(dataBinParticleAllHalos);
+    if(dataBinMassAllHalos[i].length !=0)
+      {
+      currentmean = d3.min(dataBinParticleAllHalos[i]);
+      dataBinParticleAllHalos[i].y = +currentmean;
+      }
+    }*/
+    
+    
     //set y domains based on bin values
     y.domain([0, d3.max(dataBinMassCurrentHalo, function(d) { return d.y; })]);
     yParticle.domain([0, d3.max(dataBinParticleCurrentHalo, function(d) { return d.y; })]);
     //console.log(d3.max(dataBinMassAllHalos, function(d) { return d.y; }));
     //tie context to area
-    /*contextMass.append("path")
+    contextMass.append("path")
         .datum(dataBinMassAllHalos)
         .attr("class", "area")
-        .attr("d", area);*/
-				
-	contextMass.append("path")
+        .attr("d", area);
+                
+    contextMass.append("path")
         .datum(dataBinMassCurrentHalo)
         .attr("class", "areaTop")
         .attr("d", area)
-		.style("opacity", ".7");
-		
-    /*contextParticle.append("path")
+        .style("opacity", ".7");
+
+    contextParticle.append("path")
         .datum(dataBinParticleAllHalos)
         .attr("class", "area")
-        .attr("d", areaParticle);*/
-		
-	contextParticle.append("path")
+        .attr("d", areaParticle);
+        
+    contextParticle.append("path")
         .datum(dataBinParticleCurrentHalo)
         .attr("class", "areaTop")
         .attr("d", areaParticle)
-		.style("opacity", ".7");
-    	
+        .style("opacity", ".7");
+
     //x, y axes and calling brush
     contextMass.append("g")
         .attr("class", "brushxaxis")
         .attr("transform", "translate(0," + xHeight + ")") //axis position
         .call(xAxisMass)
-			.selectAll("text")
-			.style("font-size", "10px")
-			.attr("transform","rotate(0) translate(0,0)");
+            .selectAll("text")
+            .style("font-size", "10px")
+            .attr("transform","rotate(0) translate(0,0)");
 
     contextMass.append("text")
         .attr("class", "brushxlabel")
         .attr("text-anchor", "middle")
         .attr("dy", "0.35em")
-		.style("font-size", "14px")
-		.style("font-weight", "bold")
+        .style("font-size", "14px")
+        .style("font-weight", "bold")
         .attr("x", clientWidth/8-35)
         .attr("y", clientHeight/8-10)
         .text("Log Mass (x e");
-		
-	//this is probably not the best way to add the script
-	contextMass.append("text")
+        
+    //this is probably not the best way to add the script
+    contextMass.append("text")
         .attr("class", "brushxlabel")
         .attr("text-anchor", "middle")
         .attr("dy", "0.35em")
-		.style("font-size", "10px")
-		.style("font-weight", "bold")
+        .style("font-size", "10px")
+        .style("font-weight", "bold")
         .attr("x", clientWidth/8 + 19)
         .attr("y", clientHeight/8-13)
         .text("10");
-		
-	contextMass.append("text")
-		.attr("class", "brushxlabel")
+        
+    contextMass.append("text")
+        .attr("class", "brushxlabel")
         .attr("text-anchor", "middle")
         .attr("dy", "0.35em")
-		.style("font-size", "14px")
-		.style("font-weight", "bold")
+        .style("font-size", "14px")
+        .style("font-weight", "bold")
         .attr("x", clientWidth/8 + 27)
         .attr("y", clientHeight/8-10)
         .text(")");
-    	
+        
     contextMass.append("g")
         .attr("class", "brushyaxis")
         .attr("transform", "translate(0," + 0 + ")") //axis position
@@ -482,78 +480,59 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         .call(brushMass)
         .selectAll("rect")
         .attr("height", xHeight + 10)
-    	.attr("y", -6);   
-		
-    /*contextMass.append("text")
-        .attr("class", "brushylabel")
-        .attr("text-anchor", "middle")
-    	.attr("transform", "rotate(-90)")
-        .attr("x", -xHeight/2)
-        .attr("y", -45)
-        .text("Frequency");*/
+        .attr("y", -6);   
 
     contextParticle.append("g")
         .attr("class", "brushxaxis")
         .attr("transform", "translate(0," + xHeight + ")") //axis position
         .call(xAxisParticle)
-			.selectAll("text")
-			.style("font-size", "10px")
-			.attr("transform","rotate(0) translate(0,0)");
-    	  
+            .selectAll("text")
+            .style("font-size", "10px")
+            .attr("transform","rotate(0) translate(0,0)");
+          
     contextParticle.append("text")
         .attr("class", "brushxlabel")
         .attr("text-anchor", "middle")
-    	.style("font-size", "14px")
-		.style("font-weight", "bold")
+        .style("font-size", "14px")
+        .style("font-weight", "bold")
         .attr("x", clientWidth/8-35)
         .attr("y", clientHeight/8-10)
         .text("Total Particle Count");
-    	  
+          
     contextParticle.append("g")
         .attr("class", "brushyaxis")
         .attr("transform", "translate(0," + 0 + ")") //axis position
         .call(yAxisParticle);
-    	
-   /* contextParticle.append("text")
-        .attr("class", "brushylabel")
-        .attr("text-anchor", "middle")
-    	//.style("font-size", "20px")
-    	.attr("transform", "rotate(-90)")
-        .attr("x", -xHeight/2)
-        .attr("y", -45)
-        .text("Frequency");*/
-	
-	
-    	  
+          
     contextParticle.attr("class", "xbrush")
         .call(brushParticle)
         .selectAll("rect")
         .attr("height", xHeight + 10)
-    	.attr("y", -6);
-		
-	//adding the legend	
-	var areaColors = [{text: "Average", color:"lightsteelblue"}, {text: "Current Halo", color:"darkblue"}];
-	var legend =  d3.select("#legend").append("svg")
-		  .attr("class","legend")
-	      .attr("width", 300)
-		  .attr("height", 20)
-		.selectAll("g")
-			.data(areaColors)
-		.enter().append("g")
-			.attr("transform", function(d, i) { return "translate(" + i * 100 + ", 0)"; });
-			
-		legend.append("rect")
+        .attr("y", -6);
+        
+    //adding the legend 
+    var areaColors = [{text: "Average", color:"lightsteelblue"}, {text: "Current Halo", color:"darkblue"}];
+    var legend =  d3.select("#legend").append("svg")
+          .attr("class","legend")
+          .attr("width", 300)
+          .attr("height", 20)
+        .selectAll("g")
+            .data(areaColors)
+        .enter().append("g")
+            .attr("transform", function(d, i) { return "translate(" + i * 100 + ", 0)"; });
+            
+        legend.append("rect")
         .attr("width", 12)
         .attr("height", 12)
-		.style("stroke", "black")
-		.style("stroke-width", "2px")
+        .style("stroke", "black")
+        .style("stroke-width", "2px")
         .style("fill", function(d) {return d.color});
 
-		legend.append("text")
-		.attr("x", 24)
-		.attr("y", 9)
-		.attr("dy", ".35em")
-		.text(function(d) {return d.text});
+        legend.append("text")
+        .attr("x", 24)
+        .attr("y", 9)
+        .attr("dy", ".35em")
+        .text(function(d) {return d.text});
 
     populateSlider();
     update(root);
@@ -576,13 +555,6 @@ function update(source) {
         .data(nodes, function(d, i) { return d.HaloID; });
 
     //enter any new nodes at the parent's previous position.
-	
-	//var test = d3.select("#testing").append("svg").attr("width", 50).attr("height",50);
-	//var one =  test.append("circle").style("fill","black")
-	//		   .attr("r", 18).attr("cx", 15).attr("cy", 15);	   
-	//var two = test.append("circle").style("fill","blue")
-	//		   .attr("r", 12).attr("cx", 15).attr("cy", 15);
-
     var nodeEnter = node.enter().append("g")
         .attr("class", "node")
         .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; });
@@ -590,20 +562,20 @@ function update(source) {
     nodeEnter.append("circle")
         .attr("class", "shadow")
         .attr("r", 1e-6);
-		
-	nodeEnter.append("circle")
+        
+    nodeEnter.append("circle")
         .attr("class", "visible")
         .attr("r", 1e-6);
-		
+        
     nodeEnter.append("path") //0 0 is center of circle
         .attr("class", "children")
         .attr("d", "M 0 0")
         .style("fill-opacity", 1e-6);
-		
-	nodeEnter.append("circle")
-		.attr("class", "hover")
-		.attr("r", 1e-6)
-		.on("mouseover", function(d) {
+        
+    nodeEnter.append("circle")
+        .attr("class", "hover")
+        .attr("r", 1e-6)
+        .on("mouseover", function(d) {
             var x = zoom.scale()*d.x + zoom.translate()[1];
             var y = zoom.scale()*d.y + zoom.translate()[0];
             if (y <= 80) {
@@ -643,21 +615,21 @@ function update(source) {
             }
         })
         .on("click", click)
-		.style("opacity", ".001");
-		
-	/*var hoverLink = d3.selectAll("path.link")				
-		.on("mousemove", function(d) { 
-		//console.log(linksMap.get(d.target.HaloID)[0]);
-		   if(!tooltipEdgesShown) {
+        .style("opacity", ".001");
+        
+    /*var hoverLink = d3.selectAll("path.link")             
+        .on("mousemove", function(d) { 
+        //console.log(linksMap.get(d.target.HaloID)[0]);
+           if(!tooltipEdgesShown) {
                 tipEdges.show(linksMap.get(d.target.HaloID)[0]);
-				tooltipShown = true;
+                tooltipShown = true;
            }
         })
-		.on("mouseout", function(d) {
-			tipEdges.hide(d);
+        .on("mouseout", function(d) {
+            tipEdges.hide(d);
             tooltipEdgesShown = false;
-		});*/
-		
+        });*/
+        
     //transition nodes to their new position.
     var nodeUpdate = node.transition()
         .duration(duration)
@@ -666,37 +638,37 @@ function update(source) {
     nodeUpdate.select("circle.visible")
         .attr("r", function(d) { return massScale(d.HaloMass); })
         .style("stroke", function(d) { return d.Prog=='1' ? "#D44848" : "lightsteelblue"; })
-    	.style("stroke-width", "2")
-		.style("opacity", "1");
-		
-	nodeUpdate.select("circle.shadow") //make a scale instead?
+        .style("stroke-width", "2")
+        .style("opacity", "1");
+        
+    nodeUpdate.select("circle.shadow") //make a scale instead?
         .attr("r", function(d)
-			{
-			 var scaledMass = massScale(d.HaloMass); //up to 12
-			 switch(true)
-			 {
-				case (scaledMass <= 4): return scaledMass+5;
-				case (scaledMass <= 5): return scaledMass*2;
-				case (scaledMass <= 7): return 12;
-				case (scaledMass < 12): return scaledMass+6;
-				
-			 }
-			})
-		.style("opacity", ".01");
-		
-	nodeUpdate.select("circle.hover")
+            {
+             var scaledMass = massScale(d.HaloMass); //up to 12
+             switch(true)
+             {
+                case (scaledMass <= 4): return scaledMass+5;
+                case (scaledMass <= 5): return scaledMass*2;
+                case (scaledMass <= 7): return 12;
+                case (scaledMass < 12): return scaledMass+6;
+                
+             }
+            })
+        .style("opacity", ".01");
+        
+    nodeUpdate.select("circle.hover")
         .attr("r", function(d)
-			{
-			  if(massScale(d.HaloMass) < 9)
-			   {
-			       return 15;
-			   }
-			   else 
-			   {
-			     return 25;
-			   }
-			});
-	
+            {
+              if(massScale(d.HaloMass) < 9)
+               {
+                   return 15;
+               }
+               else 
+               {
+                 return 25;
+               }
+            });
+    
     nodeUpdate.select("path.children")
         .style("fill-opacity", function(d) { return d._children ? 0.7 : 1e-6; })
         .attr("d", function(d) {
@@ -705,46 +677,40 @@ function update(source) {
             var str = "M " + r + " -" + p + " L " + r + " " + p + " L " + (1.5*p+r) + " 0 z";
             return str;
         });
-		
-
-	
-	//color filters based on brushes
+            
+    //color filters based on brushes
     var brushExtentMin = Math.exp(brushMass.extent()[0]);
     var brushExtentMax = Math.exp(brushMass.extent()[1]);
 
     var brushExtentMinP = Math.exp(brushParticle.extent()[0]);
     var brushExtentMaxP = Math.exp(brushParticle.extent()[1]);
-	
-
-
 
     counterHaloSelected = 0;
-	
-	nodeUpdate.selectAll("circle.shadow")
-		.filter(function (d)  //if selected
-					{
-						if(
-						   (!brushMass.empty() && brushParticle.empty() && ((d.HaloMass >= brushExtentMin) && (d.HaloMass <= brushExtentMax))) || //mass brush and conditions
-						   (brushMass.empty() && !brushParticle.empty()  && ((d.TotalParticles >= brushExtentMinP) && (d.TotalParticles <= brushExtentMaxP))) || //particle brush and conditions
-						   (((d.HaloMass >= brushExtentMin) && (d.HaloMass <= brushExtentMax)) && ((d.TotalParticles >= brushExtentMinP) && (d.TotalParticles <= brushExtentMaxP)))) //both selected
-						   {
-						     counterHaloSelected = counterHaloSelected + 1;
-						     return d;
-						   }
-					})
-		.style("fill", "#E3C937")
-		.style("opacity", ".5")
-		.style("filter", "url(#blur)");
-	
-	//blur filter 
-	nodeEnter.select("circle.shadow").append("defs")  
-	 .append("filter")  
-	 .attr("id", "blur")  
-	 .attr("stdDeviation", 15);  
+    
+    nodeUpdate.selectAll("circle.shadow")
+        .filter(function (d){
+            if(
+               (!brushMass.empty() && brushParticle.empty() && ((d.HaloMass >= brushExtentMin) && (d.HaloMass <= brushExtentMax))) || //mass brush and conditions
+               (brushMass.empty() && !brushParticle.empty()  && ((d.TotalParticles >= brushExtentMinP) && (d.TotalParticles <= brushExtentMaxP))) || //particle brush and conditions
+               (((d.HaloMass >= brushExtentMin) && (d.HaloMass <= brushExtentMax)) && ((d.TotalParticles >= brushExtentMinP) && (d.TotalParticles <= brushExtentMaxP)))) //both selected
+               {
+                 counterHaloSelected = counterHaloSelected + 1;
+                 return d;
+               }
+        })
+        .style("fill", "#E3C937")
+        .style("opacity", ".5")
+        .style("filter", "url(#blur)");
+    
+    //blur filter 
+    nodeEnter.select("circle.shadow").append("defs")  
+     .append("filter")  
+     .attr("id", "blur")  
+     .attr("stdDeviation", 15);  
 
-		
-	textBoxSelected.innerHTML = "<b>" + counterHaloSelected + "/" + nodes.length + " Halos selected </b>";
-	
+        
+    textBoxSelected.innerHTML = "<b>" + counterHaloSelected + "/" + nodes.length + " Halos selected </b>";
+    
     //transition exiting nodes to the parent's new position.
     var nodeExit = node.exit().transition()
         .duration(duration)
@@ -803,6 +769,10 @@ function update(source) {
     });
 }
 
+function getBaseLog(x, y) { //x is base, y is value
+    return Math.log(y) / Math.log(x);
+}
+
 //returns a list of all nodes under the root.
 function flatten(root) {
     var nodes = [];
@@ -831,15 +801,11 @@ function linkage(nodes) {
 
 //toggle children on click.
 function click(d) {
-if( checkBoxToggleLuminosity.checked)
-{ 
- checkBoxToggleLuminosity.checked = false;
-}
-
-
     if (d3.event.defaultPrevented ) {
-		
         return;
+    }
+    if( checkBoxToggleLuminosity.checked) { 
+        checkBoxToggleLuminosity.checked = false;
     }
     if (d.children) {
         d._children = d.children;
@@ -881,12 +847,12 @@ function zoomed() {
 }
 
 function changeTree(grp) {
-	svgBrushMass.select(".xbrush").call(brushMass.clear());
-	   svgBrushParticle.select(".xbrush").call(brushParticle.clear());
-	if (checkBoxToggleLuminosity.checked)
-	{
-	  checkBoxToggleLuminosity.checked = false;
-	}
+    svgBrushMass.select(".xbrush").call(brushMass.clear());
+       svgBrushParticle.select(".xbrush").call(brushParticle.clear());
+    if (checkBoxToggleLuminosity.checked)
+    {
+      checkBoxToggleLuminosity.checked = false;
+    }
 
     var timeOut1, timeOut2 = 0;
     if (zoom.scale() != 1 || zoom.translate()[0] != 0 || zoom.translate()[1] != 0) {
@@ -965,8 +931,8 @@ function changeTree(grp) {
 function changeGraph() {
     var haloMassValuesCurrentHalo = [], haloParticleValuesCurrentHalo = [];
     nodesMap.values().forEach(function(d) {
-        haloMassValuesCurrentHalo.push(+Math.log(d[0].HaloMass))
-        haloParticleValuesCurrentHalo.push(+Math.log(d[0].TotalParticles));
+        haloMassValuesCurrentHalo.push(+getBaseLog(10, d[0].HaloMass))
+        haloParticleValuesCurrentHalo.push(+getBaseLog(10, d[0].TotalParticles));
     });
     
     var dataBinMassCurrentHalo = d3.layout.histogram()
@@ -975,57 +941,57 @@ function changeGraph() {
         .bins(10)(haloParticleValuesCurrentHalo);
 
     var temp = [];
-    temp.x = +Math.log(maxMass);
+    temp.x = +getBaseLog(10, maxMass);
     temp.y = 0;
     dataBinMassCurrentHalo.push(temp);
 
     temp = [];
-    temp.x = +Math.log(minMass);
+    temp.x = +getBaseLog(10, minMass);
     temp.y = 0;
     dataBinMassCurrentHalo.unshift(temp);
 
     //console.log(dataBinMassCurrentHalo);
 
     temp = [];
-    temp.x = +Math.log(maxParticle);
+    temp.x = +getBaseLog(10, maxParticle);
     temp.y = 0;
     dataBinParticleCurrentHalo.push(temp);
 
     temp = [];
-    temp.x = +Math.log(minParticle);
+    temp.x = +getBaseLog(10, minParticle);
     temp.y = 0;
     dataBinParticleCurrentHalo.unshift(temp);
-	
-	y.domain([0, d3.max(dataBinMassCurrentHalo, function(d) { return d.y; })]);
+    
+    y.domain([0, d3.max(dataBinMassCurrentHalo, function(d) { return d.y; })]);
     yParticle.domain([0, d3.max(dataBinParticleCurrentHalo, function(d) { return d.y; })]);
-	
-	d3.selectAll(".brushyaxis .tick").remove();
-	
-	contextMass.append("g")
+    
+    d3.selectAll(".brushyaxis .tick").remove();
+    
+    contextMass.append("g")
         .attr("class", "brushyaxis")
         .attr("transform", "translate(0," + 0 + ")") //axis position
         .call(yAxisMass);
-		
-		
-	contextParticle.append("g")
+        
+        
+    contextParticle.append("g")
         .attr("class", "brushyaxis")
         .attr("transform", "translate(0," + 0 + ")") //axis position
         .call(yAxisParticle);
 
-	
+    
     contextMass.select(".areaTop")
         .datum(dataBinMassCurrentHalo)
         .transition()
         .duration(duration)
         .attr("d", area)
-		.style("opacity", ".7");
+        .style("opacity", ".7");
 
     contextParticle.select(".areaTop")
         .datum(dataBinParticleCurrentHalo)
         .transition()
         .duration(duration)
         .attr("d", areaParticle)
-		.style("opacity", ".7");
+        .style("opacity", ".7");
 }
 
 function resetTree() {
@@ -1066,24 +1032,24 @@ function resetTree() {
 
 
 function brushedMass() {
-	//console.log(brushMass.extent());
-	
-	if (checkBoxToggleLuminosity.checked)
-	{
-	  checkBoxToggleLuminosity.checked = false;
-	}
-	if(brushMass.extent()[0] != brushMass.extent()[1] )
-	{
-	var expFormatText = function (x) {return x.toExponential(3);};
-	textBoxMinMass.value = expFormatText(Math.exp(brushMass.extent()[0]));
-	textBoxMaxMass.value = expFormatText(Math.exp(brushMass.extent()[1]));
-	}
-	else{
-	textBoxMinMass.value = 0;
-	textBoxMaxMass.value = 0;
-	}
-	
-	
+    //console.log(brushMass.extent());
+    
+    if (checkBoxToggleLuminosity.checked)
+    {
+      checkBoxToggleLuminosity.checked = false;
+    }
+    if(brushMass.extent()[0] != brushMass.extent()[1] )
+    {
+    var expFormatText = function (x) {return x.toExponential(3);};
+    textBoxMinMass.value = expFormatText(Math.exp(brushMass.extent()[0]));
+    textBoxMaxMass.value = expFormatText(Math.exp(brushMass.extent()[1]));
+    }
+    else{
+    textBoxMinMass.value = 0;
+    textBoxMaxMass.value = 0;
+    }
+    
+    
     var oldDuration = duration;
     //set duration to 0 so the color change is automatic
     duration = 0;
@@ -1093,20 +1059,20 @@ function brushedMass() {
 
 function brushedParticle()
 {
-	if (checkBoxToggleLuminosity.checked)
-	{
-	  checkBoxToggleLuminosity.checked = false;
-	}
-	if(brushParticle.extent()[0] !=  brushParticle.extent()[1])
-	{
-    var decimalFormat = d3.format(".2f");
-	textBoxMinParticle.value = decimalFormat(Math.exp(brushParticle.extent()[0]));
-	textBoxMaxParticle.value = decimalFormat(Math.exp(brushParticle.extent()[1]));
-	}
-	else {
-	textBoxMinParticle.value = 0;
-	textBoxMaxParticle.value = 0;
-	}
+    if (checkBoxToggleLuminosity.checked)
+    {
+      checkBoxToggleLuminosity.checked = false;
+    }
+    if(brushParticle.extent()[0] !=  brushParticle.extent()[1])
+    {
+        var decimalFormat = d3.format(".2f");
+        textBoxMinParticle.value = decimalFormat(Math.exp(brushParticle.extent()[0]));
+        textBoxMaxParticle.value = decimalFormat(Math.exp(brushParticle.extent()[1]));
+    }
+        else {
+        textBoxMinParticle.value = 0;
+        textBoxMaxParticle.value = 0;
+    }
 
     var oldDuration = duration;
     //set duration to 0 so the color change is automatic
@@ -1116,22 +1082,21 @@ function brushedParticle()
 }
 
 buttonMass.on("click", function(d) {
-
    var high = +textboxMaxMass.value;
    var low = +textboxMinMass.value;
    if(low < minMass || low > high)
    {
-		low = minMass;
+        low = minMass;
    }
    if(high > maxMass || high < low)
    {
-		high = maxMass;
+        high = maxMass;
    }
    svgBrushMass
-		.select(".xbrush")
-		.transition()
-		.call(brushMass.extent([Math.log(low), Math.log(high)]));
-	brushedMass();
+        .select(".xbrush")
+        .transition()
+        .call(brushMass.extent([getBaseLog(10, low), getBaseLog(10, high)]));
+    brushedMass();
 });
 
 buttonParticle.on("click", function(d) {
@@ -1139,101 +1104,101 @@ buttonParticle.on("click", function(d) {
    var low = +textboxMinParticle.value;
    if(low < minParticle || low > high)
    {
-		low = minParticle;
+        low = minParticle;
    }
    if(high > maxParticle || high < low)
    {
-		high = maxParticle;
+        high = maxParticle;
    }
    svgBrushParticle
-		.select(".xbrush")
-		.transition()
-		.call(brushParticle.extent([Math.log(low), Math.log(high)]));
-	brushedParticle();
+        .select(".xbrush")
+        .transition()
+        .call(brushParticle.extent([getBaseLog(10, low), getBaseLog(10, high)]));
+    brushedParticle();
 
 });
 
 function toggleGraphs() {
-	   svgBrushMass.select(".xbrush").call(brushMass.clear());
-	   svgBrushParticle.select(".xbrush").call(brushParticle.clear());
-	   brushedMass();
-	   brushedParticle();
-	   $('#panelContent').toggle();
-	 
+       svgBrushMass.select(".xbrush").call(brushMass.clear());
+       svgBrushParticle.select(".xbrush").call(brushParticle.clear());
+       brushedMass();
+       brushedParticle();
+       $('#panelContent').toggle();
+     
 };
 
 function toggleTooltips() {
-	if(checkBoxToggleTooltips.checked)
-	{
-	  d3.selectAll(".d3-tip").remove();
-	}
-	else{
-	  svg.call(tip_n);
-	  svg.call(tip_s);
-	  svg.call(tip_e);
-	  svg.call(tip_w);
-	}
+    if(checkBoxToggleTooltips.checked)
+    {
+      d3.selectAll(".d3-tip").remove();
+    }
+    else{
+      svg.call(tip_n);
+      svg.call(tip_s);
+      svg.call(tip_e);
+      svg.call(tip_w);
+    }
 };
 
 function toggleLuminosity() {
-	if(checkBoxToggleLuminosity.checked)
-	{
-	   svgBrushMass.select(".xbrush").call(brushMass.clear());
-	   svgBrushParticle.select(".xbrush").call(brushParticle.clear());
-	   textBoxMinParticle.value = 0;
-	   textBoxMaxParticle.value = 0;
-	   textBoxMinMass.value = 0;
-	   textBoxMaxMass.value = 0;
-	   
-	   var nodesStroke = d3.selectAll("circle.visible")
-						 .transition()
-					 	 .style("stroke", "white")
-						 .style("stroke-width", "1")
-						 .style("opacity", function(d)
-							{
-								if(d.lum == 0)
-								{
-									return "0";
-								}
-								else
-								{
-									return ".07";
-								}
-							})
-						 .attr("r",  10); //slightly smaller due to blur of circle.shadow
-	   
+    if(checkBoxToggleLuminosity.checked)
+    {
+       svgBrushMass.select(".xbrush").call(brushMass.clear());
+       svgBrushParticle.select(".xbrush").call(brushParticle.clear());
+       textBoxMinParticle.value = 0;
+       textBoxMaxParticle.value = 0;
+       textBoxMinMass.value = 0;
+       textBoxMaxMass.value = 0;
+       
+       var nodesStroke = d3.selectAll("circle.visible")
+            .transition()
+            .style("stroke", "white")
+            .style("stroke-width", "1")
+            .style("opacity", function(d)
+            {
+                if(d.lum == 0)
+            {
+                return "0";
+            }
+            else
+            {
+                return ".07";
+            }
+            })
+            .attr("r",  10); //slightly smaller due to blur of circle.shadow
+       
 
-		var nodesShadow = d3.selectAll("circle.shadow")
-						 .transition()
-						 .filter(function(d) {if(d.lum !=0) {return d;}})
-					     .style("fill", "white")
-						 .attr("r",  13)
-						 .style("opacity", function (d) 
-						 {
-						 console.log(d.lum);
-							return lumScale(d.lum);
-						 })
-						 .style("filter", "url(#blur)");
-						 
-						 
-		var otherShade = d3.selectAll("circle.shadow")
-						 .filter(function(d) {if(d.lum ==0) {return d;}})
-					     .style("fill", "black")
-						 .style("opacity", 1)
-						 .attr("r",  10);
-		
-		
-							
-		var edges = d3.selectAll("path.link")
-					.transition()
-					 .style("stroke", "gray")
-					.style("opacity", ".3");
-		
-	}
-	else {
-	//toggleGraphs();
-	update(root);
-	}
+        var nodesShadow = d3.selectAll("circle.shadow")
+            .transition()
+            .filter(function(d) {if(d.lum !=0) {return d;}})
+            .style("fill", "white")
+            .attr("r",  13)
+            .style("opacity", function (d) 
+            {
+                console.log(d.lum);
+                return lumScale(d.lum);
+            })
+            .style("filter", "url(#blur)");
+                         
+                         
+        var otherShade = d3.selectAll("circle.shadow")
+            .filter(function(d) {if(d.lum ==0) {return d;}})
+            .style("fill", "black")
+            .style("opacity", 1)
+            .attr("r",  10);
+        
+        
+                            
+        var edges = d3.selectAll("path.link")
+            .transition()
+            .style("stroke", "gray")
+            .style("opacity", ".3");
+        
+    }
+    else {
+        //toggleGraphs();
+        update(root);
+    }
 };
 
 function tipHtml(d) {
@@ -1242,7 +1207,7 @@ function tipHtml(d) {
           + "Halo Mass: <span style='color:" + color +"'>" + d.HaloMass + "</span><br/>" 
           + "Total Particles: <span style='color:" + color +"'>" + d.TotalParticles + "</span><br/>"
           + "Total Dark Particles: <span style='color:" + color +"'>" + d.TotalDarkParticles + "</span><br/>"
-		  + "Total Luminosity: <span style='color:" + color +"'>" + d.lum + "</span><br/>";
+          + "Total Luminosity: <span style='color:" + color +"'>" + d.lum + "</span><br/>";
 }
 
 function populateSlider() {
