@@ -168,10 +168,10 @@ var yParticle = d3.scale.linear().range([xHeight, 0]);
 var exponentFormat = function (x) {return x.toExponential(2)/(1e10);};
 var kformat = d3.format(".1s");
 
-var xAxisMass = d3.svg.axis().scale(x).orient("bottom").ticks(10).tickFormat(function(d) { return exponentFormat(Math.exp(d)); });
+var xAxisMass = d3.svg.axis().scale(x).orient("bottom").ticks(10).tickFormat(function(d) { return exponentFormat(Math.pow(d,10)); });
 var yAxisMass = d3.svg.axis().scale(y).orient("left").ticks(5);
 
-var xAxisParticle = d3.svg.axis().scale(xParticle).orient("bottom").tickFormat(function(d) { return kformat(Math.exp(d)); });
+var xAxisParticle = d3.svg.axis().scale(xParticle).orient("bottom").tickFormat(function(d) { return kformat(Math.pow(d,10)); });
 var yAxisParticle = d3.svg.axis().scale(yParticle).orient("left").ticks(5);
 
 //areas- based on respective domains
@@ -215,7 +215,6 @@ var contextParticle = svgBrushParticle.append("g")
 d3.csv("linksMilky.csv", function(error1, raw_links) {
 d3.csv("nodesMilky.csv", function(error2, raw_nodes) {
 d3.csv("similarities.csv", function(error3, raw_sims) {
-    //console.log(raw_links);
     //CREATE DATA DEPENDENT VARIABLES
     var maxSharedParticle = 0, minSharedParticle;
     var haloMassValuesLog = [], haloParticleValuesLog = [];
@@ -231,7 +230,6 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         minSharedParticle = Math.min(minSharedParticle, +d.sharedParticleCount);
     });
 
-    console.log(raw_nodes.length);
     raw_nodes.forEach(function(d){       
         maxTime = Math.max(maxTime, +d.Timestep);
         maxMass = Math.max(maxMass, +d.HaloMass);
@@ -319,9 +317,9 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     linksMap = halo.links;
 
     haloMassValuesCurrentHalo = [], haloParticleValuesCurrentHalo = [];
-    minMassC = 0;
+    minMassC = maxMass;
     maxMassC = 0;
-    minParticleC = 0;
+    minParticleC = maxParticle;
     maxParticleC = 0;
     
     nodesMap.values().forEach(function(d) {
@@ -333,8 +331,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         maxParticleC = Math.max(maxParticleC, +d[0].HaloMass);
         
     });
-    haloMassValuesLog.sort();
-
+    console.log(minMassC, minMass, maxMassC, maxMass);
     x.domain([getBaseLog(10, minMass), getBaseLog(10, maxMass)]);
     xParticle.domain([getBaseLog(10, minParticle), getBaseLog(10, maxParticle)]);
 
@@ -448,28 +445,29 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         .style("font-weight", "bold")
         .attr("x", clientWidth/8-35)
         .attr("y", clientHeight/8-10)
-        .text("Log Mass (x e");
+        .text("Log Mass (1e10)");
+        //1e10 is not the same as e^10; this means 1 x 10^10
         
-    //this is probably not the best way to add the script
-    contextMass.append("text")
-        .attr("class", "brushxlabel")
-        .attr("text-anchor", "middle")
-        .attr("dy", "0.35em")
-        .style("font-size", "10px")
-        .style("font-weight", "bold")
-        .attr("x", clientWidth/8 + 19)
-        .attr("y", clientHeight/8-13)
-        .text("10");
+    // //this is probably not the best way to add the script
+    // contextMass.append("text")
+    //     .attr("class", "brushxlabel")
+    //     .attr("text-anchor", "middle")
+    //     .attr("dy", "0.35em")
+    //     .style("font-size", "10px")
+    //     .style("font-weight", "bold")
+    //     .attr("x", clientWidth/8 + 19)
+    //     .attr("y", clientHeight/8-13)
+    //     .text("10");
         
-    contextMass.append("text")
-        .attr("class", "brushxlabel")
-        .attr("text-anchor", "middle")
-        .attr("dy", "0.35em")
-        .style("font-size", "14px")
-        .style("font-weight", "bold")
-        .attr("x", clientWidth/8 + 27)
-        .attr("y", clientHeight/8-10)
-        .text(")");
+    // contextMass.append("text")
+    //     .attr("class", "brushxlabel")
+    //     .attr("text-anchor", "middle")
+    //     .attr("dy", "0.35em")
+    //     .style("font-size", "14px")
+    //     .style("font-weight", "bold")
+    //     .attr("x", clientWidth/8 + 27)
+    //     .attr("y", clientHeight/8-10)
+    //     .text(")");
         
     contextMass.append("g")
         .attr("class", "brushyaxis")
@@ -679,16 +677,17 @@ function update(source) {
         });
             
     //color filters based on brushes
-    var brushExtentMin = Math.exp(brushMass.extent()[0]);
-    var brushExtentMax = Math.exp(brushMass.extent()[1]);
+    var brushExtentMin = Math.pow(brushMass.extent()[0], 10);
+    var brushExtentMax = Math.pow(brushMass.extent()[1], 10);
 
-    var brushExtentMinP = Math.exp(brushParticle.extent()[0]);
-    var brushExtentMaxP = Math.exp(brushParticle.extent()[1]);
+    var brushExtentMinP = Math.pow(brushParticle.extent()[0], 10);
+    var brushExtentMaxP = Math.pow(brushParticle.extent()[1], 10);
 
     counterHaloSelected = 0;
     
     nodeUpdate.selectAll("circle.shadow")
         .filter(function (d){
+            //console.log(brushExtentMin, brushExtentMax, d.HaloMass);
             if(
                (!brushMass.empty() && brushParticle.empty() && ((d.HaloMass >= brushExtentMin) && (d.HaloMass <= brushExtentMax))) || //mass brush and conditions
                (brushMass.empty() && !brushParticle.empty()  && ((d.TotalParticles >= brushExtentMinP) && (d.TotalParticles <= brushExtentMaxP))) || //particle brush and conditions
@@ -1041,8 +1040,8 @@ function brushedMass() {
     if(brushMass.extent()[0] != brushMass.extent()[1] )
     {
     var expFormatText = function (x) {return x.toExponential(3);};
-    textBoxMinMass.value = expFormatText(Math.exp(brushMass.extent()[0]));
-    textBoxMaxMass.value = expFormatText(Math.exp(brushMass.extent()[1]));
+    textBoxMinMass.value = expFormatText(Math.pow(brushMass.extent()[0], 10));
+    textBoxMaxMass.value = expFormatText(Math.pow(brushMass.extent()[1], 10));
     }
     else{
     textBoxMinMass.value = 0;
@@ -1065,11 +1064,10 @@ function brushedParticle()
     }
     if(brushParticle.extent()[0] !=  brushParticle.extent()[1])
     {
-        var decimalFormat = d3.format(".2f");
-        textBoxMinParticle.value = decimalFormat(Math.exp(brushParticle.extent()[0]));
-        textBoxMaxParticle.value = decimalFormat(Math.exp(brushParticle.extent()[1]));
-    }
-        else {
+        var expFormatText = function (x) {return x.toExponential(3);};
+        textBoxMinParticle.value = expFormatText(Math.pow(brushParticle.extent()[0], 10));
+        textBoxMaxParticle.value = expFormatText(Math.pow(brushParticle.extent()[1], 10));
+    } else {
         textBoxMinParticle.value = 0;
         textBoxMaxParticle.value = 0;
     }
@@ -1175,7 +1173,6 @@ function toggleLuminosity() {
             .attr("r",  13)
             .style("opacity", function (d) 
             {
-                console.log(d.lum);
                 return lumScale(d.lum);
             })
             .style("filter", "url(#blur)");
@@ -1204,7 +1201,7 @@ function toggleLuminosity() {
 function tipHtml(d) {
     var color = "black";
     return "Halo Group: <span style='color:" + color +"'>"  + d.GrpID + "</span><br/>" 
-          + "Halo Mass: <span style='color:" + color +"'>" + d.HaloMass + "</span><br/>" 
+          + "Halo Mass: <span style='color:" + color +"'>" + (+d.HaloMass).toExponential(3) + "</span><br/>" 
           + "Total Particles: <span style='color:" + color +"'>" + d.TotalParticles + "</span><br/>"
           + "Total Dark Particles: <span style='color:" + color +"'>" + d.TotalDarkParticles + "</span><br/>"
           + "Total Luminosity: <span style='color:" + color +"'>" + d.lum + "</span><br/>";
@@ -1214,7 +1211,7 @@ function populateSlider() {
     var curGrp = root.GrpID;
     var similarities = haloMap.get(curGrp).similarities;
     current = similarities[0];
-    similarities = similarities.slice(1,8);
+    similarities = similarities.slice(1,similarities.length);
     
     var currentImage = d3.select("#sliderContent")
         .append("div")
@@ -1274,7 +1271,7 @@ function changeSlider() {
     // console.log("cure", curGrp);
     var similarities = haloMap.get(curGrp).similarities;
     current = similarities[0];
-    similarities = similarities.slice(1,8);
+    similarities = similarities.slice(1,similarities.length);
     //console.log(similarities);
 
     //console.log(similarities);
