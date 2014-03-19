@@ -168,10 +168,10 @@ var yParticle = d3.scale.linear().range([xHeight, 0]);
 var exponentFormat = function (x) {return x.toExponential(2)/(1e10);};
 var kformat = d3.format(".1s");
 
-var xAxisMass = d3.svg.axis().scale(x).orient("bottom").ticks(10).tickFormat(function(d) { return exponentFormat(Math.pow(d,10)); });
+var xAxisMass = d3.svg.axis().scale(x).orient("bottom").ticks(10).tickFormat(function(d) { return exponentFormat(Math.pow(10,d)); });
 var yAxisMass = d3.svg.axis().scale(y).orient("left").ticks(5);
 
-var xAxisParticle = d3.svg.axis().scale(xParticle).orient("bottom").tickFormat(function(d) { return kformat(Math.pow(d,10)); });
+var xAxisParticle = d3.svg.axis().scale(xParticle).orient("bottom").tickFormat(function(d) { return kformat(Math.pow(10,d)); });
 var yAxisParticle = d3.svg.axis().scale(yParticle).orient("left").ticks(5);
 
 //areas- based on respective domains
@@ -197,10 +197,10 @@ var brushParticle = d3.svg.brush()
     
 //adding brushes to panels
 var svgBrushMass = d3.select("#massPanel").append("svg")
-    .attr("width", clientWidth/3-100) //width a bit more b/c of text
+    .attr("width", clientWidth/3- 100) //width a bit more b/c of text
     .attr("height", clientHeight/8+10);
 var svgBrushParticle = d3.select("#particlePanel").append("svg")
-    .attr("width", clientWidth/3-100) //width a bit more b/c of text
+    .attr("width", clientWidth/3- 100) //width a bit more b/c of text
     .attr("height", clientHeight/8);
     
 //transform position to brush 
@@ -339,11 +339,12 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         minMassC = Math.min(minMassC, +d[0].HaloMass);
         maxMassC = Math.max(maxMassC, +d[0].HaloMass);
         minParticleC = Math.min(minParticleC, +d[0].TotalParticles);
-        maxParticleC = Math.max(maxParticleC, +d[0].HaloMass);
+        maxParticleC = Math.max(maxParticleC, +d[0].TotalParticles);
         
     });
-    //console.log(minMassC, minMass, maxMassC, maxMass);
-    x.domain([getBaseLog(10, minMass), getBaseLog(10, maxMass)]);
+   // console.log(minMassC, minMass, maxMassC, maxMass);
+	// console.log(minMassC, getBaseLog(10,minMass), maxMassC, getBaseLog(10,maxMass));
+    x.domain([getBaseLog(10,minMass), getBaseLog(10, maxMass)]);
     xParticle.domain([getBaseLog(10, minParticle), getBaseLog(10, maxParticle)]);
 
     //make buckets
@@ -351,7 +352,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     .bins(10)(haloMassValuesLog);
 
     var temp = [];
-    temp.x = +getBaseLog(10, maxMass);
+    temp.x = +getBaseLog(10, maxMassC);
     temp.y = 0;
     dataBinMassAllHalos.push(temp);
 
@@ -360,7 +361,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
 
     dataBinMassCurrentHalo.push(temp);
     temp = []; 
-    temp.x = +getBaseLog(10, minMass);
+    temp.x = +getBaseLog(10, minMassC);
     temp.y = 0;
     dataBinMassCurrentHalo.unshift(temp);
 
@@ -370,7 +371,8 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     .bins(10)(haloParticleValuesLog);
     temp = [];
     temp.y = 0;
-    temp.x = +getBaseLog(10, maxParticle);
+    temp.x = +getBaseLog(10, maxParticleC);
+	 console.log(maxParticleC);
     temp.y = 0;
     dataBinParticleAllHalos.push(temp);
 
@@ -381,7 +383,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
 
     temp = [];
 
-    temp.x = +getBaseLog(10, minParticle);
+    temp.x = +getBaseLog(10, minParticleC);
     temp.y = 0;
     dataBinParticleCurrentHalo.unshift(temp);
     
@@ -392,26 +394,6 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     dataBinMassAllHalos.forEach(function(d) { d.y = d.y/haloMap.keys().length; });
     dataBinParticleAllHalos.forEach(function(d) { d.y = d.y/haloMap.keys().length; });
 
-    /*
-    for(var i = 0; i< dataBinMassAllHalos.length; i++)
-    {
-      if(dataBinMassAllHalos[i].length !=0)
-      {
-        currentmean = d3.min(dataBinMassAllHalos[i]);
-        dataBinMassAllHalos[i].y = currentmean;
-      }
-    }
-    
-    for(var i = 0; i <dataBinParticleAllHalos.length; i++)
-{
-    if(dataBinMassAllHalos[i].length !=0)
-      {
-      currentmean = d3.min(dataBinParticleAllHalos[i]);
-      dataBinParticleAllHalos[i].y = +currentmean;
-      }
-    }*/
-    
-    
     //set y domains based on bin values
     y.domain([0, d3.max(dataBinMassCurrentHalo, function(d) { return d.y; })]);
     yParticle.domain([0, d3.max(dataBinParticleCurrentHalo, function(d) { return d.y; })]);
@@ -690,21 +672,27 @@ function update(source) {
         });
             
     //color filters based on brushes
-    var brushExtentMin = Math.pow(brushMass.extent()[0], 10);
-    var brushExtentMax = Math.pow(brushMass.extent()[1], 10);
+    var brushExtentMin = Math.pow(10,brushMass.extent()[0]);
+    var brushExtentMax = Math.pow(10,brushMass.extent()[1]);
 
-    var brushExtentMinP = Math.pow(brushParticle.extent()[0], 10);
-    var brushExtentMaxP = Math.pow(brushParticle.extent()[1], 10);
+    var brushExtentMinP = Math.pow(10,brushParticle.extent()[0]);
+    var brushExtentMaxP = Math.pow(10,brushParticle.extent()[1]);
 
     counterHaloSelected = 0;
+	 var otherCount = 0;
     
     nodeUpdate.selectAll("circle.shadow")
         .filter(function (d){
-            //console.log(brushExtentMin, brushExtentMax, d.HaloMass);
+			  if((+d.HaloMass >= brushExtentMin) && (+d.HaloMass <= brushExtentMax))
+			  {
+				 otherCount = otherCount + 1;
+			  	//console.log(brushExtentMin, brushExtentMax, +d.HaloMass);
+			  }
+            
             if(
-               (!brushMass.empty() && brushParticle.empty() && ((d.HaloMass >= brushExtentMin) && (d.HaloMass <= brushExtentMax))) || //mass brush and conditions
+               (!brushMass.empty() && brushParticle.empty() && ((+d.HaloMass >= brushExtentMin) && (+d.HaloMass <= brushExtentMax))) || //mass brush and conditions
                (brushMass.empty() && !brushParticle.empty()  && ((d.TotalParticles >= brushExtentMinP) && (d.TotalParticles <= brushExtentMaxP))) || //particle brush and conditions
-               (((d.HaloMass >= brushExtentMin) && (d.HaloMass <= brushExtentMax)) && ((d.TotalParticles >= brushExtentMinP) && (d.TotalParticles <= brushExtentMaxP)))) //both selected
+               (((+d.HaloMass >= brushExtentMin) && (+d.HaloMass <= brushExtentMax)) && ((d.TotalParticles >= brushExtentMinP) && (d.TotalParticles <= brushExtentMaxP)))) //both selected
                {
                  counterHaloSelected = counterHaloSelected + 1;
                  return d;
@@ -713,6 +701,10 @@ function update(source) {
         .style("fill", "#E3C937")
         .style("opacity", ".5")
         .style("filter", "url(#blur)");
+		  
+		  //console.log("count", otherCount)
+		  //console.log("brush", Math.pow(brushMass.extent()[0],10), Math.pow(brushMass.extent()[1],10))
+		  //console.log("min/max for all",minMass, maxMass);
          
     textBoxSelected.innerHTML = "<b>" + counterHaloSelected + "/" + nodes.length + " Halos selected </b>";
     
@@ -933,10 +925,20 @@ function changeTree(grp) {
 }
 
 function changeGraph() {
+	
+   minMassC = maxMass;
+   maxMassC = 0;
+   minParticleC = maxParticle;
+   maxParticleC = 0;
     var haloMassValuesCurrentHalo = [], haloParticleValuesCurrentHalo = [];
     nodesMap.values().forEach(function(d) {
         haloMassValuesCurrentHalo.push(+getBaseLog(10, d[0].HaloMass))
         haloParticleValuesCurrentHalo.push(+getBaseLog(10, d[0].TotalParticles));
+        minMassC = Math.min(minMassC, +d[0].HaloMass);
+        maxMassC = Math.max(maxMassC, +d[0].HaloMass);
+        minParticleC = Math.min(minParticleC, +d[0].TotalParticles);
+        maxParticleC = Math.max(maxParticleC, +d[0].TotalParticles);
+		  
     });
     
     var dataBinMassCurrentHalo = d3.layout.histogram()
@@ -945,22 +947,22 @@ function changeGraph() {
         .bins(10)(haloParticleValuesCurrentHalo);
 
     var temp = [];
-    temp.x = +getBaseLog(10, maxMass);
+    temp.x = +getBaseLog(10, maxMassC);
     temp.y = 0;
     dataBinMassCurrentHalo.push(temp);
 
     temp = [];
-    temp.x = +getBaseLog(10, minMass);
+    temp.x = +getBaseLog(10, minMassC);
     temp.y = 0;
     dataBinMassCurrentHalo.unshift(temp);
 
     temp = [];
-    temp.x = +getBaseLog(10, maxParticle);
+    temp.x = +getBaseLog(10, maxParticleC);
     temp.y = 0;
     dataBinParticleCurrentHalo.push(temp);
 
     temp = [];
-    temp.x = +getBaseLog(10, minParticle);
+    temp.x = +getBaseLog(10, minParticleC);
     temp.y = 0;
     dataBinParticleCurrentHalo.unshift(temp);
     
@@ -1040,8 +1042,8 @@ function brushedMass() {
     if(brushMass.extent()[0] != brushMass.extent()[1] )
     {
     var expFormatText = function (x) {return x.toExponential(3);};
-    textBoxMinMass.value = expFormatText(Math.pow(brushMass.extent()[0], 10));
-    textBoxMaxMass.value = expFormatText(Math.pow(brushMass.extent()[1], 10));
+    textBoxMinMass.value = expFormatText(Math.pow(10,brushMass.extent()[0]));
+    textBoxMaxMass.value = expFormatText(Math.pow(10,brushMass.extent()[1]));
     }
     else{
     textBoxMinMass.value = 0;
@@ -1065,8 +1067,8 @@ function brushedParticle()
     if(brushParticle.extent()[0] !=  brushParticle.extent()[1])
     {
         var expFormatText = function (x) {return x.toExponential(3);};
-        textBoxMinParticle.value = expFormatText(Math.pow(brushParticle.extent()[0], 10));
-        textBoxMaxParticle.value = expFormatText(Math.pow(brushParticle.extent()[1], 10));
+        textBoxMinParticle.value = expFormatText(Math.pow(10,brushParticle.extent()[0]));
+        textBoxMaxParticle.value = expFormatText(Math.pow(10,brushParticle.extent()[1]));
     } else {
         textBoxMinParticle.value = 0;
         textBoxMaxParticle.value = 0;
