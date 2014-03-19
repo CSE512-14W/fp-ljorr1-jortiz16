@@ -79,13 +79,13 @@ var tip_s = d3.tip()
 var tip_e = d3.tip()
   .attr("class", "d3-tip e")
   .direction("ne")
-  .offset(function(d) { return [0, 0]; })
+  .offset(function(d) { return [0, -10]; })
   .html(function(d) { return tipHtml(d) });
 
 var tip_w = d3.tip()
   .attr("class", "d3-tip w")
   .direction("nw")
-  .offset(function(d) { return [0,0]; })
+  .offset(function(d) { return [0,10]; })
   .html(function(d) { return tipHtml(d) });
   
 /* var tipEdges = d3.tip()
@@ -215,6 +215,7 @@ var contextParticle = svgBrushParticle.append("g")
 d3.csv("linksMilky.csv", function(error1, raw_links) {
 d3.csv("nodesMilky.csv", function(error2, raw_nodes) {
 d3.csv("similarities.csv", function(error3, raw_sims) {
+
     //CREATE DATA DEPENDENT VARIABLES
     var maxSharedParticle = 0, minSharedParticle;
     var haloMassValuesLog = [], haloParticleValuesLog = [];
@@ -230,7 +231,8 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         minSharedParticle = Math.min(minSharedParticle, +d.sharedParticleCount);
     });
 
-    raw_nodes.forEach(function(d){       
+    raw_nodes.forEach(function(d){
+        //if(+d.HaloMass > 5e13) {console.log(d);}       
         maxTime = Math.max(maxTime, +d.Timestep);
         maxMass = Math.max(maxMass, +d.HaloMass);
         minMass = Math.min(minMass, +d.HaloMass);
@@ -307,11 +309,20 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         tempRoot.y0 = 0;
         haloMap.set(k, {root: tempRoot, nodes: tempNodesMap, links: tempLinksMap, similarities: similaritiesMap.get(k)});
     });
+    //FILL IN GRP IDs
+    var selectBar = d3.select("#grpID")
+        .on("change", function() { changeTree(d3.event.target.value);  })
+        .selectAll("option")
+        .data(haloMap.keys())
+        .enter()
+        .append("option")
+        .attr("value", function(d) { return d; })
+        .html(function(d) { return d; });
 
     //COMMENT   
     //default group
     //updateTree("16");
-    var halo = haloMap.get("50");
+    var halo = haloMap.get("42");
     root = halo.root;
     nodesMap = halo.nodes;
     linksMap = halo.links;
@@ -331,7 +342,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         maxParticleC = Math.max(maxParticleC, +d[0].HaloMass);
         
     });
-    console.log(minMassC, minMass, maxMassC, maxMass);
+    //console.log(minMassC, minMass, maxMassC, maxMass);
     x.domain([getBaseLog(10, minMass), getBaseLog(10, maxMass)]);
     xParticle.domain([getBaseLog(10, minParticle), getBaseLog(10, maxParticle)]);
 
@@ -404,7 +415,6 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     //set y domains based on bin values
     y.domain([0, d3.max(dataBinMassCurrentHalo, function(d) { return d.y; })]);
     yParticle.domain([0, d3.max(dataBinParticleCurrentHalo, function(d) { return d.y; })]);
-    //console.log(d3.max(dataBinMassAllHalos, function(d) { return d.y; }));
     //tie context to area
     contextMass.append("path")
         .datum(dataBinMassAllHalos)
@@ -543,8 +553,7 @@ function update(source) {
     //compute the new tree layout.
     var nodes = tree.nodes(root);
     var links = tree.links(nodes);
-    //console.log(nodes);
-    //console.log(links)
+
     //normalize for fixed-depth.
     nodes.forEach(function(d) { d.y = d.depth * nodeDistance; });
 
@@ -613,7 +622,14 @@ function update(source) {
             }
         })
         .on("click", click)
-        .style("opacity", ".001");
+        .style("fill", "pink")
+        .style("opacity", "0.0001");
+
+    //blur filter 
+    nodeEnter.select("circle.shadow").append("defs")  
+        .append("filter")  
+        .attr("id", "blur")  
+        .attr("stdDeviation", 15); 
         
     /*var hoverLink = d3.selectAll("path.link")             
         .on("mousemove", function(d) { 
@@ -655,16 +671,13 @@ function update(source) {
         .style("opacity", ".01");
         
     nodeUpdate.select("circle.hover")
-        .attr("r", function(d)
-            {
-              if(massScale(d.HaloMass) < 9)
-               {
-                   return 15;
-               }
-               else 
-               {
-                 return 25;
-               }
+        .attr("r", function(d){
+            //console.log(massScale(d.HaloMass), minMass, maxMass, d.HaloMass);
+            if(massScale(d.HaloMass) < 7) {
+                return 7;
+            } else {
+                return massScale(d.HaloMass);
+            }
             });
     
     nodeUpdate.select("path.children")
@@ -700,14 +713,7 @@ function update(source) {
         .style("fill", "#E3C937")
         .style("opacity", ".5")
         .style("filter", "url(#blur)");
-    
-    //blur filter 
-    nodeEnter.select("circle.shadow").append("defs")  
-     .append("filter")  
-     .attr("id", "blur")  
-     .attr("stdDeviation", 15);  
-
-        
+         
     textBoxSelected.innerHTML = "<b>" + counterHaloSelected + "/" + nodes.length + " Halos selected </b>";
     
     //transition exiting nodes to the parent's new position.
@@ -861,7 +867,6 @@ function changeTree(grp) {
         graph.transition().duration(duration).attr("transform", "translate(" + [0,0] + ")scale(" + 1 + ")");
         svg.select(".timeaxis").selectAll("g.timeaxisgroup").transition().duration(duration)
             .attr("transform", function(d) {
-                //console.log(d, timeScale(d)); 
                 return "translate(" + timeScale(d) + ", 0)";
             });
         d3.select(".timeaxislabel").selectAll("g.timeaxisgroup")
@@ -949,8 +954,6 @@ function changeGraph() {
     temp.y = 0;
     dataBinMassCurrentHalo.unshift(temp);
 
-    //console.log(dataBinMassCurrentHalo);
-
     temp = [];
     temp.x = +getBaseLog(10, maxParticle);
     temp.y = 0;
@@ -1002,7 +1005,6 @@ function resetTree() {
         graph.transition().duration(duration).attr("transform", "translate(" + [0,0] + ")scale(" + 1 + ")");
         svg.select(".timeaxis").selectAll("g.timeaxisgroup").transition().duration(duration)
             .attr("transform", function(d) {
-                //console.log(d, timeScale(d)); 
                 return "translate(" + timeScale(d) + ", 0)";
             });
         d3.select(".timeaxislabel").selectAll("g.timeaxisgroup")
@@ -1030,9 +1032,7 @@ function resetTree() {
 }
 
 
-function brushedMass() {
-    //console.log(brushMass.extent());
-    
+function brushedMass() {    
     if (checkBoxToggleLuminosity.checked)
     {
       checkBoxToggleLuminosity.checked = false;
@@ -1216,7 +1216,8 @@ function populateSlider() {
     var currentImage = d3.select("#sliderContent")
         .append("div")
         .attr("id", "current")
-        .attr("class", "viewer ui-corner-all")
+        //.attr("class", "viewer ui-corner-all")
+        .attr("class", "viewer")
         .selectAll(".item")
         .data([current])
         .enter()
@@ -1230,17 +1231,17 @@ function populateSlider() {
         });
 
     currentImage = currentImage.append("div")
-        .attr("class", "text ui-helper-clearfix")
+        .attr("class", "text")
         .style("font-size", "12px")
         .text(function(d) { return "Group ID: " + d.to_Group; });
 
     var slider = d3.select("#sliderContent")
-        .attr("class", "ui-corner-all")
+        //.attr("class", "ui-corner-all")
         .append("div")
-        .attr("class", "viewer ui-corner-all")
+        .attr("class", "viewer")
         .attr("id", "similarities")
         .append("div")
-        .attr("class", "content-conveyor ui-helper-clearfix")
+        .attr("class", "content-conveyor")
         .selectAll(".item")
         .data(similarities) //don't specify key function because was to be joined on index
         .enter()
@@ -1256,25 +1257,22 @@ function populateSlider() {
         });
 
     slider = slider.append("div")
-        .attr("class", "text ui-helper-clearfix")
+        .attr("class", "text")
         .style("font-size", "12px")
         .text(function(d) { return "Group ID: " + d.to_Group; });
 
-    d3.select("#sliderContent")
-        .append("div")
-        .attr("id", "slider");
+    // d3.select("#sliderContent")
+    //     .append("div")
+    //     .attr("id", "slider");
     activateSlider();
 }
 
 function changeSlider() {
     var curGrp = root.GrpID;
-    // console.log("cure", curGrp);
     var similarities = haloMap.get(curGrp).similarities;
     current = similarities[0];
     similarities = similarities.slice(1,similarities.length);
-    //console.log(similarities);
 
-    //console.log(similarities);
     var currentImage = d3.select("#sliderContent")
         .select("#current")
         .selectAll(".item")

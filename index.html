@@ -24,6 +24,8 @@
           <td>
             <div id="topContainer" style="display:inline-block;"> 
               <button class="button" id="resetButton" onclick='resetTree()'>Reset Tree</button>
+              <select class="dropdown" id="grpID">
+              </select>
               <form style="display:inline"><input class="checked" id="checkedRemoveGraphs" type="checkbox" onclick="toggleGraphs()"> Remove Graphs </form>
               <form style="display:inline"><input class="checked" id="checkedRemoveTooltips" type="checkbox" onclick="toggleTooltips()"> Remove Tooltips </form>
               <form style="display:inline"><input class="checked" id="checkedLuminosity" type="checkbox" onclick="toggleLuminosity()"> Luminosity View </form>
@@ -80,7 +82,7 @@
       </div>
     </div>
     <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
-    <script type="text/javascript" src="js/jquery-ui-1.10.4.custom.min.js"></script>
+    <!--<script type="text/javascript" src="js/jquery-ui-1.10.4.custom.min.js"></script>-->
     <script src="http://d3js.org/d3.v3.js"></script>
     <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
     <script src="js/slider.js"></script>

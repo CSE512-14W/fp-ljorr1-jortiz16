@@ -1,39 +1,41 @@
 
 #sliderContent {
     margin:auto;
-    padding:0 0px 15px;
+    padding:0px;
     background-color:#ebebeb;
-    border:1px solid #898989;
+    border:0px solid #898989;
     text-align: center;
 }
 #current.viewer {
-    margin: 0px auto 10px auto;
-    height:120px;
+    margin: auto;
+    height:130px;
     position:relative;
     padding:0px;
     border:1px solid rgba(137, 137, 137, 0);
     display: inline-block;
 }
 #similarities.viewer {
-    height:120px;
-    margin:0px auto 10px auto; /*top right bottom left*/
+    height:130px;
+    margin: auto; /*top right bottom left*/
     padding:0px;
-    overflow:hidden;
+    overflow:auto;
     position:relative;
     border:1px solid #898989;
     display: inline-block;
-    background-color: lightsteelblue;
+    background-color: #ebebeb;;
 }
-.content-conveyor { 
+.content-conveyor {
+    display: inline-block; 
     position:relative;
 }
 .item {
-    width:250px;
+    width: 150px;
+    display: inline-block;
     float:left;
     font-family:arial; 
     text-align:center;
     /*background-color:#ebebeb;*/
-    background-color: lightsteelblue;
+    background-color: #ebebeb;;
 }
 .item img {
     padding:0px;
