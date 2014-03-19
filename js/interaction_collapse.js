@@ -7,7 +7,7 @@ var clientHeight = doc.clientHeight;
 var margin = {top: 60, right: 20, bottom: 20, left: 20},
 width = clientWidth - margin.right - margin.left,
 height = clientHeight - margin.top - margin.bottom - 400; //panelContentHeight, header, buttons, and padding for header
-//console.log(height);
+console.log(clientHeight);
 //TO FIX
 //height = 800;
 d3.select("#panelContent").style("width", clientWidth+"px")
@@ -1207,6 +1207,13 @@ function tipHtml(d) {
           + "Total Luminosity: <span style='color:" + color +"'>" + d.lum + "</span><br/>";
 }
 
+function textBoxGroupEnter() {
+    var val = document.getElementById("textBoxGroup").value;
+    if ((haloMap.keys().indexOf(val) != -1) && val != root.GrpID) {
+        changeTree(val);
+    }
+}
+
 function populateSlider() {
     var curGrp = root.GrpID;
     var similarities = haloMap.get(curGrp).similarities;
@@ -1222,21 +1229,22 @@ function populateSlider() {
         .data([current])
         .enter()
         .append("div")
-        .attr("class", "item")
-        .style("background-color", "#ebebeb");
+        .attr("class", "item");
 
     currentImage.append("img")
         .attr("src", function(d) {
             return "images/halo_small"+d.to_Group+".png"; //replace num with d.to_Group
         });
 
-    currentImage = currentImage.append("div")
-        .attr("class", "text")
-        .style("font-size", "12px")
-        .text(function(d) { return "Group ID: " + d.to_Group; });
+    currentImage = currentImage.append("form")
+        .text("Current Group: ")
+        .attr("onSubmit", "textBoxGroupEnter(); return false;")
+        .append("input")
+        .attr("id", "textBoxGroup")
+        .style("width", "25px")
+        .attr("value", function(d) { return d.to_Group; });
 
     var slider = d3.select("#sliderContent")
-        //.attr("class", "ui-corner-all")
         .append("div")
         .attr("class", "viewer")
         .attr("id", "similarities")
@@ -1258,12 +1266,8 @@ function populateSlider() {
 
     slider = slider.append("div")
         .attr("class", "text")
-        .style("font-size", "12px")
-        .text(function(d) { return "Group ID: " + d.to_Group; });
+        .text(function(d) { return "Group: " + d.to_Group; });
 
-    // d3.select("#sliderContent")
-    //     .append("div")
-    //     .attr("id", "slider");
     activateSlider();
 }
 
@@ -1283,8 +1287,7 @@ function changeSlider() {
             return "images/halo_small"+d.to_Group+".png"; //replace num with d.to_Group
         });
 
-    currentImage.select(".text")
-        .text(function(d) { return "Group ID: " + d.to_Group; });
+    document.getElementById("textBoxGroup").value = current.to_Group;
 
     var slider = d3.select("#sliderContent")
         .select(".content-conveyor")
@@ -1299,6 +1302,6 @@ function changeSlider() {
         });
 
     slider.select(".text")
-        .text(function(d) { return "Group ID: " + d.to_Group; });
+        .text(function(d) { return "Group: " + d.to_Group; });
         
 }

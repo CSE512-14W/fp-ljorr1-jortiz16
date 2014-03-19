@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" type="text/css" href="css/overcast/jquery-ui-1.10.4.custom.css">
   <link rel="stylesheet" type="text/css" href="css/slider.css">
   <link rel="stylesheet" type="text/css" href="css/style.css">
   <meta charset=utf-8 />
@@ -23,9 +22,7 @@
         <tr>
           <td>
             <div id="topContainer" style="display:inline-block;"> 
-              <button class="button" id="resetButton" onclick='resetTree()'>Reset Tree</button>
-              <select class="dropdown" id="grpID">
-              </select>
+              <button class="button" id="resetButton" onclick='resetTree()'>Reset View</button>
               <form style="display:inline"><input class="checked" id="checkedRemoveGraphs" type="checkbox" onclick="toggleGraphs()"> Remove Graphs </form>
               <form style="display:inline"><input class="checked" id="checkedRemoveTooltips" type="checkbox" onclick="toggleTooltips()"> Remove Tooltips </form>
               <form style="display:inline"><input class="checked" id="checkedLuminosity" type="checkbox" onclick="toggleLuminosity()"> Luminosity View </form>
@@ -50,8 +47,8 @@
                           <td width="60%"> <div id="massPanel"> </div> </td>
                           <td width="40%"> 
                             <div id="massTextBoxes">
-                              <form>min: <input id="textboxMinMass" type="text" value="0"/> </form>
-                              <form>max: <input id="textboxMaxMass" type="text" value="0"/> </form>
+                              <form onkeypress="return event.keyCode != 13;" >min: <input id="textboxMinMass" type="text" value="0"/> </form>
+                              <form onkeypress="return event.keyCode != 13;" >max: <input id="textboxMaxMass" type="text" value="0"/> </form>
                               <div id="buttonMass"><button class="button">Go</button> </div>
                             </div>
                           </td>
@@ -64,8 +61,8 @@
                           <td width="60%"><div id="particlePanel"> </div></td> 
                           <td width="40%"> 
                             <div id="particleTextBoxes"> 
-                              <form>min: <input id="textboxMinParticle" type="text" value="0" /> </form>
-                              <form>max: <input id="textboxMaxParticle" type="text" value="0" /> </form>
+                              <form onkeypress="return event.keyCode != 13;">min: <input id="textboxMinParticle" type="text" value="0" /> </form>
+                              <form onkeypress="return event.keyCode != 13;">max: <input id="textboxMaxParticle" type="text" value="0" /> </form>
                               <div id="buttonParticle"><button class="button">Go</button></div>
 
                             </div>
