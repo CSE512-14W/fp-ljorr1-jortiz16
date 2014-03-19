@@ -210,6 +210,8 @@ var contextMass = svgBrushMass.append("g")
 var contextParticle = svgBrushParticle.append("g")
     .attr("transform", "translate(" + 40 + "," + 10 + ")"); //staring position
 
+var dataBinMassAllHalos = [];
+var dataBinParticleAllHalos = [];
 
 //******************************LOAD DATA
 d3.csv("linksMilky.csv", function(error1, raw_links) {
@@ -348,8 +350,8 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     xParticle.domain([getBaseLog(10, minParticle), getBaseLog(10, maxParticle)]);
 
     //make buckets
-    var dataBinMassAllHalos = d3.layout.histogram()
-    .bins(10)(haloMassValuesLog);
+     dataBinMassAllHalos = d3.layout.histogram()
+    .bins(30)(haloMassValuesLog);
 
     var temp = [];
     temp.x = +getBaseLog(10, maxMassC);
@@ -357,7 +359,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     dataBinMassAllHalos.push(temp);
 
     var dataBinMassCurrentHalo = d3.layout.histogram()
-    .bins(10)(haloMassValuesCurrentHalo);
+    .bins(30)(haloMassValuesCurrentHalo);
 
     dataBinMassCurrentHalo.push(temp);
     temp = []; 
@@ -367,8 +369,9 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
 
     //console.log(dataBinMassCurrentHalo);
 
-    var dataBinParticleAllHalos = d3.layout.histogram()
-    .bins(10)(haloParticleValuesLog);
+     dataBinParticleAllHalos = d3.layout.histogram()
+    .bins(30)(haloParticleValuesLog);
+	
     temp = [];
     temp.y = 0;
     temp.x = +getBaseLog(10, maxParticleC);
@@ -377,7 +380,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     dataBinParticleAllHalos.push(temp);
 
     var dataBinParticleCurrentHalo = d3.layout.histogram()
-    .bins(10)(haloParticleValuesCurrentHalo);
+    .bins(30)(haloParticleValuesCurrentHalo);
 
     dataBinParticleCurrentHalo.push(temp);
 
@@ -942,9 +945,9 @@ function changeGraph() {
     });
     
     var dataBinMassCurrentHalo = d3.layout.histogram()
-        .bins(10)(haloMassValuesCurrentHalo);
+        .bins(30)(haloMassValuesCurrentHalo);
     var dataBinParticleCurrentHalo = d3.layout.histogram()
-        .bins(10)(haloParticleValuesCurrentHalo);
+        .bins(30)(haloParticleValuesCurrentHalo);
 
     var temp = [];
     temp.x = +getBaseLog(10, maxMassC);
@@ -967,9 +970,21 @@ function changeGraph() {
     dataBinParticleCurrentHalo.unshift(temp);
     
     y.domain([0, d3.max(dataBinMassCurrentHalo, function(d) { return d.y; })]);
-    yParticle.domain([0, d3.max(dataBinParticleCurrentHalo, function(d) { return d.y; })]);
+   yParticle.domain([0, d3.max(dataBinParticleCurrentHalo, function(d) { return d.y; })]);
     
     d3.selectAll(".brushyaxis .tick").remove();
+	
+	 contextMass.select(".area")
+        .datum(dataBinMassAllHalos)
+		.transition()
+        .duration(duration)
+        .attr("d", area);
+                
+    contextParticle.select(".area")
+        .datum(dataBinParticleAllHalos)
+		.transition()
+        .duration(duration)
+        .attr("d", areaParticle);
     
     contextMass.append("g")
         .attr("class", "brushyaxis")
@@ -981,8 +996,7 @@ function changeGraph() {
         .attr("class", "brushyaxis")
         .attr("transform", "translate(0," + 0 + ")") //axis position
         .call(yAxisParticle);
-
-    
+	
     contextMass.select(".areaTop")
         .datum(dataBinMassCurrentHalo)
         .transition()
