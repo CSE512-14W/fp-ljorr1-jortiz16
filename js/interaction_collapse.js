@@ -351,7 +351,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
 
     //make buckets
      dataBinMassAllHalos = d3.layout.histogram()
-    .bins(30)(haloMassValuesLog);
+    .bins(20)(haloMassValuesLog);
 
     var temp = [];
     temp.x = +getBaseLog(10, maxMassC);
@@ -359,7 +359,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     dataBinMassAllHalos.push(temp);
 
     var dataBinMassCurrentHalo = d3.layout.histogram()
-    .bins(30)(haloMassValuesCurrentHalo);
+    .bins(20)(haloMassValuesCurrentHalo);
 
     dataBinMassCurrentHalo.push(temp);
     temp = []; 
@@ -370,7 +370,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     //console.log(dataBinMassCurrentHalo);
 
      dataBinParticleAllHalos = d3.layout.histogram()
-    .bins(30)(haloParticleValuesLog);
+    .bins(20)(haloParticleValuesLog);
 	
     temp = [];
     temp.y = 0;
@@ -380,7 +380,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     dataBinParticleAllHalos.push(temp);
 
     var dataBinParticleCurrentHalo = d3.layout.histogram()
-    .bins(30)(haloParticleValuesCurrentHalo);
+    .bins(20)(haloParticleValuesCurrentHalo);
 
     dataBinParticleCurrentHalo.push(temp);
 
@@ -404,23 +404,26 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     contextMass.append("path")
         .datum(dataBinMassAllHalos)
         .attr("class", "area")
-        .attr("d", area);
+        .attr("d", area)
+		.style("opacity", ".7");
                 
     contextMass.append("path")
         .datum(dataBinMassCurrentHalo)
         .attr("class", "areaTop")
         .attr("d", area)
-        .style("opacity", ".7");
+        .style("opacity", ".9");
 
     contextParticle.append("path")
         .datum(dataBinParticleAllHalos)
         .attr("class", "area")
-        .attr("d", areaParticle);
+        .attr("d", areaParticle)
+		.style("opacity", ".7");
         
     contextParticle.append("path")
         .datum(dataBinParticleCurrentHalo)
         .attr("class", "areaTop")
-        .attr("d", areaParticle);
+        .attr("d", areaParticle)
+		.style("opacity", ".9");
 
     //x, y axes and calling brush
     contextMass.append("g")
@@ -944,9 +947,9 @@ function changeGraph() {
     });
     
     var dataBinMassCurrentHalo = d3.layout.histogram()
-        .bins(30)(haloMassValuesCurrentHalo);
+        .bins(20)(haloMassValuesCurrentHalo);
     var dataBinParticleCurrentHalo = d3.layout.histogram()
-        .bins(30)(haloParticleValuesCurrentHalo);
+        .bins(20)(haloParticleValuesCurrentHalo);
 
     var temp = [];
     temp.x = +getBaseLog(10, maxMassC);
@@ -977,13 +980,15 @@ function changeGraph() {
         .datum(dataBinMassAllHalos)
 		.transition()
         .duration(duration)
-        .attr("d", area);
+        .attr("d", area)
+		.style("opacity", ".7");
                 
     contextParticle.select(".area")
         .datum(dataBinParticleAllHalos)
 		.transition()
         .duration(duration)
-        .attr("d", areaParticle);
+        .attr("d", areaParticle)
+		.style("opacity", ".7");
     
     contextMass.append("g")
         .attr("class", "brushyaxis")
@@ -1001,14 +1006,14 @@ function changeGraph() {
         .transition()
         .duration(duration)
         .attr("d", area)
-        .style("opacity", ".7");
+        .style("opacity", ".9");
 
     contextParticle.select(".areaTop")
         .datum(dataBinParticleCurrentHalo)
         .transition()
         .duration(duration)
         .attr("d", areaParticle)
-        .style("opacity", ".7");
+        .style("opacity", ".9");
 }
 
 function resetTree() {
