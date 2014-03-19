@@ -19,6 +19,10 @@
 #current .item {
     background-color:#ebebeb;
 }
+
+#current form {
+    margin-top: -13px;
+}
 #similarities.viewer {
     height:130px;
     margin: auto; /*top right bottom left*/

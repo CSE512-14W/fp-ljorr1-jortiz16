@@ -6,8 +6,8 @@ var clientHeight = doc.clientHeight;
 // panelContentHeight = +panelContentHeight.replace(/\D/g,"");
 var margin = {top: 60, right: 20, bottom: 20, left: 20},
 width = clientWidth - margin.right - margin.left,
-height = clientHeight - margin.top - margin.bottom - 400; //panelContentHeight, header, buttons, and padding for header
-console.log(clientHeight);
+height = Math.max(clientHeight - margin.top - margin.bottom - 400, 400); //panelContentHeight, header, buttons, and padding for header
+console.log(height);
 //TO FIX
 //height = 800;
 d3.select("#panelContent").style("width", clientWidth+"px")
@@ -309,16 +309,16 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         tempRoot.y0 = 0;
         haloMap.set(k, {root: tempRoot, nodes: tempNodesMap, links: tempLinksMap, similarities: similaritiesMap.get(k)});
     });
-    //FILL IN GRP IDs
-    var selectBar = d3.select("#grpID")
-        .on("change", function() { changeTree(d3.event.target.value);  })
-        .selectAll("option")
-        .data(haloMap.keys())
-        .enter()
-        .append("option")
-        .attr("value", function(d) { return d; })
-        .html(function(d) { return d; });
-
+    // var maxTime = 0;
+    // tempHaloNodesMap.forEach(function(k, v) {
+    //     var temp = d3.nest().key(function(d) { return d.Timestep; }).map(v, d3.map);
+    //     temp.forEach(function(k,v) {
+    //         if (v.length > maxTime) {
+    //             maxTime = v.length;
+    //             console.log(k, v[0], v.length);
+    //         }
+    //     })
+    // });    
     //COMMENT   
     //default group
     //updateTree("16");
