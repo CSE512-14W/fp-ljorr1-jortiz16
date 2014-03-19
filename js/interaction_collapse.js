@@ -431,7 +431,6 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         .attr("transform", "translate(0," + xHeight + ")") //axis position
         .call(xAxisMass)
             .selectAll("text")
-            .style("font-size", "10px")
             .attr("transform","rotate(0) translate(0,0)");
 
     contextMass.append("text")
@@ -439,7 +438,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         .attr("text-anchor", "middle")
         .style("font-size", "14px")
         .style("font-weight", "bold")
-        .attr("x", clientWidth/8-30)
+        .attr("x", clientWidth/8-22)
         .attr("y", clientHeight/8-10)
         .text("Log Mass (1e10)");
         //1e10 is not the same as e^10; this means 1 x 10^10
@@ -481,7 +480,6 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         .attr("transform", "translate(0," + xHeight + ")") //axis position
         .call(xAxisParticle)
             .selectAll("text")
-            .style("font-size", "10px")
             .attr("transform","rotate(0) translate(0,0)");
           
     contextParticle.append("text")
@@ -489,7 +487,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         .attr("text-anchor", "middle")
         .style("font-size", "14px")
         .style("font-weight", "bold")
-        .attr("x", clientWidth/8-30)
+        .attr("x", clientWidth/8-22)
         .attr("y", clientHeight/8-10)
         .text("Total Particle Count");
           
