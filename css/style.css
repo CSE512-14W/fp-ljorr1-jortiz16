@@ -135,11 +135,12 @@ svgBrush {
 }
 
 #panelContent .area {
-    fill: lightsteelblue;
+    fill: darkblue;
     stroke-width: 0;
 }
 #panelContent .areaTop {
-    fill: darkblue;
+    fill: lightsteelblue;
+    opacity: 0.8;
     stroke-width: 0;
 }
 

@@ -420,8 +420,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     contextParticle.append("path")
         .datum(dataBinParticleCurrentHalo)
         .attr("class", "areaTop")
-        .attr("d", areaParticle)
-        .style("opacity", ".7");
+        .attr("d", areaParticle);
 
     //x, y axes and calling brush
     contextMass.append("g")
@@ -504,7 +503,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         .attr("y", -6);
         
     //adding the legend 
-    var areaColors = [{text: "Average", color:"lightsteelblue"}, {text: "Current Halo", color:"darkblue"}];
+    var areaColors = [{text: "Average", color:"darkblue"}, {text: "Current Halo", color:"lightsteelblue"}];
     var legend =  d3.select("#legend").append("svg")
           .attr("class","legend")
           .attr("width", 300)
