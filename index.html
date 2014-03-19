@@ -37,7 +37,7 @@
           <tr>
             <td>
               <div id="panelContent" style="display:inline-block"> 
-                <div id="legend" style="display:inline;float:left"></div>
+                <div id="legend" style="display:inline; float:left"></div>
                 <div id="haloTextSelected" style="display:inline;float:right"><b>0 Halos Selected</b></div>
                 <table id="table">
                   <tr>
@@ -46,7 +46,7 @@
                         <tr>
                           <td width="60%"> <div id="massPanel"> </div> </td>
                           <td width="40%"> 
-                            <div id="massTextBoxes">
+                            <div id="massTextBoxes" style = "width:125px; text-align:right;">
                               <form onkeypress="return event.keyCode != 13;" >min: <input id="textboxMinMass" type="text" value="0"/> </form>
                               <form onkeypress="return event.keyCode != 13;" >max: <input id="textboxMaxMass" type="text" value="0"/> </form>
                               <div id="buttonMass"><button class="button">Go</button> </div>
@@ -60,8 +60,8 @@
                         <tr>
                           <td width="60%"><div id="particlePanel"> </div></td> 
                           <td width="40%"> 
-                            <div id="particleTextBoxes"> 
-                              <form onkeypress="return event.keyCode != 13;">min: <input id="textboxMinParticle" type="text" value="0" /> </form>
+                            <div id="particleTextBoxes" style="width:125px; text-align:right;"> 
+                              <form onkeypress="return event.keyCode != 13;">min: <input id="textboxMinParticle" type="text" value="0"/> </form>
                               <form onkeypress="return event.keyCode != 13;">max: <input id="textboxMaxParticle" type="text" value="0" /> </form>
                               <div id="buttonParticle"><button class="button">Go</button></div>
 

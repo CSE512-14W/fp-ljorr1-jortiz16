@@ -1,6 +1,6 @@
 //REAL STUFF
 var doc = document.documentElement;
-var clientWidth = Math.min(doc.clientWidth, 1600);
+var clientWidth = Math.min(doc.clientWidth-50, 1600);
 var clientHeight = doc.clientHeight;
 //global replace all non-digits with nothing to get the height number
 // panelContentHeight = +panelContentHeight.replace(/\D/g,"");
@@ -12,7 +12,7 @@ console.log(height);
 //height = 800;
 d3.select("#panelContent").style("width", clientWidth+"px")
 d3.select("#topContainer").style("width", clientWidth +"px")
-d3.select("#legend").style("height", 50+"px");
+d3.select("#legend").style("height", 30+"px");
 d3.select("#header").style("width", clientWidth+"px");
 d3.select("#windowDiv").style("width", clientWidth+"px");
 d3.select("#table").style("width", clientWidth+"px");
@@ -158,10 +158,10 @@ var graph = svg.select(".graph");
 
 //******************************SET UP LEFT PANEL
 //scales for both charts
-var xHeight = clientHeight/6-90; //used for various sections of the graph/areas
-var x = d3.scale.linear().range([0, clientWidth/3-150]);
+var xHeight = clientHeight/6-80; //used for various sections of the graph/areas
+var x = d3.scale.linear().range([0, clientWidth/3-130]);
 var y = d3.scale.linear().range([xHeight, 0]);
-var xParticle = d3.scale.linear().range([0, clientWidth/3-150]);
+var xParticle = d3.scale.linear().range([0, clientWidth/3-130]);
 var yParticle = d3.scale.linear().range([xHeight, 0]);
 
 //axes formatting
@@ -197,11 +197,11 @@ var brushParticle = d3.svg.brush()
     
 //adding brushes to panels
 var svgBrushMass = d3.select("#massPanel").append("svg")
-    .attr("width", clientWidth/3- 100) //width a bit more b/c of text
-    .attr("height", clientHeight/8+10);
+    .attr("width", clientWidth/3-100) //width a bit more b/c of text
+    .attr("height", clientHeight/8+20);
 var svgBrushParticle = d3.select("#particlePanel").append("svg")
-    .attr("width", clientWidth/3- 100) //width a bit more b/c of text
-    .attr("height", clientHeight/8);
+    .attr("width", clientWidth/3-100) //width a bit more b/c of text
+    .attr("height", clientHeight/8+20);
     
 //transform position to brush 
 var contextMass = svgBrushMass.append("g")
@@ -437,10 +437,9 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     contextMass.append("text")
         .attr("class", "brushxlabel")
         .attr("text-anchor", "middle")
-        .attr("dy", "0.35em")
         .style("font-size", "14px")
         .style("font-weight", "bold")
-        .attr("x", clientWidth/8-35)
+        .attr("x", clientWidth/8-30)
         .attr("y", clientHeight/8-10)
         .text("Log Mass (1e10)");
         //1e10 is not the same as e^10; this means 1 x 10^10
@@ -490,7 +489,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         .attr("text-anchor", "middle")
         .style("font-size", "14px")
         .style("font-weight", "bold")
-        .attr("x", clientWidth/8-35)
+        .attr("x", clientWidth/8-30)
         .attr("y", clientHeight/8-10)
         .text("Total Particle Count");
           
