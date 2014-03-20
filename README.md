@@ -6,7 +6,7 @@ Galactic Merger Trees in D3
 - Jennifer Ortiz:  jortiz16@cs.washington.edu
 
 ##Development Process:
-We worked throughout the sections described below. We both built the initially queries necessary to construct the tree. Also, we both worked on the visualization layout as a whole. Specifically, this is what we each focused on and how we split the work:
+We worked throughout the sections described below. We both built the initial queries necessary to construct the tree. Also, we both worked on the layout as a whole (making sure all the components fit together well). Specifically, this is what we each focused on and how we split the responsibilities:
 
 * Laurel
   * Tree layout with time axis
