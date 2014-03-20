@@ -6,10 +6,10 @@ Galactic Merger Trees in D3
 - Jennifer Ortiz:  jortiz16@cs.washington.edu
 
 #Development Process:
-#Data Gathering and Storyboarding: 
-#Drawing Components on Graph Layout (Node colors, Edges, Collapsing):
-#Filtering Merger Tree and Checkbox Properties: 
-#Tree Structure Similarity: 
+Data Gathering and Storyboarding: 
+Drawing Components on Graph Layout (Node colors, Edges, Collapsing):
+Filtering Merger Tree and Checkbox Properties: 
+Tree Structure Similarity: 
 
 #Abstract
 
