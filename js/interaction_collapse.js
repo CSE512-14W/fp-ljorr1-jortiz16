@@ -16,6 +16,7 @@ d3.select("#legend").style("height", 30+"px");
 d3.select("#header").style("width", clientWidth+"px");
 d3.select("#windowDiv").style("width", clientWidth+"px");
 d3.select("#table").style("width", clientWidth+"px");
+d3.select("#sliderContainer").style("width", (clientWidth-200)+"px"); 
 d3.select("#sliderContent").style("width", (clientWidth-200)+"px"); 
 d3.select("#massInformation").style("width", clientWidth/2 +"px");
 d3.select("#particleInformation").style("width", clientWidth/2 +"px");
@@ -1226,7 +1227,9 @@ function tipHtml(d) {
 
 function textBoxGroupEnter() {
     var val = document.getElementById("textBoxGroup").value;
-    if ((haloMap.keys().indexOf(val) != -1) && val != root.GrpID) {
+    if (val && haloMap.keys().indexOf(val) == -1) {
+        alert("That group is not in this data");
+    } else if(val != root.GrpID) {
         changeTree(val);
     }
 }
@@ -1240,8 +1243,14 @@ function populateSlider() {
     var currentImage = d3.select("#sliderContent")
         .append("div")
         .attr("id", "current")
-        //.attr("class", "viewer ui-corner-all")
-        .attr("class", "viewer")
+        .attr("class", "viewer");
+    
+    currentImage.append("div")
+        .attr("class", "spacing")
+        .text("cur")
+        .style("opacity", 0);
+    
+    currentImage = currentImage.append("div")
         .selectAll(".item")
         .data([current])
         .enter()
@@ -1253,7 +1262,7 @@ function populateSlider() {
             return "images/halo_small"+d.to_Group+".png"; //replace num with d.to_Group
         });
 
-    currentImage = currentImage.append("form")
+    currentImage.append("form")
         .text("Current Group: ")
         .attr("onSubmit", "textBoxGroupEnter(); return false;")
         .append("input")
@@ -1264,8 +1273,20 @@ function populateSlider() {
     var slider = d3.select("#sliderContent")
         .append("div")
         .attr("class", "viewer")
-        .attr("id", "similarities")
-        .append("div")
+        .attr("id", "similarities");
+    
+    slider.append("div")
+        .attr("class", "spacing")
+        .style("text-align", "left")
+        .style("position", "fixed")
+        .text("Similar Halos");
+
+    slider.append("div")
+        .attr("class", "spacing")
+        .text("sim")
+        .style("opacity", "0");
+
+    slider = slider.append("div")
         .attr("class", "content-conveyor")
         .selectAll(".item")
         .data(similarities) //don't specify key function because was to be joined on index
@@ -1281,7 +1302,7 @@ function populateSlider() {
             return "images/halo_small"+d.to_Group+".png"; //replace num with d.to_Group
         });
 
-    slider = slider.append("div")
+    slider.append("div")
         .attr("class", "text")
         .text(function(d) { return "Group: " + d.to_Group; });
 
