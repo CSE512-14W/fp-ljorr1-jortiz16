@@ -440,7 +440,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         .style("font-size", "14px")
         .style("font-weight", "bold")
         .attr("x", clientWidth/8-22)
-        .attr("y", clientHeight/8-10)
+        .attr("y", clientHeight/8-5)
         .text("Log Mass (1e10)");
         //1e10 is not the same as e^10; this means 1 x 10^10
         
@@ -489,7 +489,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         .style("font-size", "14px")
         .style("font-weight", "bold")
         .attr("x", clientWidth/8-22)
-        .attr("y", clientHeight/8-10)
+        .attr("y", clientHeight/8-5)
         .text("Total Particle Count");
           
     contextParticle.append("g")
@@ -1270,17 +1270,12 @@ function populateSlider() {
         .style("width", "25px")
         .attr("value", function(d) { return d.to_Group; });
 
+
     var slider = d3.select("#sliderContent")
         .append("div")
         .attr("class", "viewer")
         .attr("id", "similarities");
     
-    slider.append("div")
-        .attr("class", "spacing")
-        .style("text-align", "left")
-        .style("position", "fixed")
-        .text("Similar Halos");
-
     slider.append("div")
         .attr("class", "spacing")
         .text("sim")

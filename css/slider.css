@@ -1,18 +1,30 @@
-#sliderContent {
-    text-align: center;
+#sliderContainer {
     font-size: 12px;
     padding:0px;
     margin:auto;
     font-family:arial;
+}
+
+#sliderContent {
+    text-align: center;
     height:140px;
     background-color:#ebebeb;
     border:1px solid #898989;
-    
+}
+
+#similarHalo {
+    font-weight: bold;
+    font-size: 13px;
+    position:relative;
+    text-align:left;
+    margin:auto;
+    top: 18px;
+    z-index: 1;
 }
 
 #sliderContent .spacing {
     height: 8px;
-    margin: 4px 0px 0px 7px;
+    margin: 3px 0px 0px 7px;
     font-weight: bold;
 }
 

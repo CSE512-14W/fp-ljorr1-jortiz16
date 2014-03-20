@@ -1,12 +1,15 @@
 function activateSlider() {
     //vars
     var current = $("#current", $("#sliderContent")),
+    similar = $("#similarHalo", $("#sliderContainer")),
     viewer = $("#similarities", $("#sliderContent")),
     conveyor = $(".content-conveyor", $("#sliderContent")),
     item = $(".item", $("#similarities"));
     //console.log(item.length);
     //set width current
     current.css("width", parseInt(item.css("width")));
+    //sets text left position
+    similar.css("left", parseInt(item.css("width"))+8);
     //set width viewer
     viewer.css("width", parseInt($("#sliderContent").css("width")) - 5 - parseInt(item.css("width")));
     /*viewer.css("margin-left", parseInt(item.css("width")));*/
