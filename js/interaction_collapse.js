@@ -6,7 +6,7 @@ var clientHeight = doc.clientHeight;
 // panelContentHeight = +panelContentHeight.replace(/\D/g,"");
 var margin = {top: 60, right: 20, bottom: 20, left: 20},
 width = clientWidth - margin.right - margin.left,
-height = Math.max(clientHeight - margin.top - margin.bottom - 400, 400); //panelContentHeight, header, buttons, and padding for header
+height = Math.max(clientHeight - margin.top - margin.bottom - 420, 400); //panelContentHeight, header, buttons, and padding for header
 console.log(height);
 //TO FIX
 //height = 800;

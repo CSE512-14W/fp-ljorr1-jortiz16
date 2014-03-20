@@ -62,12 +62,11 @@ rect {
   border: 0px;
   border-color: gray;
   border-style: solid;
-  margin: 1.5px;
+  margin: 1px;
   text-align: center;
-  font-size: 35px;
+  font-size: 30px;
   font-weight: bold;
   font-family: arial;
-  font-color: white;
 }
 
 .d3-tip {
