@@ -6,10 +6,16 @@ Galactic Merger Trees in D3
 - Jennifer Ortiz:  jortiz16@cs.washington.edu
 
 #Development Process:
-Data Gathering and Storyboarding: 
-Drawing Components on Graph Layout (Node colors, Edges, Collapsing):
-Filtering Merger Tree and Checkbox Properties: 
-Tree Structure Similarity: 
+We worked throughout the sections described below. We both built the initially queries necessary to construct the tree. Also, we both worked on the visualization layout as a whole. Specifically, this is what we each focused on and how we split the work:
+
+* Laurel
+  * Tree layout with time axis
+  * Node/Edges annotations (color, size based on mass, reading node/edge information from pre-computed data files)
+  * Defined tree similarity metric and added navigational slider with thumbnails
+* Jennifer
+  * Initial data gathering
+  * Mass and Particle filter graphs/legends and added highlighting blur
+  * Extra checkbox features and adding luminosity feature
 
 #Abstract
 
@@ -21,4 +27,5 @@ Access our visualization at http://cse512-14w.github.io/fp-ljorr1-jortiz16/ or d
 [Final Paper](https://github.com/CSE512-14W/fp-ljorr1-jortiz16/raw/master/final/paper-ljorr1-jortiz16.pdf) 
 
 #Summary Image
+
 
