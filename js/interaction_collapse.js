@@ -851,10 +851,7 @@ function zoomed() {
 function changeTree(grp) {
     svgBrushMass.select(".xbrush").call(brushMass.clear());
        svgBrushParticle.select(".xbrush").call(brushParticle.clear());
-    if (checkBoxToggleLuminosity.checked)
-    {
-      checkBoxToggleLuminosity.checked = false;
-    }
+    luminosityCheck();
 
     var timeOut1, timeOut2 = 0;
     if (zoom.scale() != 1 || zoom.translate()[0] != 0 || zoom.translate()[1] != 0) {
@@ -1053,10 +1050,7 @@ function resetTree() {
 
 
 function brushedMass() {    
-    if (checkBoxToggleLuminosity.checked)
-    {
-      checkBoxToggleLuminosity.checked = false;
-    }
+    luminosityCheck();
     if(brushMass.extent()[0] != brushMass.extent()[1] )
     {
     var expFormatText = function (x) {return x.toExponential(3);};
@@ -1078,10 +1072,7 @@ function brushedMass() {
 
 function brushedParticle()
 {
-    if (checkBoxToggleLuminosity.checked)
-    {
-      checkBoxToggleLuminosity.checked = false;
-    }
+	luminosityCheck();
     if(brushParticle.extent()[0] !=  brushParticle.extent()[1])
     {
         var expFormatText = function (x) {return x.toExponential(3);};
@@ -1136,13 +1127,26 @@ buttonParticle.on("click", function(d) {
 
 });
 
+function luminosityCheck()
+{
+    if (checkBoxToggleLuminosity.checked)
+    {
+      checkBoxToggleLuminosity.checked = false;
+    }
+}
+
 function toggleGraphs() {
+	   var initial = checkBoxToggleLuminosity.checked; //if luminosity is on, get it back at the end
        svgBrushMass.select(".xbrush").call(brushMass.clear());
        svgBrushParticle.select(".xbrush").call(brushParticle.clear());
        brushedMass();
        brushedParticle();
        $('#panelContent').toggle();
-     
+	   if(initial)
+	   {
+	   checkBoxToggleLuminosity.checked = true;
+	   toggleLuminosity();
+	   }
 };
 
 function toggleTooltips() {
