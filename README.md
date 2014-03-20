@@ -18,8 +18,9 @@ We worked throughout the sections described below. We both built the initially q
   * Extra checkbox features and adding luminosity feature
 
 ##Abstract
+With the help from high-performance computing, scientists have been able to run large scale simulations to model the behavior of complex, natural systems. The amount of data generated is so massive it becomes challenging to analyze and interact with the data using traditional methods. In the field of cosmology, astronomers have run these large scale simulations to model the behavior of particles interacting from the Big Bang up to present day (a span of 14 billion years). The ultimate goal behind these simulations is to better understand how galaxies such as the Milky Way form and evolve over time. In this project, we develop a visualization that details the history behind galaxies from present day by generating merger trees. Some features developed include the ability to easily observe the structure of the merger trees, learn more about the halos through user-friendly navigation and be able to highlight specific halos in the tree structure by defining mass and particle count.
 
-#Running Instructions
+##Running Instructions
 Access our visualization at http://cse512-14w.github.io/fp-ljorr1-jortiz16/ or download this repository and run `python -m SimpleHTTPServer 9000` and access this from http://localhost:9000/.
 
 ##Paper and Poster Link
@@ -27,5 +28,4 @@ Access our visualization at http://cse512-14w.github.io/fp-ljorr1-jortiz16/ or d
 [Final Paper](https://github.com/CSE512-14W/fp-ljorr1-jortiz16/raw/master/final/paper-ljorr1-jortiz16.pdf) 
 
 ##Summary Image
-
-
+![Image](https://github.com/CSE512-14W/fp-ljorr1-jortiz16/raw/master/summary.png)
