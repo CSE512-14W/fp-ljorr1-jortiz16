@@ -21,12 +21,24 @@
         </tr>
         <tr>
           <td>
-            <div id="topContainer" style="display:inline-block;"> 
-              <button class="button" id="resetButton" onclick='resetTree()'>Reset View</button>
+			<table id="toptable">
+				<tr>
+				<td >
+					  <div id="topContainer" style="display:inline;float:left"> 
+				<button class="button" id="resetButton" onclick='resetTree()'>Reset View</button>
               <form style="display:inline"><input class="checked" id="checkedRemoveGraphs" type="checkbox" onclick="toggleGraphs()"> Remove Graphs </form>
               <form style="display:inline"><input class="checked" id="checkedRemoveTooltips" type="checkbox" onclick="toggleTooltips()"> Remove Tooltips </form>
               <form style="display:inline"><input class="checked" id="checkedLuminosity" type="checkbox" onclick="toggleLuminosity()"> Luminosity View </form>
-            </div>
+						</div>
+				</td>
+				<td >
+				<div id="nodeLegend" style="display:inline;float:right"> 
+					<img src="\images\legend.jpg"  style="float:right" alt="Node Legend" width="50%" height="20%">
+					</div>
+				</td>
+				</tr>
+          </table>
+			
           </td>
         </tr>
         <tr>
@@ -38,10 +50,21 @@
             <td>
               <div id="panelContent" style="display:inline-block"> 
 								
-								<center><div id="textInfo">Drag your mouse over the graphs below to highlight specific halos</div></center>
-								<br>
-                <div id="legend" style="display:inline; float:left"></div>
-                <div id="haloTextSelected" style="display:inline;float:right"><b>0 Halos Selected</b></div>
+								
+				<table id="graphLabelTable">	
+				<tr>					
+					<td width="33%">
+							<div id="legend" style="display:inline; float:left"></div>
+					</td>
+					<td width="33%">
+						<center><div id="textInfo">Drag your mouse over the graphs below to highlight specific halos</div></center>	
+					</td>
+					<td width="33%">
+					<div id="haloTextSelected" style="display:inline;float:right"><b>0 Halos Selected</b></div>
+					</td>
+					</tr>
+				
+				</table>
 								
                 <table id="table">
                   <tr>

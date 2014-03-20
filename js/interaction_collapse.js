@@ -11,11 +11,13 @@ console.log(height);
 //TO FIX
 //height = 800;
 d3.select("#panelContent").style("width", clientWidth+"px")
-d3.select("#topContainer").style("width", clientWidth +"px")
+d3.select("#topContainer").style("width", clientWidth/2 +"px")
 d3.select("#legend").style("height", 30+"px");
 d3.select("#header").style("width", clientWidth+"px");
 d3.select("#windowDiv").style("width", clientWidth+"px");
 d3.select("#table").style("width", clientWidth+"px");
+d3.select("#toptable").style("width", clientWidth+"px");
+d3.select("#graphLabelTable").style("width", clientWidth+"px");
 d3.select("#sliderContainer").style("width", (clientWidth-200)+"px"); 
 d3.select("#sliderContent").style("width", (clientWidth-200)+"px"); 
 d3.select("#massInformation").style("width", clientWidth/2 +"px");

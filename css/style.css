@@ -44,7 +44,7 @@ rect {
 
 #topContainer {
   font-family:arial;
-  font-size:12px;
+  font-size:15px;
 }
 
 #svgContent {
@@ -140,6 +140,7 @@ svgBrush {
   padding: 6px 8px;
   margin: 0px;
 }
+
 
 
 
