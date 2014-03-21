@@ -1,14 +1,10 @@
-//REAL STUFF
+
 var doc = document.documentElement;
 var clientWidth = Math.min(doc.clientWidth-50, 1600);
 var clientHeight = doc.clientHeight;
-//global replace all non-digits with nothing to get the height number
-// panelContentHeight = +panelContentHeight.replace(/\D/g,"");
 var margin = {top: 60, right: 20, bottom: 20, left: 20},
 width = clientWidth - margin.right - margin.left,
 height = Math.max(clientHeight - margin.top - margin.bottom - 420, 400); //panelContentHeight, header, buttons, and padding for header
-//TO FIX
-//height = 800;
 d3.select("#panelContent").style("width", clientWidth+"px")
 d3.select("#topContainer").style("width", clientWidth/2 +"px")
 d3.select("#legend").style("height", 30+"px");
@@ -107,7 +103,6 @@ svg = svg.insert("g",".timeaxislabel")
     .call(zoom)
     .on("dblclick.zoom", null);
     
-//svg.call(tipEdges);
 svg.call(tip_n);
 svg.call(tip_s);
 svg.call(tip_e);
