@@ -7,7 +7,6 @@ var clientHeight = doc.clientHeight;
 var margin = {top: 60, right: 20, bottom: 20, left: 20},
 width = clientWidth - margin.right - margin.left,
 height = Math.max(clientHeight - margin.top - margin.bottom - 420, 400); //panelContentHeight, header, buttons, and padding for header
-console.log(height);
 //TO FIX
 //height = 800;
 d3.select("#panelContent").style("width", clientWidth+"px")
@@ -70,13 +69,13 @@ var tooltipEdgesShown = false;
 var tip_n = d3.tip()
   .attr("class", "d3-tip")
   .direction("n")
-  .offset(function(d) { return [0,0]; })
+  .offset(function(d) { return [-(zoom.scale()-1)*(massScale(+d.HaloMass)+3),0]; })
   .html(function(d) { return tipHtml(d) });
 
 var tip_s = d3.tip()
   .attr("class", "d3-tip")
   .direction("s")
-  .offset(function(d) { return [0,0]; })
+  .offset(function(d) { return [-(zoom.scale()-1)*(massScale(+d.HaloMass)+3),0]; })
   .html(function(d) { return tipHtml(d) });
 
 var tip_e = d3.tip()
@@ -90,17 +89,6 @@ var tip_w = d3.tip()
   .direction("nw")
   .offset(function(d) { return [0,10]; })
   .html(function(d) { return tipHtml(d) });
-  
-/* var tipEdges = d3.tip()
-  .attr("class", "d3-tipPath")
-  .direction("n")
-  .offset([-10,0])
-  .html(function(d) {
-    //console.log("in tool tip function object", d);
-    var color = "black";
-    return "Shared Total Particles: <span style='color:" + color +"'>"  + d.sharedParticleCount + "</span><br/>"
-    + "Shared Total Dark Particles: <span style='color:" + color +"'>"  + d.sharedDarkParticleCount + "</span><br/>";
-  });*/
 
 var svg = d3.select("#svgContent")
     .style("width", width + margin.left + margin.right)
@@ -237,7 +225,6 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     });
 
     raw_nodes.forEach(function(d){
-        //if(+d.HaloMass > 5e13) {console.log(d);}       
         maxTime = Math.max(maxTime, +d.Timestep);
         maxMass = Math.max(maxMass, +d.HaloMass);
         minMass = Math.min(minMass, +d.HaloMass);
@@ -314,20 +301,9 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         tempRoot.y0 = 0;
         haloMap.set(k, {root: tempRoot, nodes: tempNodesMap, links: tempLinksMap, similarities: similaritiesMap.get(k)});
     });
-    // var maxTime = 0;
-    // tempHaloNodesMap.forEach(function(k, v) {
-    //     var temp = d3.nest().key(function(d) { return d.Timestep; }).map(v, d3.map);
-    //     temp.forEach(function(k,v) {
-    //         if (v.length > maxTime) {
-    //             maxTime = v.length;
-    //             console.log(k, v[0], v.length);
-    //         }
-    //     })
-    // });    
-    //COMMENT   
+    
     //default group
-    //updateTree("16");
-    var halo = haloMap.get("42");
+    var halo = haloMap.get("180");
     root = halo.root;
     nodesMap = halo.nodes;
     linksMap = halo.links;
@@ -347,8 +323,6 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         maxParticleC = Math.max(maxParticleC, +d[0].TotalParticles);
         
     });
-   // console.log(minMassC, minMass, maxMassC, maxMass);
-	// console.log(minMassC, getBaseLog(10,minMass), maxMassC, getBaseLog(10,maxMass));
     x.domain([getBaseLog(10,minMass), getBaseLog(10, maxMass)]);
     xParticle.domain([getBaseLog(10, minParticle), getBaseLog(10, maxParticle)]);
 
@@ -370,15 +344,12 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
     temp.y = 0;
     dataBinMassCurrentHalo.unshift(temp);
 
-    //console.log(dataBinMassCurrentHalo);
-
-     dataBinParticleAllHalos = d3.layout.histogram()
+    dataBinParticleAllHalos = d3.layout.histogram()
     .bins(20)(haloParticleValuesLog);
 	
     temp = [];
     temp.y = 0;
     temp.x = +getBaseLog(10, maxParticleC);
-	 console.log(maxParticleC);
     temp.y = 0;
     dataBinParticleAllHalos.push(temp);
 
@@ -445,27 +416,7 @@ d3.csv("similarities.csv", function(error3, raw_sims) {
         .attr("y", clientHeight/8-5)
         .text("Log Mass (1e10)");
         //1e10 is not the same as e^10; this means 1 x 10^10
-        
-    // //this is probably not the best way to add the script
-    // contextMass.append("text")
-    //     .attr("class", "brushxlabel")
-    //     .attr("text-anchor", "middle")
-    //     .attr("dy", "0.35em")
-    //     .style("font-size", "10px")
-    //     .style("font-weight", "bold")
-    //     .attr("x", clientWidth/8 + 19)
-    //     .attr("y", clientHeight/8-13)
-    //     .text("10");
-        
-    // contextMass.append("text")
-    //     .attr("class", "brushxlabel")
-    //     .attr("text-anchor", "middle")
-    //     .attr("dy", "0.35em")
-    //     .style("font-size", "14px")
-    //     .style("font-weight", "bold")
-    //     .attr("x", clientWidth/8 + 27)
-    //     .attr("y", clientHeight/8-10)
-    //     .text(")");
+
         
     contextMass.append("g")
         .attr("class", "brushyaxis")
@@ -618,19 +569,6 @@ function update(source) {
         .attr("id", "blur")  
         .attr("stdDeviation", 15); 
         
-    /*var hoverLink = d3.selectAll("path.link")             
-        .on("mousemove", function(d) { 
-        //console.log(linksMap.get(d.target.HaloID)[0]);
-           if(!tooltipEdgesShown) {
-                tipEdges.show(linksMap.get(d.target.HaloID)[0]);
-                tooltipShown = true;
-           }
-        })
-        .on("mouseout", function(d) {
-            tipEdges.hide(d);
-            tooltipEdgesShown = false;
-        });*/
-        
     //transition nodes to their new position.
     var nodeUpdate = node.transition()
         .duration(duration)
@@ -642,7 +580,7 @@ function update(source) {
         .style("stroke-width", "2")
         .style("opacity", "1");
         
-    nodeUpdate.select("circle.shadow") //make a scale instead?
+    nodeUpdate.select("circle.shadow")
         .attr("r", function(d)
             {
              var scaledMass = massScale(d.HaloMass); //up to 12
@@ -655,11 +593,10 @@ function update(source) {
                 
              }
             })
-        .style("opacity", ".01");
+        .style("opacity", ".0001");
         
     nodeUpdate.select("circle.hover")
         .attr("r", function(d){
-            //console.log(massScale(d.HaloMass), minMass, maxMass, d.HaloMass);
             if(massScale(d.HaloMass) < 7) {
                 return 7;
             } else {
@@ -684,14 +621,13 @@ function update(source) {
     var brushExtentMaxP = Math.pow(10,brushParticle.extent()[1]);
 
     counterHaloSelected = 0;
-	 var otherCount = 0;
+	var otherCount = 0;
     
     nodeUpdate.selectAll("circle.shadow")
         .filter(function (d){
 			  if((+d.HaloMass >= brushExtentMin) && (+d.HaloMass <= brushExtentMax))
 			  {
 				 otherCount = otherCount + 1;
-			  	//console.log(brushExtentMin, brushExtentMax, +d.HaloMass);
 			  }
             
             if(
@@ -706,11 +642,7 @@ function update(source) {
         .style("fill", "#E3C937")
         .style("opacity", ".5")
         .style("filter", "url(#blur)");
-		  
-		  //console.log("count", otherCount)
-		  //console.log("brush", Math.pow(brushMass.extent()[0],10), Math.pow(brushMass.extent()[1],10))
-		  //console.log("min/max for all",minMass, maxMass);
-         
+
     textBoxSelected.innerHTML = "<b>" + counterHaloSelected + "/" + nodes.length + " Halos selected </b>";
     
     //transition exiting nodes to the parent's new position.
@@ -722,8 +654,8 @@ function update(source) {
     nodeExit.select("circle.visible")
         .attr("r", 1e-6);
 
-    nodeExit.select("text")
-        .style("fill-opacity", 1e-6);
+    nodeExit.select("circle.shadow")
+        .attr("r", 1e-6);
 
     //update the links…
     var link = graph.selectAll("path.link")
@@ -928,10 +860,10 @@ function changeTree(grp) {
 
 function changeGraph() {
 	
-   minMassC = maxMass;
-   maxMassC = 0;
-   minParticleC = maxParticle;
-   maxParticleC = 0;
+    minMassC = maxMass;
+    maxMassC = 0;
+    minParticleC = maxParticle;
+    maxParticleC = 0;
     var haloMassValuesCurrentHalo = [], haloParticleValuesCurrentHalo = [];
     nodesMap.values().forEach(function(d) {
         haloMassValuesCurrentHalo.push(+getBaseLog(10, d[0].HaloMass))
@@ -1217,7 +1149,6 @@ function toggleLuminosity() {
         
     }
     else {
-        //toggleGraphs();
         update(root);
     }
 };
@@ -1228,7 +1159,7 @@ function tipHtml(d) {
           + "Halo Mass: <span style='color:" + color +"'>" + (+d.HaloMass).toExponential(3) + "</span><br/>" 
           + "Total Particles: <span style='color:" + color +"'>" + d.TotalParticles + "</span><br/>"
           + "Total Dark Particles: <span style='color:" + color +"'>" + d.TotalDarkParticles + "</span><br/>"
-          + "Total Luminosity: <span style='color:" + color +"'>" + d.lum + "</span><br/>";
+          + "Total Luminosity: <span style='color:" + color +"'>" + (+d.lum).toExponential(3) + "</span><br/>";
 }
 
 function textBoxGroupEnter() {
