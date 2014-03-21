@@ -6,7 +6,7 @@ Galactic Merger Trees in D3
 - Jennifer Ortiz:  jortiz16@cs.washington.edu
 
 ##Development Process:
-We worked throughout the sections described below. We both built the initial queries necessary to construct the tree. Also, we both worked on the layout as a whole (making sure all the components fit together well). Specifically, this is what we each focused on and how we split the responsibilities:
+We worked throughout the sections described below. We both built the initial queries necessary to construct the tree. Also, we both worked on the layout as a whole (making sure all the components fit together well). During the development process we would iterate on the visualization based on the feedback we got from either the astronomers or instructors. Since we had no initial experience to Javascript or D3, we made sure to look at several tutorials and examples to help us along the process. Specifically, this is what we each focused on and how we split the responsibilities:
 
 * Laurel
   * Tree layout with time axis
